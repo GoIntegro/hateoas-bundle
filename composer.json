@@ -1,0 +1,44 @@
+{
+    "name": "gointegro/hateoas-bundle",
+    "type": "symfony-bundle",
+    "description": "GOintegro HATEOAS Bundle",
+    "keywords": ["Doctrine", "HATEOAS", "REST", "API", "JSON-API"],
+    "homepage": "http://www.gointegro.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Javier Lorenzana",
+            "email": "javier.lorenzana@gointegro.com"
+        },
+        {
+            "name": "Adolfo Castro Meno",
+            "email": "adolfo.casto@gointegro.com"
+        },
+        {
+            "name": "GOintegro Devs",
+            "homepage": "http://www.gointegro.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "symfony/framework-bundle": "~2.2",
+        "symfony/doctrine-bridge": "~2.2",
+        "justinrainbow/json-schema": "@stable"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "@stable",
+        "phpdocumentor/phpdocumentor": "2.*@stable",
+        "codeception/codeception": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }
+    },
+    "target-dir": "GoIntegro/Bundle/HateoasBundle",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.9.x-dev"
+        }
+    }
+}

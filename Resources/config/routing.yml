@@ -1,0 +1,8 @@
+muggle:
+    resource: @GoIntegroHateoasBundle/Controller
+    type: annotation
+
+# Tiene que ir abajo de todo - tiene un action catch-all
+magic:
+    resource: GoIntegro\Bundle\HateoasBundle\Controller\MagicController
+    type: annotation
