@@ -6,6 +6,8 @@
 .*
 
 # Composer
+composer.phar
+composer.lock
 vendor/*
 
 # Sublime Text
