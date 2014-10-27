@@ -1,0 +1,53 @@
+services:
+  hateoas.request_parser:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
+    scope: request
+    arguments:
+      - @hateoas.metadata_miner
+      - @request
+      - %api.url_path%
+      - %go_integro_hateoas.json_api%
+
+  hateoas.metadata_miner:
+    class: GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMiner
+    arguments: [@hateoas.miner_provider]
+
+  hateoas.miner_provider:
+    class: GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MinerProvider
+    arguments:
+      - @hateoas.metadata_cache
+      - %api.resource_class_path%
+
+  hateoas.resource_manager:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceManager
+    scope: request
+    arguments:
+      - @hateoas.resource_cache
+      - @hateoas.metadata_miner
+      - @hateoas.request_parser
+      - @service_container
+      - %api.url_path%
+
+  hateoas.resource_cache:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache
+    arguments:
+      - @hateoas.metadata_cache
+      - @hateoas.metadata_miner
+      - @service_container
+      - %api.resource_class_path%
+      - <argument>%api.url_path%
+
+  hateoas.metadata_cache:
+    class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\ArrayMetadataCache
+    arguments: [@doctrine.orm.entity_manager]
+
+  hateoas.repo_helper:
+    class: GoIntegro\Bundle\HateoasBundle\Util\RepositoryHelper
+    arguments: [@doctrine.orm.entity_manager]
+
+  hateoas.document_blender:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Merge\Blender
+    arguments: [@hateoas.json_coder]
+
+  hateoas.json_coder:
+    class: GoIntegro\Bundle\HateoasBundle\Util\JsonCoder

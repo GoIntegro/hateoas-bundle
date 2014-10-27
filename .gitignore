@@ -1,0 +1,13 @@
+# Git
+!.gitignore
+
+# Vim, nano, etc.
+*~
+.*
+
+# Composer
+vendor/*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
