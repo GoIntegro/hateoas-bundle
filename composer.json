@@ -1,48 +1,44 @@
 {
-    "name": "doctrine/doctrine-bundle",
+    "name": "gointegro/hateoas-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony DoctrineBundle",
-    "keywords": ["DBAL", "ORM", "Database", "Persistence"],
-    "homepage": "http://www.doctrine-project.org",
+    "description": "GOintegro HATEOAS Bundle",
+    "keywords": ["Doctrine", "HATEOAS", "REST", "API", "JSON-API"],
+    "homepage": "http://www.gointegro.com",
     "license": "MIT",
     "authors": [
         {
-            "name": "Fabien Potencier",
-            "email": "fabien@symfony.com"
+            "name": "Javier Lorenzana",
+            "email": "javier.lorenzana@gointegro.com"
         },
         {
-            "name": "Benjamin Eberlei",
-            "email": "kontakt@beberlei.de"
+            "name": "Adolfo Castro Meno",
+            "email": "adolfo.casto@gointegro.com"
         },
         {
-            "name": "Symfony Community",
-            "homepage": "http://symfony.com/contributors"
+            "name": "GOintegro Devs",
+            "homepage": "http://www.gointegro.com"
         }
     ],
     "require": {
         "php": ">=5.3.2",
         "symfony/framework-bundle": "~2.2",
         "symfony/doctrine-bridge": "~2.2",
-        "doctrine/dbal": ">=2.2,<2.5-dev",
-        "jdorn/sql-formatter": "~1.1"
+        "justinrainbow/json-schema": "@stable"
     },
     "require-dev": {
-        "doctrine/orm": ">=2.2,<2.5-dev",
-        "symfony/yaml": "~2.2",
-        "symfony/validator": "~2.2"
-    },
-    "suggest": {
-        "symfony/web-profiler-bundle": "to use the data collector",
-        "doctrine/orm": "The Doctrine ORM integration is optional in the bundle."
+        "phpunit/phpunit": "@stable",
+        "phpdocumentor/phpdocumentor": "2.*@stable",
+        "codeception/codeception": "dev-master"
     },
     "autoload": {
-        "psr-0": { "Doctrine\\Bundle\\DoctrineBundle": "" }
+        "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }
     },
-    "target-dir": "Doctrine/Bundle/DoctrineBundle",
+    "target-dir": "GoIntegro/Bundle/HateoasBundle",
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "branch-alias": {
-            "dev-master": "1.2.x-dev"
+            "dev-master": "0.9.x-dev"
         }
     }
 }
