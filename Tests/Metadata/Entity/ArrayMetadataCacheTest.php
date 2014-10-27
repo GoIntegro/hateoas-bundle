@@ -25,9 +25,9 @@ class ArrayMetadataCacheTest extends TestCase
         $metadataCache = new ArrayMetadataCache($entityManager);
         /* When... (Action) */
         $classReflection
-            = $metadataCache->getReflection('GoIntegro\Entity\User');
+            = $metadataCache->getReflection('GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface');
         $sameReflection
-            = $metadataCache->getReflection('GoIntegro\Entity\User');
+            = $metadataCache->getReflection('GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface');
         /* Then... (Assertions) */
         $this->assertInstanceOf('ReflectionClass', $classReflection);
         $this->assertSame($classReflection, $sameReflection);
@@ -44,9 +44,9 @@ class ArrayMetadataCacheTest extends TestCase
         $metadataCache = new ArrayMetadataCache($entityManager);
         /* When... (Action) */
         $classMapping
-            = $metadataCache->getMapping('GoIntegro\Entity\User');
+            = $metadataCache->getMapping('GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface');
         $sameMapping
-            = $metadataCache->getMapping('GoIntegro\Entity\User');
+            = $metadataCache->getMapping('GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface');
         /* Then... (Assertions) */
         $this->assertEquals('The mapping.', $classMapping);
         $this->assertEquals($classMapping, $sameMapping);

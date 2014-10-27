@@ -8,8 +8,7 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
 // Interfaces.
-use GoIntegro\Interfaces\Factory,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // Metadata.
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 // Reflexión.

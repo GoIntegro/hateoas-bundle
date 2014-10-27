@@ -20,21 +20,23 @@
         }
     ],
     "require": {
-        "php": ">=5.3.2",
-        "symfony/framework-bundle": "~2.2",
-        "symfony/doctrine-bridge": "~2.2",
-        "justinrainbow/json-schema": "@stable"
+        "php": ">=5.4.0",
+        "symfony/framework-bundle": "*",
+        "symfony/doctrine-bridge": "*",
+        "doctrine/doctrine-bundle": "*",
+        "doctrine/orm": "*",
+        "justinrainbow/json-schema": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "@stable",
-        "phpdocumentor/phpdocumentor": "2.*@stable",
-        "codeception/codeception": "dev-master"
+        "phpunit/phpunit": "*",
+        "phpdocumentor/phpdocumentor": "*",
+        "codeception/codeception": "*"
     },
     "autoload": {
         "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }
     },
     "target-dir": "GoIntegro/Bundle/HateoasBundle",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "extra": {
         "branch-alias": {

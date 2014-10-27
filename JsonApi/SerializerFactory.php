@@ -8,8 +8,7 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
 // Interfaces.
-use GoIntegro\Interfaces\Factory,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // HTTP.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser as RequestParser;
 

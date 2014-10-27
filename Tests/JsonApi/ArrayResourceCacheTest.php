@@ -10,7 +10,8 @@ namespace JsonApi;
 // Mocks.
 use Codeception\Util\Stub;
 // Recursos.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
@@ -19,7 +20,7 @@ class ArrayResourceCacheTest extends TestCase
     public function testAddingAResource()
     {
         /* Given... (Fixture) */
-        $entity = Stub::makeEmpty('GoIntegro\Entity\User');
+        $entity = Stub::makeEmpty('GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface');
         $entityResource = Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource',
             ['entity' => $entity]
@@ -33,8 +34,7 @@ class ArrayResourceCacheTest extends TestCase
             [
                 'getReflection'
                     => function($object) use ($entity, $classReflection) {
-                        // @todo Ambos objetos son la misma referencia, sin embargo, por algún motivo, la comparación de identidad retorna FALSE (?)
-                        if (serialize($object) === serialize($entity)) {
+                        if ($object instanceof ResourceEntityInterface) {
                             return $classReflection;
                         }
                     }
