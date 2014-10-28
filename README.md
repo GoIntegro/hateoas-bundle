@@ -50,20 +50,24 @@ class AppKernel extends Kernel
 ?>
 ```
 
-Step 3: Add these to your parameters.yml
-----------------------------------------
+Step 3: Add these to your parameters
+------------------------------------
 
 ```yaml
-  # HATEOAS API
-  api.base_url: "http://api.gointegro.com"
-  api.url_path: "/api/v2"
-  api.resource_class_path: "Rest2/Resource"
+# app/config/parameters.yml
+
+# HATEOAS API
+api.base_url: "http://api.gointegro.com"
+api.url_path: "/api/v2"
+api.resource_class_path: "Rest2/Resource"
 ```
 
-Step 3: Add these to your routing.yml
--------------------------------------
+Step 4: Add these routes
+------------------------
 
 ```yaml
+# app/config/routing.yml
+
 # Place it underneath it all - it contains a catch-all route.
 go_integro_hateoas:
     resource: "@GoIntegroHateoasBundle/Resources/config/routing.yml"
@@ -211,3 +215,63 @@ class UserResource extends EntityResource implements ContainerAwareInterface
 ```
 
 Check out the unit tests for more details.
+
+Testing
+-------
+
+The bundle comes with a comfy PHPUnit test case designed to make HATEOAS API functional tests.
+
+A simple HTTP client makes the request and assertions are made using [JSON schemas](http://json-schema.org/).
+
+```php
+<?php
+namespace GoIntegro\Entity\Suite;
+
+// Testing.
+use GoIntegro\Test\PHPUnit\ApiTestCase;
+// Fixtures.
+use GoIntegro\DataFixtures\ORM\Standard\SomeDataFixture;
+
+class SomeResourceTest extends ApiTestCase
+{
+    const RESOURCE_PATH = '/api/v2/some-resource',
+        RESOURCE_JSON_SCHEMA = '/schemas/some-resource.json';
+
+    /**
+     * Doctrine 2 data fixtures to load *before the test case*.
+     * @return array <FixtureInterface>
+     */
+    protected static function getFixtures()
+    {
+        return array(new SomeDataFixture);
+    }
+
+    public function testGettingMany200()
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH;
+        $client = $this->createHttpClient($url);
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $this->assertResponseOK($client);
+        $this->assertJsonApiSchema($transfer);
+        $schema = __DIR__ . self::RESOURCE_JSON_SCHEMA;
+        $this->assertJsonSchema($schema, $transfer);
+    }
+
+    public function testGettingSortedBySomeCustomField400()
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl()
+            . self::RESOURCE_PATH
+            . '?sort=some-custom-field';
+        $client = $this->createHttpClient($url);
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $this->assertResponseBadRequest($client);
+    }
+}
+?>
+```
