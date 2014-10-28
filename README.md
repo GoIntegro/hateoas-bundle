@@ -275,3 +275,10 @@ class SomeResourceTest extends ApiTestCase
 }
 ?>
 ```
+
+Feedback
+========
+
+Feel free to [open an issue](https://github.com/skqr/hateoas-bundle/issues) if you have valuable (or otherwise) feedback. Hoping to hear from you (either way).
+
+Also, we're hoping to be included in the [JSON-API example page](http://jsonapi.org/examples/). Here's the [pull request](https://github.com/json-api/json-api/pull/299). You might want to add a comment there if you have feedback on our implementation of the [JSON-API spec](http://jsonapi.org/format/).
