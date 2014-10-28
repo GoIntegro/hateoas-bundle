@@ -159,7 +159,7 @@ But you need to have some control over what you expose, right? Got you covered.
 
 You can optionally define a class like this for your entity, and optionally define any of the properties and methods you will see within.
 
-```
+```php
 <?php
 namespace GoIntegro\Bundle\ExampleBundle\Rest2\Resource;
 
