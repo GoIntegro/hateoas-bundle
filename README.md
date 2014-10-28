@@ -276,9 +276,24 @@ class SomeResourceTest extends ApiTestCase
 ?>
 ```
 
+Fetching multiple URLs
+----------------------
+
+Here's something useful but not RESTful.
+
+You can use the */multi* action to fetch several JSON-API URLs, and this won't even result in an additional HTTP request.
+
+```
+/multi?url[]=%2Fapi%2Fv1%2Fusers&url[]=%2Fapi%2Fv1%2Fposts
+```
+
+The URLs just need to be encoded, but you can use the full set of JSON-API functionality supported.
+
+A *blender* service wil make sure to notify you if, by chance, the URLs provided are not mergeable.
+
 Feedback
 ========
 
-Feel free to [open an issue](https://github.com/skqr/hateoas-bundle/issues) if you have valuable (or otherwise) feedback. Hoping to hear from you (either way).
+Feel free to **open an issue** if you have valuable (or otherwise) feedback. Hoping to hear from you (either way).
 
 Also, we're hoping to be included in the [JSON-API example page](http://jsonapi.org/examples/). Here's the [pull request](https://github.com/json-api/json-api/pull/299). You might want to add a comment there if you have feedback on our implementation of the [JSON-API spec](http://jsonapi.org/format/).
