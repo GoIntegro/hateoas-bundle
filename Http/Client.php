@@ -3,12 +3,13 @@
  * @copyright 2014 Integ S.A.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
+ * @author Juan Deladoey <juan.deladoey@gointegro.com>
  */
 
 namespace GoIntegro\Bundle\HateoasBundle\Http;
 
 /**
- * Cliente de REST para
+ * Simple HTTP client.
  * @see http://php.net/manual/fr/book.curl.php
  */
 class Client
