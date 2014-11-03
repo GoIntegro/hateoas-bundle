@@ -216,6 +216,130 @@ class UserResource extends EntityResource implements ContainerAwareInterface
 
 Check out the unit tests for more details.
 
+Ghosts
+------
+
+I know what you're thinking - what if my resource does not have an entity? Am I left to fend for myself in the cold dark night?
+
+Not a chance. Ghosts are there with you, in the dark. To help you out.
+
+"Ghosts" are what you create ghost-resources from instead of persisted entities. They are created within a custom HATEOAS controller, and can be fed to the resource factory in lieu of an entity. They define their relationships rather than the ORM knowing about them beforehand.
+
+What you use for an Id, and the extent to which you use them is entirely up to you.
+
+```php
+<?php
+
+namespace GoIntegro\Bundle\SomeBundle\Rest2\Ghost;
+
+// Entidades.
+use GoIntegro\Bundle\SomeBundle\Entity\Star;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\GhostResourceEntity,
+    GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceRelationship,
+    GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceRelationships;
+// Colecciones.
+use Doctrine\Common\Collections\ArrayCollection;
+
+class StarCluster implements GhostResourceEntity
+{
+    /**
+     * @var string
+     */
+    private $id;
+    /**
+     * @var Star
+     */
+    private $brightestStar;
+    /**
+     * @var ArrayCollection
+     */
+    private $stars;
+
+    /**
+     * @param string $id
+     */
+    public function __construct($id)
+    {
+        $this->id = $id;
+        $this->stars = new ArrayCollection;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param Star $star
+     * @return self
+     */
+    public function setBrightestStar(Star $star)
+    {
+        $this->brightestStar = $star;
+
+        return $this;
+    }
+
+    /**
+     * @return Star
+     */
+    public function getBrightestStar()
+    {
+        return $this->brightestStar;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getStars()
+    {
+        return $this->stars;
+    }
+
+    /**
+     * @param \GoIntegro\Bundle\SomeBundle\Entity\Star $star
+     * @return self
+     */
+    public function addStar(Star $star)
+    {
+        $this->stars[] = $star;
+
+        return $this;
+    }
+
+    /**
+     * @return ResourceRelationships
+     */
+    public static function getRelationships()
+    {
+        $relationships = new ResourceRelationships;
+        $relationships->toMany['stars'] = new ResourceRelationship(
+            'GoIntegro\Bundle\SomeBundle\Entity\Star',
+            'stars', // resource type
+            'stars', // resource sub-type
+            'toMany', // relationship kind
+            'stars', // relationship name
+            'stars' // mapping field
+        );
+        $relationships->toOne['brightest-star'] = new ResourceRelationship(
+            'GoIntegro\Bundle\SomeBundle\Entity\Star',
+            'stars',
+            'stars',
+            'toOne',
+            'brightest-star',
+            'brightestStar'
+        );
+
+        return $relationships;
+    }
+}
+?>
+```
+
 Testing
 -------
 
