@@ -5,7 +5,7 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace Projects\GoIntegro\HateoasBundle\Collections;
+namespace GoIntegro\Bundle\HateoasBundle\Collections;
 
 // Collections.
 use Doctrine\Common\Collections\ArrayCollection;
