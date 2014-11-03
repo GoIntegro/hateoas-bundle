@@ -9,11 +9,6 @@ namespace GoIntegro\Bundle\HateoasBundle\Controller;
 
 // Controladores.
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController;
-// Paginadores
-use Doctrine\ORM\Tools\Pagination\Paginator;
-// Colecciones
-use GoIntegro\Collection\Paginated as PaginatedCollection,
-    Doctrine\Common\Collections\ArrayCollection;
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 
