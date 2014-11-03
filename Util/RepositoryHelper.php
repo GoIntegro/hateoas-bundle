@@ -12,8 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 // Paginadores
 use Doctrine\ORM\Tools\Pagination\Paginator;
 // Colecciones
-use GoIntegro\Bundle\HateoasBundle\Collections\Paginated
-    as PaginatedCollection;
+use GoIntegro\Bundle\HateoasBundle\Collections\PaginatedCollection;
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 
