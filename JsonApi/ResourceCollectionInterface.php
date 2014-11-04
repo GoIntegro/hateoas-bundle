@@ -20,10 +20,4 @@ interface ResourceCollectionInterface
      * @return self
      */
     public function map(Closure $func);
-
-    /**
-     * @param Closure $func
-     * @return boolean
-     */
-    public function walk(Closure $func);
 }

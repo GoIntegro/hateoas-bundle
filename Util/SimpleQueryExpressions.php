@@ -42,7 +42,7 @@ trait SimpleQueryExpressions
         }
 
         return !empty($expressions)
-            ? call_user_method_array('andX', $qb->expr(), $expressions)
+            ? call_user_func_array([$qb->expr(), 'andX'], $expressions)
             : NULL;
     }
 }

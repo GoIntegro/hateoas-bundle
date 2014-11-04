@@ -86,9 +86,9 @@ class Document implements IteratorAggregate, Countable
                 = ResourceCollection::buildFromResource($resourceDocument);
         }
 
-        $resourceDocument->walk(function(EntityResource $resource) {
+        foreach ($resourceDocument as $resource) {
             $this->primaryResources->addResource($resource);
-        });
+        }
 
         $this->resources = $resourceDocument;
     }

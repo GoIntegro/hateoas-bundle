@@ -8,8 +8,7 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
 // Colecciones.
-use Doctrine\Common\Collections\ArrayCollection,
-    GoIntegro\Bundle\HateoasBundle\Collections\Moonwalker;
+use Doctrine\Common\Collections\ArrayCollection;
 // Metadata.
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceMetadata;
 // Datos.
@@ -17,12 +16,9 @@ use Closure;
 // Excepciones.
 use LogicException;
 
-/**
- * @todo Debería ser Traversable, o no sirve. ¿Extender ArrayCollection?
- */
 class ResourceCollection
     extends ArrayCollection
-    implements ResourceCollectionInterface, Moonwalker
+    implements ResourceCollectionInterface
 {
     const ERROR_EMPTY_ARRAY = "El array debe contener al menos un recurso de entidad.";
 
@@ -80,13 +76,5 @@ class ResourceCollection
         $resources = array_map($func, $this->toArray());
 
         return new static($resources, $this->getMetadata());
-    }
-
-    /**
-     * @see Moonwalker::walk
-     */
-    public function walk(Closure $func)
-    {
-        return array_walk($this->toArray(), $func);
     }
 }
