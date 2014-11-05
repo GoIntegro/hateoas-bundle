@@ -9,7 +9,7 @@ namespace GoIntegro\Bundle\HateoasBundle\Controller;
 
 // Symfony.
 use Symfony\Component\HttpFoundation\Request,
-    Symfony\Component\Debug\Exception\FlattenException,
+    Symfony\Component\HttpKernel\Exception\FlattenException,
     Symfony\Component\HttpKernel\Log\DebugLoggerInterface;
 // HATEOAS.
 use GoIntegro\Bundle\HateoasBundle\Controller\CommonResponseTrait,
