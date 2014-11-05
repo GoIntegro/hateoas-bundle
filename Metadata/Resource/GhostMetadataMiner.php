@@ -8,7 +8,8 @@
 namespace GoIntegro\Bundle\HateoasBundle\Metadata\Resource;
 
 // Metadata.
-use GoIntegro\Bundle\HateoasBundle\Metadata\Entity\MetadataCache;
+use GoIntegro\Bundle\HateoasBundle\Metadata\Entity\MetadataCache,
+    GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceRelationships;
 
 class GhostMetadataMiner implements MetadataMinerInterface
 {
@@ -32,13 +33,11 @@ class GhostMetadataMiner implements MetadataMinerInterface
     {
         $type = $this->parseType($entityClassName);
         $subtype = $this->parseSubtype($entityClassName);
-        $resourceClass = $this->getResourceClass($entityClassName);
-        $relationships = $this->metadataCache
-            ->getReflection($entityClassName)
-            ->getMethod('getRelationships')
-            ->invoke(NULL);
-        // Ghost resources have original fields.
-        $fields = new ResourceFields([]);
+        $entityClass = $this->metadataCache->getReflection($entityClassName);
+        $resourceClass = $this->getResourceClass($entityClass);
+        $relationships
+            = $entityClass->getMethod('getRelationships')->invoke(NULL);
+        $fields = $this->getFields($entityClassName, $relationships);
         $pageSize = $resourceClass->getProperty('pageSize')->getValue();
 
         return new ResourceMetadata(

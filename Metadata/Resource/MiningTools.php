@@ -16,9 +16,7 @@ use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // ORM.
 use Doctrine\ORM\Mapping\ClassMetadata;
 // Reflexión.
-use GoIntegro\Bundle\HateoasBundle\Util\Reflection,
-    ReflectionClass,
-    ReflectionMethod;
+use GoIntegro\Bundle\HateoasBundle\Util\Reflection;
 // Recursos.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource;
 // Excepciones.
@@ -27,8 +25,14 @@ use Exception;
 trait MiningTools
 {
     /**
+     * @var array
+     * @see http://jsonapi.org/format/#document-structure-resource-object-attributes
+     */
+    private static $reservedGetters = ["getId", "getType", "getHref", "getLinks"];
+
+    /**
      * @param string|ResourceEntityInterface $entityClassName
-     * @return ReflectionClass
+     * @return \ReflectionClass
      */
     public function getResourceClass($entityClassName)
     {
@@ -65,5 +69,40 @@ trait MiningTools
         $class = $this->metadataCache->getReflection($entityClassName);
 
         return Inflector::typify($class->getShortName());
+    }
+
+    /**
+     * @param \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface|string $entityClassName
+     * @param ResourceRelationships $relationships
+     * @return array
+     * @todo Publicar o eliminar el parámetro $entityClassName.
+     */
+    protected function getFields(
+        $entityClassName,
+        ResourceRelationships $relationships
+    )
+    {
+        $fields = [];
+        $class = $this->metadataCache->getReflection($entityClassName);
+
+        foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+            if (in_array($method->getShortName(), self::$reservedGetters)) {
+                continue;
+            }
+
+            if (Reflection::isMethodGetter($method)) {
+                $fields[] = Inflector::hyphenate(
+                    substr($method->getShortName(), 3)
+                );
+            }
+        }
+
+        foreach (ResourceRelationships::$kinds as $kind) {
+            $fields = array_diff($fields, array_keys($relationships->$kind));
+        }
+
+        $fields = array_diff($fields, $relationships->dbOnly);
+
+        return new ResourceFields($fields);
     }
 }
