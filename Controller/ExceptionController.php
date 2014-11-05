@@ -27,6 +27,8 @@ class ExceptionController
 {
     use CommonResponseTrait;
 
+    const ERROR_LOG_MESSAGE_PATTERN = "The HATEOAS API is responding with the error \"%s\" in %s:%s. (Occurrence UUID %s.)";
+
     /**
      * @param Request $request
      * @param FlattenException $exception
@@ -44,6 +46,16 @@ class ExceptionController
         $error->title = $exception->getMessage();
         $error->code = $exception->getCode();
         $serializer = new ErrorSerializer($error);
+
+        if (500 == $error->status && NULL != $logger) {
+            $logger->error(sprintf(
+                self::ERROR_LOG_MESSAGE_PATTERN,
+                $error->title,
+                $exception->getFile(),
+                $exception->getLine(),
+                $error->id
+            ));
+        }
 
         return $this->createNoCacheResponse(
             $serializer->serialize(),

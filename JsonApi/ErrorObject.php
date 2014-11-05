@@ -7,6 +7,9 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
+// UUID
+use Rhumsaa\Uuid\Uuid;
+
 /**
  * @see http://jsonapi.org/format/#errors
  */
@@ -44,4 +47,12 @@ class ErrorObject
      * @var string The relative path to the relevant attribute within the associated resource(s). Only appropriate for problems that apply to a single resource or type of resource.
      */
     public $path;
+
+    /**
+     * Builds an error object model assinging it a UUID.
+     */
+    public function __construct()
+    {
+        $this->id = Uuid::uuid4();
+    }
 }
