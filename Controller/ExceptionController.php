@@ -28,15 +28,10 @@ class ExceptionController
     use CommonResponseTrait;
 
     /**
-     * Converts an Exception to a Response.
-     *
-     * @param Request              $request   The request
-     * @param FlattenException     $exception A FlattenException instance
-     * @param DebugLoggerInterface $logger    A DebugLoggerInterface instance
-     *
-     * @return Response
-     *
-     * @throws \InvalidArgumentException When the exception template does not exist
+     * @param Request $request
+     * @param FlattenException $exception
+     * @param DebugLoggerInterface $logger
+     * @return \GoIntegro\Bundle\HateoasBundle\Http\JsonResponse
      */
     public function showAction(
         Request $request,
