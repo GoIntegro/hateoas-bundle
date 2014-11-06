@@ -31,7 +31,9 @@
     "require-dev": {
         "phpunit/phpunit": "*",
         "phpdocumentor/phpdocumentor": "*",
-        "codeception/codeception": "*"
+        "codeception/codeception": "*",
+        "icomefromthenet/reverse-regex": "dev-master",
+        "alecsammon/php-raml-parser": "dev-master"
     },
     "autoload": {
         "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }

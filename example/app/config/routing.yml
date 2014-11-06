@@ -1,0 +1,5 @@
+hateoas_inc_example:
+    resource: "@HateoasIncExampleBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
