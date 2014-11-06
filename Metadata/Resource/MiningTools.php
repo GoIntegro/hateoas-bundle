@@ -33,6 +33,7 @@ trait MiningTools
     /**
      * @param string|ResourceEntityInterface $entityClassName
      * @return \ReflectionClass
+     * @todo Support searching through any number of parent classes?
      */
     public function getResourceClass($entityClassName)
     {
@@ -58,6 +59,17 @@ trait MiningTools
         }
 
         return $this->metadataCache->getReflection($className);
+    }
+
+    /**
+     * @param \ReflectionClass $class
+     * @return string
+     */
+    protected function entityClassToResourceClass(\ReflectionClass $class)
+    {
+        $path = strtr($this->resourceClassPath, '/', '\\');
+
+        return str_replace('Entity', $path, $class->getName()) . 'Resource';
     }
 
     /**

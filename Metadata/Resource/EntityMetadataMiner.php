@@ -67,13 +67,32 @@ class EntityMetadataMiner implements MetadataMinerInterface
      */
     protected function parseType($entityClassName)
     {
+        $entityClassName = $this->getEntityClass($entityClassName);
+
+        return $this->parseSubtype($entityClassName);
+    }
+
+    /**
+     * @param \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface|string $entityClass
+     * @return string
+     */
+    protected function getEntityClass($entityClassName)
+    {
         $mapping = $this->metadataCache->getMapping($entityClassName);
 
         if (!empty($mapping->parentClasses)) {
-            $entityClassName = reset($mapping->parentClasses);
+            $parentClassName = reset($mapping->parentClasses);
+            $parentClass
+                = $this->metadataCache->getReflection($parentClassName);
+
+            if ($parentClass->implementsInterface(
+                MetadataMiner::RESOURCE_ENTITY_INTERFACE
+            )) {
+                $entityClassName = $parentClassName;
+            }
         }
 
-        return $this->parseSubtype($entityClassName);
+        return $entityClassName;
     }
 
     /**
@@ -177,16 +196,5 @@ class EntityMetadataMiner implements MetadataMinerInterface
             default:
                 throw new \Exception(self::ERROR_MAPPING_TYPE_UNKNOWN);
         }
-    }
-
-    /**
-     * @param \ReflectionClass $class
-     * @return string
-     */
-    protected function entityClassToResourceClass(\ReflectionClass $class)
-    {
-        $path = strtr($this->resourceClassPath, '/', '\\');
-
-        return str_replace('Entity', $path, $class->getName()) . 'Resource';
     }
 }
