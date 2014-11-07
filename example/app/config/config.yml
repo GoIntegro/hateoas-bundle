@@ -28,6 +28,8 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    # JSON-API serialized errors.
+    exception_controller: 'GoIntegro\Bundle\HateoasBundle\Controller\ExceptionController::showAction'
 
 # Assetic Configuration
 assetic:
