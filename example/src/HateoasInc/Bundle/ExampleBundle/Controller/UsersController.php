@@ -24,7 +24,7 @@ class UsersController extends Controller
             ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
-            ->setResourceDocument($resource)
+            ->setDocumentResources($resource)
             ->addMeta(["hum"])
             ->create()
             ->serialize();
@@ -48,7 +48,7 @@ class UsersController extends Controller
             ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
-            ->setResourceDocument($resources)
+            ->setDocumentResources($resources)
             ->create()
             ->serialize();
 

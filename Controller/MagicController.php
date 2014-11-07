@@ -108,7 +108,7 @@ class MagicController extends SymfonyController
             ? NULL
             : $this->get('hateoas.resource_manager')
                 ->createSerializerFactory()
-                ->setResourceDocument($relatedResource)
+                ->setDocumentResources($relatedResource)
                 ->create()
                 ->serialize();
 
@@ -196,7 +196,7 @@ class MagicController extends SymfonyController
 
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
-            ->setResourceDocument($resource)
+            ->setDocumentResources($resource)
             ->create()
             ->serialize();
 
@@ -234,7 +234,7 @@ class MagicController extends SymfonyController
             ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
-            ->setResourceDocument($resources)
+            ->setDocumentResources($resources)
             ->create()
             ->serialize();
 

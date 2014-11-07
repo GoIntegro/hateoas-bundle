@@ -61,7 +61,7 @@ class ResourceCollection
     }
 
     /**
-     * @see ResourceDocument::getMetadata
+     * @see DocumentResource::getMetadata
      */
     public function getMetadata()
     {

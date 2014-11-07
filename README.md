@@ -106,7 +106,7 @@ class UsersController extends Controller {
         ->create();
 
       $json = $resourceManager->createSerializerFactory()
-        ->setResourceDocument($resource)
+        ->setDocumentResources($resource)
         ->create()
         ->serialize();
 

@@ -23,7 +23,7 @@ abstract class Controller extends SymfonyController
 
     /**
      * @param Params $params
-     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceDocument
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource
      */
     public function getResourcesFromRepo(Params $params)
     {

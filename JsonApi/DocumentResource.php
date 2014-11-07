@@ -7,7 +7,7 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
-interface ResourceDocument
+interface DocumentResource
 {
     /**
      * @return \GoIntegro\Bundle\HateoasBundle\Metadata\ResourceMetadata

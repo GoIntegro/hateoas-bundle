@@ -23,9 +23,9 @@ class SerializerFactory implements Factory
      */
     private $requestParser;
     /**
-     * @var ResourceDocument
+     * @var DocumentResource
      */
-    private $resourceDocument;
+    private $documentResource;
     /**
      * @var array
      * @see http://jsonapi.org/format/#fetching-includes
@@ -63,12 +63,12 @@ class SerializerFactory implements Factory
     }
 
     /**
-     * @param ResourceDocument $resource
+     * @param DocumentResource $resource
      * @return self
      */
-    public function setResourceDocument(ResourceDocument $resourceDocument)
+    public function setDocumentResources(DocumentResource $documentResource)
     {
-        $this->resourceDocument = $resourceDocument;
+        $this->documentResource = $documentResource;
 
         return $this;
     }
@@ -127,7 +127,7 @@ class SerializerFactory implements Factory
         }
 
         $document = new Document(
-            $this->resourceDocument,
+            $this->documentResource,
             $this->resourceManager->resourceCache,
             $include,
             $fields,
@@ -135,7 +135,7 @@ class SerializerFactory implements Factory
         );
 
         foreach ($this->meta as $meta) {
-            $document->addResourceMeta($this->resourceDocument, $meta);
+            $document->addResourceMeta($this->documentResource, $meta);
         }
 
         return new DocumentSerializer($document, $this->apiUrlPath);
