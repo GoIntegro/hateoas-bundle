@@ -61,7 +61,7 @@ class User implements ResourceEntityInterface
      */
     public function __construct()
     {
-        $this->followers          = new ArrayCollection();
+        $this->followers = new ArrayCollection();
     }
 
     /**

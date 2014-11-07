@@ -68,16 +68,13 @@ swiftmailer:
     password:  "%mailer_password%"
     spool:     { type: memory }
 
-# The resource_type *must* match with the calculated type - for now.
+# The resource_type *must* match the calculated type - for now.
 go_integro_hateoas:
   json_api:
-    extension:
-      - serializer_class: GoIntegro\Bundle\HateoasBundle\JsonApi\Extension\Serializer\PaginationSerializer
-        serializer_type: metadata
-      - serializer_class: GoIntegro\Bundle\HateoasBundle\JsonApi\Extension\Serializer\TopLevelPaginationLinksSerializer
-        serializer_type: top-level-links
-      - serializer_class: GoIntegro\Bundle\HateoasBundle\JsonApi\Extension\Serializer\SearchResultSerializer
-        serializer_type: metadata
     magic_services:
       - resource_type: users
         entity_class: HateoasInc\Bundle\ExampleBundle\Entity\User
+      - resource_type: posts
+        entity_class: HateoasInc\Bundle\ExampleBundle\Entity\Post
+      - resource_type: comments
+        entity_class: HateoasInc\Bundle\ExampleBundle\Entity\Comment
