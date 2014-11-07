@@ -18,7 +18,7 @@
         "sensio/distribution-bundle": "~3.0",
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.0",
-        "gointegro/hateoas-bundle": "dev-master"
+        "gointegro/hateoas-bundle": "dev-feature/api-48-create-resources"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

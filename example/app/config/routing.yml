@@ -1,7 +1,7 @@
 # HATEOAS API
-# go_integro_sample_api2:
-#     resource: "@HateoasIncExampleBundle/Rest2/Controller/"
-#     prefix: /api/v1
+hateoas_inc_example:
+    resource: "@HateoasIncExampleBundle/Controller/"
+    prefix: /api/v1
 
 # HATEOAS bundle
 go_integro_hateoas:

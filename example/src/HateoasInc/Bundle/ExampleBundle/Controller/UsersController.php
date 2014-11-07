@@ -1,6 +1,6 @@
 <?php
 
-namespace GoIntegro\Bundle\Api2SampleBundle\Rest2\Controller;
+namespace HateoasInc\Bundle\ExampleBundle\Controller;
 
 // Controladores.
 use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
@@ -14,7 +14,7 @@ use GoIntegro\Entity\User;
 class UsersController extends Controller
 {
     /**
-     * @Route("/users/{user}", name="api2_get_user", methods="GET")
+     * @Route("/users/{user}", name="api_get_user", methods="GET")
      */
     public function getUserAction(User $user)
     {
@@ -34,7 +34,7 @@ class UsersController extends Controller
     }
 
     /**
-     * @Route("/users", name="api2_get_users", methods="GET")
+     * @Route("/users", name="api_get_users", methods="GET")
      */
     public function getUsersAction()
     {

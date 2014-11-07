@@ -1,12 +1,15 @@
 <?php
 
-namespace GoIntegro\Bundle\Api2SampleBundle\Rest2\Controller;
+namespace HateoasInc\Bundle\ExampleBundle\Controller;
 
 // Controladores.
 use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
     Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 // HTTP.
 use Symfony\Component\HttpFoundation\Request;
+// Entidades.
+use HateoasInc\Bundle\ExampleBundle\Entity\User,
+    HateoasInc\Bundle\ExampleBundle\Entity\Post;
 
 /**
  * @todo La búsqueda devuelve vacío con menos de cuatro caracteres.
@@ -14,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 class PostsController extends Controller
 {
     /**
-     * @Route("/posts", name="api2_get_posts", methods="GET")
+     * @Route("/posts", name="api_get_posts", methods="GET")
      */
     public function getAllAction(Request $request)
     {
@@ -35,21 +38,27 @@ class PostsController extends Controller
     }
 
     /**
-     * @Route("/posts", name="api2_post_posts", methods="POST")
+     * @Route("/posts", name="api_create_posts", methods="POST")
      */
     public function createAction(Request $request)
     {
         $params = $this->get('hateoas.request_parser')->parse();
 
         /* Variable. */ $le = $params; if (!isset($lb)) $lb = false; $lp = 'file:///tmp/skqr.log'; if (!isset($_ENV[$lp])) $_ENV[$lp] = 0; $le = var_export($le, true); error_log(sprintf("%s/**\n * %s\n * %s\n * %s\n */\n\$params = %s;\n\n", $lb ? '' : str_repeat('=', 14) . ' ' . ++$_ENV[$lp] . gmdate(' r ') . str_repeat('=', 14) . "\n", microtime(true), basename(__FILE__) . ':' . __LINE__, __METHOD__ ? __METHOD__ . '()' : '', $le), 3, $lp); if (!$lb) $lb = true; // Javier Lorenzana <javier.lorenzana@gointegro.com>
+        $user = new User;
+        $user->setEmail('default@gmail.com');
+        $user->setPassword('sup3rs3cr3t');
         $post = new Post;
-        $em = $this->get('doctrine.entity_manager');
+        $post->setAuthor($user);
+        $post->setContent("");
+        $em = $this->get('doctrine.orm.entity_manager');
+        $em->persist($user);
         $em->persist($post);
         $em->flush();
 
         $resource = $this->get('hateoas.resource_manager')
             ->createResourceFactory()
-            ->setPaginator($post)
+            ->setEntity($post)
             ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()

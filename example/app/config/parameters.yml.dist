@@ -2,7 +2,7 @@
 parameters:
     # ORM
     database_driver: pdo_sqlite
-    database_path: "%kernel.root_dir%/sqlite.db"
+    database_path: "%kernel.root_dir%/data/sqlite.db"
     database_host: 127.0.0.1
     database_port:
     database_name: hateoas_example

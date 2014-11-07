@@ -34,7 +34,7 @@ class Post implements ResourceEntityInterface
 
     /**
      * @var ArrayCollection
-     * @ORM\Column(nullable=FALSE)
+     * @ORM\JoinColumn(nullable=FALSE)
      * @ORM\ManyToOne(
      *   targetEntity="HateoasInc\Bundle\ExampleBundle\Entity\User"
      * )
