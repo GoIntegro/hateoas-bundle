@@ -57,6 +57,6 @@ class PostsController extends Controller
             ->create()
             ->serialize();
 
-        return $this->createETagResponse(NULL);
+        return $this->createETagResponse($json);
     }
 }

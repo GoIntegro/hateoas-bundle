@@ -28,12 +28,13 @@ class Post implements ResourceEntityInterface
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text")
      */
     protected $content;
 
     /**
      * @var ArrayCollection
+     * @ORM\Column(nullable=FALSE)
      * @ORM\ManyToOne(
      *   targetEntity="HateoasInc\Bundle\ExampleBundle\Entity\User"
      * )
@@ -83,7 +84,7 @@ class Post implements ResourceEntityInterface
     /**
      * Get content
      *
-     * @return string 
+     * @return string
      */
     public function getContent()
     {
@@ -106,7 +107,7 @@ class Post implements ResourceEntityInterface
     /**
      * Get author
      *
-     * @return \HateoasInc\Bundle\ExampleBundle\Entity\User 
+     * @return \HateoasInc\Bundle\ExampleBundle\Entity\User
      */
     public function getAuthor()
     {
@@ -139,7 +140,7 @@ class Post implements ResourceEntityInterface
     /**
      * Get comments
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getComments()
     {

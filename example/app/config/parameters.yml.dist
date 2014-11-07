@@ -1,24 +1,28 @@
-# This file is a "template" of what your parameters.yml file should look like
+# This file is auto-generated during the composer install
 parameters:
-    database_driver:   pdo_mysql
-    database_host:     127.0.0.1
-    database_port:     ~
-    database_name:     symfony
-    database_user:     root
-    database_password: ~
-    # You should uncomment this if you want use pdo_sqlite
-    # database_path: "%kernel.root_dir%/data.db3"
+    # ORM
+    database_driver: pdo_sqlite
+    database_path: "%kernel.root_dir%/sqlite.db"
+    database_host: 127.0.0.1
+    database_port:
+    database_name: hateoas_example
+    database_user: root
+    database_password:
 
-    mailer_transport:  smtp
-    mailer_host:       127.0.0.1
-    mailer_user:       ~
-    mailer_password:   ~
+    # Mailer
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
 
-    locale:            en
-
-    # A secret key that's used to generate certain security-related tokens
-    secret:            ThisTokenIsNotSoSecretChangeIt
-
-    debug_toolbar:          true
-    debug_redirects:        false
+    # S2
+    locale: en
+    secret: 4a9abc7bd22c953a5313d69863c5e77e5ce44660
+    debug_toolbar: true
+    debug_redirects: false
     use_assetic_controller: true
+
+    # HATEOAS API
+    api.base_url: "http://hateoas-example.skqr.net/app_dev.php"
+    api.url_path: "/api/v1"
+    api.resource_class_path: "Rest2/Resource"
