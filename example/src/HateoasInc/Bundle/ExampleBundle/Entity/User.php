@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM,
     Doctrine\Common\Collections\ArrayCollection;
 // HATEOAS.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+// Validation.
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -29,12 +31,14 @@ class User implements ResourceEntityInterface
     /**
      * @var string
      * @ORM\Column(type="string")
+     * @Assert\NotBlank()
      */
     protected $email;
 
     /**
      * @var string
      * @ORM\Column(type="string")
+     * @Assert\NotBlank()
      */
     protected $password;
 

@@ -6,7 +6,7 @@ namespace HateoasInc\Bundle\ExampleBundle\Controller;
 use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
     Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 // HTTP.
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 // Entidades.
 use HateoasInc\Bundle\ExampleBundle\Entity\User,
     HateoasInc\Bundle\ExampleBundle\Entity\Post;
@@ -19,7 +19,7 @@ class PostsController extends Controller
     /**
      * @Route("/posts", name="api_get_posts", methods="GET")
      */
-    public function getAllAction(Request $request)
+    public function getAllAction()
     {
         $params = $this->get('hateoas.request_parser')->parse();
         $posts = $this->get('hateoas.repo_helper')
@@ -40,17 +40,22 @@ class PostsController extends Controller
     /**
      * @Route("/posts", name="api_create_posts", methods="POST")
      */
-    public function createAction(Request $request)
+    public function createAction()
     {
         $params = $this->get('hateoas.request_parser')->parse();
 
         /* Variable. */ $le = $params; if (!isset($lb)) $lb = false; $lp = 'file:///tmp/skqr.log'; if (!isset($_ENV[$lp])) $_ENV[$lp] = 0; $le = var_export($le, true); error_log(sprintf("%s/**\n * %s\n * %s\n * %s\n */\n\$params = %s;\n\n", $lb ? '' : str_repeat('=', 14) . ' ' . ++$_ENV[$lp] . gmdate(' r ') . str_repeat('=', 14) . "\n", microtime(true), basename(__FILE__) . ':' . __LINE__, __METHOD__ ? __METHOD__ . '()' : '', $le), 3, $lp); if (!$lb) $lb = true; // Javier Lorenzana <javier.lorenzana@gointegro.com>
         $user = new User;
-        $user->setEmail('default@gmail.com');
-        $user->setPassword('sup3rs3cr3t');
+        // $user->setEmail('default@gmail.com');
+        // $user->setPassword('sup3rs3cr3t');
         $post = new Post;
-        $post->setAuthor($user);
-        $post->setContent("");
+        // $post->setAuthor($user);
+        // $post->setContent("");
+
+        if ($errors = $this->get('validator')->validate($post)) {
+            throw new BadRequestHttpException($errors);
+        }
+
         $em = $this->get('doctrine.orm.entity_manager');
         $em->persist($user);
         $em->persist($post);

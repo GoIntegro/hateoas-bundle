@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM,
     Doctrine\Common\Collections\ArrayCollection;
 // HATEOAS.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+// Validation.
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -29,6 +31,7 @@ class Post implements ResourceEntityInterface
     /**
      * @var string
      * @ORM\Column(type="text")
+     * @Assert\NotBlank()
      */
     protected $content;
 
@@ -38,6 +41,7 @@ class Post implements ResourceEntityInterface
      * @ORM\ManyToOne(
      *   targetEntity="HateoasInc\Bundle\ExampleBundle\Entity\User"
      * )
+     * @Assert\NotBlank()
      */
     protected $author;
 
