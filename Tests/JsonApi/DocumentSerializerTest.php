@@ -18,7 +18,7 @@ class DocumentSerializerTest extends TestCase
 {
     const RESOURCE_ID = 'someId', RESOURCE_TYPE = 'resources';
 
-    public function testSerializingEmptyDocumentResource()
+    public function testSerializingEmptyResourceDocument()
     {
         /* Given... (Fixture) */
         $metadata = Stub::makeEmpty(
@@ -52,7 +52,7 @@ class DocumentSerializerTest extends TestCase
         $this->assertEquals(['resources' => NULL], $json);
     }
 
-    public function testSerializingIndividualDocumentResource()
+    public function testSerializingIndividualResourceDocument()
     {
         /* Given... (Fixture) */
         $metadata = Stub::makeEmpty(
