@@ -12,6 +12,9 @@ use JsonSchema\Validator;
 
 /**
  * La fachada del servicio de validación de JSON schemas.
+ *
+ * Not using the herrera-io/json lib because validation code should not
+ * throw exceptions.
  */
 class JsonCoder
 {
@@ -34,9 +37,9 @@ class JsonCoder
     ];
 
     /**
-     * @var \Exception
+     * @var array
      */
-    private $lastSchemaError;
+    private $lastSchemaErrors = [];
 
     /**
      * Codifica el parámetro a JSON.
@@ -81,6 +84,11 @@ class JsonCoder
     }
 
     /**
+     * Matches a JSON string or structure to a schema.
+     *
+     * It would be lovely to be able to return an object containing both
+     * the result and the errors wich would itself be castable to boolean,
+     * but alas, this is not yet possible on PHP.
      * @param string $json
      * @param string $schema
      * @return boolean
@@ -90,12 +98,12 @@ class JsonCoder
     {
         $validator = new Validator();
 
-        if (is_file($schema) && is_readable($schema)) {
-            $schema = file_get_contents($schema);
-        }
-
         if (is_string($json)) {
             $json = $this->decode($json, TRUE);
+        }
+
+        if (is_file($schema) && is_readable($schema)) {
+            $schema = file_get_contents($schema);
         }
 
         if (is_string($schema)) {
@@ -103,32 +111,9 @@ class JsonCoder
         }
 
         $validator->check($json, $schema);
+        $this->lastSchemaErrors = $validator->getErrors();
 
-        if (!$matchesSchema = $validator->isValid()) { // Asignación.
-            $message = self::FAIL_JSON_SCHEMA_MESSAGE;
-
-            foreach ($validator->getErrors() as $error) {
-                $message .= sprintf(
-                    "[%s] %s\n", $error['property'], $error['message']
-                );
-            }
-
-            $this->lastSchemaError = new \Exception($message);
-        }
-
-        return $matchesSchema;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function throwLastSchemaError()
-    {
-        if (empty($this->lastSchemaError)) {
-            throw new \Exception(self::ERROR_NO_ERROR);
-        }
-
-        throw $this->lastSchemaError;
+        return $validator->isValid();
     }
 
     /**
@@ -140,5 +125,37 @@ class JsonCoder
         $schema = __DIR__ . self::JSON_API_SCHEMA_PATH;
 
         return $this->matchSchema($json, $schema);
+    }
+
+    /**
+     * Returns the latest schema matching errors.
+     * @return array
+     * @see http://php.net/manual/en/function.json-last-error.php
+     */
+    public function getSchemaErrors()
+    {
+        return $this->lastSchemaErrors;
+    }
+
+    /**
+     * Returns the latest schema matching errors as a text message.
+     * @return string
+     * @see http://php.net/manual/en/function.json-last-error-msg.php
+     */
+    public function getSchemaErrorMessage()
+    {
+        $message = NULL;
+
+        foreach ($this->lastSchemaErrors as $error) {
+            $message .= sprintf(
+                "[%s] %s\n", $error['property'], $error['message']
+            );
+        }
+
+        if (!empty($message)) {
+            $message = self::FAIL_JSON_SCHEMA_MESSAGE . $message;
+        }
+
+        return $message;
     }
 }
