@@ -121,12 +121,13 @@ abstract class ApiTestCase extends WebTestCase
         $expectedSchema, $actualJson, $message = ''
     )
     {
-        $condition = FALSE;
+        $jsonCoder = static::$kernel
+            ->getContainer()
+            ->get('hateoas.json_coder');
+        $condition = $jsonCoder->matchSchema($actualJson, $expectedSchema);
 
         try {
-            $condition = static::$kernel->getContainer()
-                ->get('hateoas.json_coder')
-                ->assertSchema($expectedSchema, $actualJson);
+            $jsonCoder->throwLastSchemaError();
         } catch (\Exception $e) {
             $message .= $e->getMessage();
         }
@@ -141,13 +142,13 @@ abstract class ApiTestCase extends WebTestCase
      */
     public static function assertJsonApiSchema($actualJson, $message = '')
     {
-        $condition = FALSE;
-        $expectedSchema = __DIR__ . static::JSON_API_SCHEMA_PATH;
+        $jsonCoder = static::$kernel
+            ->getContainer()
+            ->get('hateoas.json_coder');
+        $condition = $jsonCoder->assertJsonApi($actualJson);
 
         try {
-            $condition = static::$kernel->getContainer()
-                ->get('hateoas.json_coder')
-                ->assertSchema($expectedSchema, $actualJson);
+            $jsonCoder->throwLastSchemaError();
         } catch (\Exception $e) {
             $message .= $e->getMessage();
         }

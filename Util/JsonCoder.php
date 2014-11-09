@@ -15,6 +15,9 @@ use JsonSchema\Validator;
  */
 class JsonCoder
 {
+    const FAIL_JSON_SCHEMA_MESSAGE = "Failed asserting that the JSON matches the given schema. Violations:\n",
+        JSON_API_SCHEMA_PATH = '/../Resources/json-schemas/json-api-schema.json';
+
     /**
      * @var array
      */
@@ -29,6 +32,11 @@ class JsonCoder
         JSON_ERROR_INF_OR_NAN => "One or more NAN or INF values in the value to be encoded.",
         JSON_ERROR_UNSUPPORTED_TYPE => "A value of a type that cannot be encoded was given."
     ];
+
+    /**
+     * @var \Exception
+     */
+    private $lastSchemaError;
 
     /**
      * Codifica el parámetro a JSON.
@@ -60,26 +68,7 @@ class JsonCoder
     }
 
     /**
-     * Añadiéndole expresiones regulares a las aserciones de JSON.
-     * @see http://json-schema.org/
-     * @throws Exception
-     */
-    public function matchSchema($json, $schema)
-    {
-        $validator = new Validator();
-
-        if (is_file($schema) && is_readable($schema)) {
-            $schema = file_get_contents($schema);
-        }
-
-        $validator->check(
-            $this->decode($json, TRUE), $this->decode($schema, TRUE)
-        );
-
-        return $validator->isValid();
-    }
-
-    /**
+     * @param integer $code
      * @throws \ErrorException
      */
     private function throwError($code)
@@ -89,5 +78,67 @@ class JsonCoder
             : "Unknown error.";
 
         throw new \ErrorException($message);
+    }
+
+    /**
+     * @param string $json
+     * @param string $schema
+     * @return boolean
+     * @see http://json-schema.org/
+     */
+    public function matchSchema($json, $schema)
+    {
+        $validator = new Validator();
+
+        if (is_file($schema) && is_readable($schema)) {
+            $schema = file_get_contents($schema);
+        }
+
+        if (is_string($json)) {
+            $json = $this->decode($json, TRUE);
+        }
+
+        if (is_string($schema)) {
+            $schema = $this->decode($schema, TRUE);
+        }
+
+        $validator->check($json, $schema);
+
+        if (!$matchesSchema = $validator->isValid()) { // Asignación.
+            $message = self::FAIL_JSON_SCHEMA_MESSAGE;
+
+            foreach ($validator->getErrors() as $error) {
+                $message .= sprintf(
+                    "[%s] %s\n", $error['property'], $error['message']
+                );
+            }
+
+            $this->lastSchemaError = new \Exception($message);
+        }
+
+        return $matchesSchema;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function throwLastSchemaError()
+    {
+        if (empty($this->lastSchemaError)) {
+            throw new \Exception(self::ERROR_NO_ERROR);
+        }
+
+        throw $this->lastSchemaError;
+    }
+
+    /**
+     * @param string $json
+     * @return boolean
+     */
+    public function assertJsonApi($json)
+    {
+        $schema = __DIR__ . self::JSON_API_SCHEMA_PATH;
+
+        return $this->matchSchema($json, $schema);
     }
 }
