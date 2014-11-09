@@ -54,7 +54,7 @@ class PostsController extends Controller
         if ($this->get('json')->matchSchema(
             $rawBody, __DIR__ . self::POST_SCHEMA
         )) {
-            throw new BadRequestHttpException();
+            throw new BadRequestHttpException("This is a test.");
         }
 
         $data = $this->get('json')->decode($rawBody);

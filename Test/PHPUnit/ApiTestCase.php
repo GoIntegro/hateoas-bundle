@@ -176,7 +176,7 @@ abstract class ApiTestCase extends WebTestCase
                 [$this, 'assertResponseStatus'], $args
             );
         } else {
-            throw new \BadMethodCallException();
+            throw new \BadMethodCallException("No such method can be called.");
         }
     }
 

@@ -18,7 +18,7 @@ use HateoasInc\Bundle\ExampleBundle\DataFixtures\ORM\SocialDataFixture;
  */
 class StoresTest extends ApiTestCase
 {
-    const RESOURCE_PATH = '/api/v2/posts';
+    const RESOURCE_PATH = '/api/v1/posts';
 
     /**
      * Obtiene los fixtures de este test case.
@@ -33,7 +33,7 @@ class StoresTest extends ApiTestCase
     {
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH;
-        $client = $this->createHttpClient($url);
+        $client = $this->buildHttpClient($url);
         /* When... (Action) */
         $transfer = $client->exec();
         /* Then... (Assertions) */
