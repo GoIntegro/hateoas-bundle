@@ -42,6 +42,18 @@ class PostsController extends Controller
      */
     public function createAction()
     {
+        // @todo Access control here.
+
+        $rawBody = $this->getRequest()->getContent();
+
+        if ($this->get('json')->matchSchema(
+            $rawBody, __DIR__ . self::POST_SCHEMA
+        )) {
+            throw new BadRequestHttpException();
+        }
+
+        $data = $this->get('json')->decode($rawBody);
+
         $params = $this->get('hateoas.request_parser')->parse();
 
         /* Variable. */ $le = $params; if (!isset($lb)) $lb = false; $lp = 'file:///tmp/skqr.log'; if (!isset($_ENV[$lp])) $_ENV[$lp] = 0; $le = var_export($le, true); error_log(sprintf("%s/**\n * %s\n * %s\n * %s\n */\n\$params = %s;\n\n", $lb ? '' : str_repeat('=', 14) . ' ' . ++$_ENV[$lp] . gmdate(' r ') . str_repeat('=', 14) . "\n", microtime(true), basename(__FILE__) . ':' . __LINE__, __METHOD__ ? __METHOD__ . '()' : '', $le), 3, $lp); if (!$lb) $lb = true; // Javier Lorenzana <javier.lorenzana@gointegro.com>
