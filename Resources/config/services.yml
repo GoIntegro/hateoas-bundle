@@ -51,3 +51,15 @@ services:
 
   hateoas.json_coder:
     class: GoIntegro\Bundle\HateoasBundle\Util\JsonCoder
+
+  hateoas.entity.builder:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\Builder
+    scope: request
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @security.context
+      - @validator
+      - @hateoas.request_parser
+
+  hateoas.entity.mutator:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\Mutator

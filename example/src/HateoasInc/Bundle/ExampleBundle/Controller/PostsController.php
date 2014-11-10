@@ -27,8 +27,7 @@ use Symfony\Component\Security\Acl\Domain\ObjectIdentity,
  */
 class PostsController extends Controller
 {
-    const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner',
-       POSTS_SCHEMA = '/../Resources/raml/posts.schema.json';
+    const POSTS_SCHEMA = '/../Resources/raml/posts.schema.json';
 
     /**
      * @Route("/posts", name="api_get_posts", methods="GET")
@@ -99,37 +98,11 @@ class PostsController extends Controller
         }
 
         $data = $this->get('hateoas.json_coder')->decode($rawBody);
-        $params = $this->get('hateoas.request_parser')->parse();
-        $class = new \ReflectionClass($params->primaryClass);
-        $post = $class->newInstance();
-
-        if ($class->implementsInterface(self::AUTHOR_IS_OWNER)) {
-            $post->setOwner($this->getUser());
-        }
-
-        foreach ($data[$params->primaryType] as $field => $value) {
-            if ('links' == $field) continue;
-
-            $method = 'set'
-                . \Doctrine\Common\Util\Inflector::camelize($field);
-
-            if ($class->hasMethod($method)) $post->$method($value);
-        }
-
-        // $post->setContent($data['posts']['content']);
-        $errors = $this->get('validator')->validate($post);
-
-        if (0 < count($errors)) {
-            throw new BadRequestHttpException($errors);
-        }
-
-        $em = $this->get('doctrine.orm.entity_manager');
-        $em->persist($post);
-        $em->flush();
+        $entity = $this->get('hateoas.entity.builder')->create($data);
 
         $resource = $this->get('hateoas.resource_manager')
             ->createResourceFactory()
-            ->setEntity($post)
+            ->setEntity($entity)
             ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
