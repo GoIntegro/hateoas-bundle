@@ -21,6 +21,8 @@ use HateoasInc\Bundle\ExampleBundle\Entity\User,
  */
 class PostsController extends Controller
 {
+    const POSTS_SCHEMA = '/../Resources/raml/posts.schema.json';
+
     /**
      * @Route("/posts", name="api_get_posts", methods="GET")
      */
@@ -51,25 +53,27 @@ class PostsController extends Controller
 
         $rawBody = $this->getRequest()->getContent();
 
-        if ($this->get('json')->matchSchema(
-            $rawBody, __DIR__ . self::POST_SCHEMA
+        if (!$this->get('hateoas.json_coder')->matchSchema(
+            $rawBody, __DIR__ . self::POSTS_SCHEMA
         )) {
-            throw new BadRequestHttpException("This is a test.");
+            $message = $this->get('hateoas.json_coder')
+                ->getSchemaErrorMessage();
+            throw new BadRequestHttpException($message);
         }
 
-        $data = $this->get('json')->decode($rawBody);
+        $data = $this->get('hateoas.json_coder')->decode($rawBody);
 
         $params = $this->get('hateoas.request_parser')->parse();
 
-        /* Variable. */ $le = $params; if (!isset($lb)) $lb = false; $lp = 'file:///tmp/skqr.log'; if (!isset($_ENV[$lp])) $_ENV[$lp] = 0; $le = var_export($le, true); error_log(sprintf("%s/**\n * %s\n * %s\n * %s\n */\n\$params = %s;\n\n", $lb ? '' : str_repeat('=', 14) . ' ' . ++$_ENV[$lp] . gmdate(' r ') . str_repeat('=', 14) . "\n", microtime(true), basename(__FILE__) . ':' . __LINE__, __METHOD__ ? __METHOD__ . '()' : '', $le), 3, $lp); if (!$lb) $lb = true; // Javier Lorenzana <javier.lorenzana@gointegro.com>
         $user = new User;
-        // $user->setEmail('default@gmail.com');
-        // $user->setPassword('sup3rs3cr3t');
+        $user->setEmail('default@gmail.com');
+        $user->setPassword('sup3rs3cr3t');
         $post = new Post;
-        // $post->setAuthor($user);
-        // $post->setContent("");
+        $post->setAuthor($user);
+        $post->setContent($data['posts']['content']);
+        $errors = $this->get('validator')->validate($post);
 
-        if ($errors = $this->get('validator')->validate($post)) {
+        if (0 < count($errors)) {
             throw new BadRequestHttpException($errors);
         }
 
