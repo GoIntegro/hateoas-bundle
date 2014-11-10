@@ -2,7 +2,7 @@
 /**
  * @copyright 2014 Integ S.A.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
- * @owner Javier Lorenzana <javier.lorenzana@gointegro.com>
+ * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
 namespace HateoasInc\Bundle\ExampleBundle\Entity;
@@ -15,6 +15,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\AuthorIsOwner;
 // Validation.
 use Symfony\Component\Validator\Constraints as Assert;
+// Security.
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity
@@ -77,7 +79,7 @@ class Post implements ResourceEntityInterface, AuthorIsOwner
      * Set content
      *
      * @param string $content
-     * @return Post
+     * @return self
      */
     public function setContent($content)
     {
@@ -100,9 +102,9 @@ class Post implements ResourceEntityInterface, AuthorIsOwner
      * Set owner
      *
      * @param \HateoasInc\Bundle\ExampleBundle\Entity\User $owner
-     * @return Post
+     * @return self
      */
-    public function setOwner(\HateoasInc\Bundle\ExampleBundle\Entity\User $owner = null)
+    public function setOwner(UserInterface $owner)
     {
         $this->owner = $owner;
 
@@ -123,7 +125,7 @@ class Post implements ResourceEntityInterface, AuthorIsOwner
      * Add comments
      *
      * @param \HateoasInc\Bundle\ExampleBundle\Entity\Comment $comments
-     * @return Post
+     * @return self
      */
     public function addComment(\HateoasInc\Bundle\ExampleBundle\Entity\Comment $comments)
     {

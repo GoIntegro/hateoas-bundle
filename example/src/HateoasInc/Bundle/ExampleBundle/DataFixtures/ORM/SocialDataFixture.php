@@ -48,11 +48,11 @@ class SocialDataFixture
 
         $post = new Post;
         $post->setContent("Check this bundle out. #RockedMyWorld");
-        $post->setAuthor($user);
+        $post->setOwner($user);
 
         $comment = new Comment;
         $comment->setContent("Mine too. #RockedMyWorld");
-        $comment->setAuthor($user);
+        $comment->setOwner($user);
         $post->addComment($comment);
 
         $manager->persist($user);

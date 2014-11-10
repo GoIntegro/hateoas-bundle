@@ -65,7 +65,7 @@ class PostVoter implements VoterInterface
                 break;
 
             case self::EDIT:
-                if ($user->getId() === $post->getAuthor()->getId()) {
+                if ($user->getId() === $post->getOwner()->getId()) {
                     return VoterInterface::ACCESS_GRANTED;
                 }
                 break;

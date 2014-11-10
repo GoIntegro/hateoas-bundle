@@ -121,7 +121,7 @@ class User implements UserInterface, ResourceEntityInterface
      * Set username
      *
      * @param string $username
-     * @return User
+     * @return self
      */
     public function setUsername($username)
     {
@@ -144,7 +144,7 @@ class User implements UserInterface, ResourceEntityInterface
      * Set email
      *
      * @param string $email
-     * @return User
+     * @return self
      */
     public function setEmail($email)
     {
@@ -167,7 +167,7 @@ class User implements UserInterface, ResourceEntityInterface
      * Set password
      *
      * @param string $password
-     * @return User
+     * @return self
      */
     public function setPassword($password)
     {
@@ -190,7 +190,7 @@ class User implements UserInterface, ResourceEntityInterface
      * Set name
      *
      * @param string $name
-     * @return User
+     * @return self
      */
     public function setName($name)
     {
@@ -213,7 +213,7 @@ class User implements UserInterface, ResourceEntityInterface
      * Set surname
      *
      * @param string $surname
-     * @return User
+     * @return self
      */
     public function setSurname($surname)
     {
@@ -236,7 +236,7 @@ class User implements UserInterface, ResourceEntityInterface
      * Add followers
      *
      * @param \HateoasInc\Bundle\ExampleBundle\Entity\User $followers
-     * @return User
+     * @return self
      */
     public function addFollower(\HateoasInc\Bundle\ExampleBundle\Entity\User $followers)
     {

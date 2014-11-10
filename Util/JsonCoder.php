@@ -64,10 +64,12 @@ class JsonCoder
      */
     public function decode($json, $toObject = FALSE)
     {
-        if (is_readable($json)) {
-            $json = file_get_contents($json);
-        } else {
-            throw new \ErrorException(self::ERROR_CANNOT_READ_FILE);
+        if (is_file($json)) {
+            if (is_readable($json)) {
+                $json = file_get_contents($json);
+            } else {
+                throw new \ErrorException(self::ERROR_CANNOT_READ_FILE);
+            }
         }
 
         $value = json_decode($json, !$toObject);

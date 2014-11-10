@@ -14,6 +14,8 @@ use Doctrine\ORM\Mapping as ORM,
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // Validation.
 use Symfony\Component\Validator\Constraints as Assert;
+// Security.
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity
@@ -42,7 +44,7 @@ class Comment implements ResourceEntityInterface
      * )
      * @Assert\NotBlank()
      */
-    protected $author;
+    protected $owner;
 
     /**
      * @var ArrayCollection
@@ -66,7 +68,7 @@ class Comment implements ResourceEntityInterface
      * Set content
      *
      * @param string $content
-     * @return Comment
+     * @return self
      */
     public function setContent($content)
     {
@@ -86,33 +88,33 @@ class Comment implements ResourceEntityInterface
     }
 
     /**
-     * Set author
+     * Set owner
      *
-     * @param \HateoasInc\Bundle\ExampleBundle\Entity\User $author
-     * @return Comment
+     * @param \HateoasInc\Bundle\ExampleBundle\Entity\User $owner
+     * @return self
      */
-    public function setAuthor(\HateoasInc\Bundle\ExampleBundle\Entity\User $author = null)
+    public function setOwner(UserInterface $owner)
     {
-        $this->author = $author;
+        $this->owner = $owner;
 
         return $this;
     }
 
     /**
-     * Get author
+     * Get owner
      *
      * @return \HateoasInc\Bundle\ExampleBundle\Entity\User
      */
-    public function getAuthor()
+    public function getOwner()
     {
-        return $this->author;
+        return $this->owner;
     }
 
     /**
      * Set subject
      *
      * @param \HateoasInc\Bundle\ExampleBundle\Entity\Post $subject
-     * @return Comment
+     * @return self
      */
     public function setSubject(\HateoasInc\Bundle\ExampleBundle\Entity\Post $subject = null)
     {
