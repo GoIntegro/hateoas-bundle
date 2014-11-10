@@ -240,4 +240,100 @@ class MagicController extends SymfonyController
 
         return $this->createETagResponse($json);
     }
+
+    /**
+     * @Route("/{primaryType}", name="hateoas_magic_create", methods="POST")
+     * @param string $primaryType
+     */
+    public function createAction($primaryType)
+    {
+        $rawBody = $this->getRequest()->getContent();
+
+        if (!$this->get('hateoas.json_coder')->matchSchema(
+            $rawBody, __DIR__ . self::POSTS_SCHEMA
+        )) {
+            $message = $this->get('hateoas.json_coder')
+                ->getSchemaErrorMessage();
+            throw new BadRequestHttpException($message);
+        }
+
+        $data = $this->get('hateoas.json_coder')->decode($rawBody);
+        $entity = $this->get('hateoas.entity.builder')->create($data);
+
+        $resource = $this->get('hateoas.resource_manager')
+            ->createResourceFactory()
+            ->setEntity($entity)
+            ->create();
+        $json = $this->get('hateoas.resource_manager')
+            ->createSerializerFactory()
+            ->setDocumentResources($resource)
+            ->create()
+            ->serialize();
+
+        return $this->createETagResponse($json, Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("/{primaryType}/{id}", name="hateoas_magic_update", methods="PUT")
+     * @param string $primaryType
+     * @param string $id
+     * @throws NotFoundHttpException
+     */
+    public function updateAction($primaryType, $id)
+    {
+        $ids = explode(',', $id);
+        $config = $this->container->getParameter('go_integro_hateoas.json_api');
+        $params = $this->get('hateoas.request_parser')->parse();
+
+        if (empty($params->primaryClass)) {
+            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
+        }
+
+        $entities = $this->getDoctrine()
+            ->getManager()
+            ->getRepository($params->primaryClass)
+            ->findById($ids);
+
+        if (empty($entities) || count($entities) !== count($ids)) {
+            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
+        }
+
+        if (!$this->get('security.context')->isGranted('edit', $post)) {
+            throw new AccessDeniedHttpException('Unauthorized access!');
+        }
+
+        $rawBody = $this->getRequest()->getContent();
+
+        if (!$this->get('hateoas.json_coder')->matchSchema(
+            $rawBody, __DIR__ . self::POSTS_SCHEMA
+        )) {
+            $message = $this->get('hateoas.json_coder')
+                ->getSchemaErrorMessage();
+            throw new BadRequestHttpException($message);
+        }
+
+        $data = $this->get('hateoas.json_coder')->decode($rawBody);
+        $post->setContent($data['posts']['content']);
+        $errors = $this->get('validator')->validate($post);
+
+        if (0 < count($errors)) {
+            throw new BadRequestHttpException($errors);
+        }
+
+        $em = $this->get('doctrine.orm.entity_manager');
+        $em->persist($post);
+        $em->flush();
+
+        $resource = $this->get('hateoas.resource_manager')
+            ->createResourceFactory()
+            ->setEntity($post)
+            ->create();
+        $json = $this->get('hateoas.resource_manager')
+            ->createSerializerFactory()
+            ->setDocumentResources($resource)
+            ->create()
+            ->serialize();
+
+        return $this->createETagResponse($json);
+    }
 }
