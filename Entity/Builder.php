@@ -62,6 +62,7 @@ class Builder
      * @param array $data
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      * @todo No params, just the parser?
+     * @todo Replace the HTTP bad request exception.
      */
     public function create(array $data)
     {

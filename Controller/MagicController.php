@@ -14,7 +14,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController,
 // Colecciones.
 use Doctrine\Common\Collections\Collection;
 // HTTP.
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException;
 // Utils.
@@ -44,8 +45,6 @@ class MagicController extends SymfonyController
      */
     public function getRelationAction($primaryType, $id, $relationship)
     {
-        $config = $this->container
-            ->getParameter('go_integro_hateoas.json_api');
         $params = $this->get('hateoas.request_parser')->parse();
 
         if (empty($params->primaryClass)) {
@@ -126,8 +125,6 @@ class MagicController extends SymfonyController
      */
     public function getFieldAction($primaryType, $id, $field)
     {
-        $config = $this->container
-            ->getParameter('go_integro_hateoas.json_api');
         $params = $this->get('hateoas.request_parser')->parse();
 
         if (empty($params->primaryClass)) {
@@ -168,7 +165,6 @@ class MagicController extends SymfonyController
     public function getOneAction($primaryType, $id)
     {
         $ids = explode(',', $id);
-        $config = $this->container->getParameter('go_integro_hateoas.json_api');
         $params = $this->get('hateoas.request_parser')->parse();
 
         if (empty($params->primaryClass)) {
@@ -212,7 +208,6 @@ class MagicController extends SymfonyController
      */
     public function getAllAction($primaryType)
     {
-        $config = $this->container->getParameter('go_integro_hateoas.json_api');
         $params = $this->get('hateoas.request_parser')->parse();
 
         if (empty($params->primaryClass)) {
@@ -249,9 +244,10 @@ class MagicController extends SymfonyController
     {
         $rawBody = $this->getRequest()->getContent();
 
-        if (!$this->get('hateoas.json_coder')->matchSchema(
-            $rawBody, __DIR__ . self::POSTS_SCHEMA
-        )) {
+        $params = $this->get('hateoas.request_parser')->parse();
+        $raml = $this->get('hateoas.raml.finder')->find($params->primaryType);
+
+        if (!$this->get('hateoas.json_coder')->matchSchema($rawBody, $raml)) {
             $message = $this->get('hateoas.json_coder')
                 ->getSchemaErrorMessage();
             throw new BadRequestHttpException($message);
@@ -282,7 +278,6 @@ class MagicController extends SymfonyController
     public function updateAction($primaryType, $id)
     {
         $ids = explode(',', $id);
-        $config = $this->container->getParameter('go_integro_hateoas.json_api');
         $params = $this->get('hateoas.request_parser')->parse();
 
         if (empty($params->primaryClass)) {
@@ -298,15 +293,17 @@ class MagicController extends SymfonyController
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
+        // @todo Terminar.
+        $post = array_pop($entities);
+
         if (!$this->get('security.context')->isGranted('edit', $post)) {
             throw new AccessDeniedHttpException('Unauthorized access!');
         }
 
         $rawBody = $this->getRequest()->getContent();
+        $raml = $this->get('hateoas.raml.finder')->find($params->primaryType);
 
-        if (!$this->get('hateoas.json_coder')->matchSchema(
-            $rawBody, __DIR__ . self::POSTS_SCHEMA
-        )) {
+        if (!$this->get('hateoas.json_coder')->matchSchema($rawBody, $raml)) {
             $message = $this->get('hateoas.json_coder')
                 ->getSchemaErrorMessage();
             throw new BadRequestHttpException($message);

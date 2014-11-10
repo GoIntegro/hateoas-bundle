@@ -14,7 +14,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 
 class DocFinder
 {
-    const ERROR_PARAM_TYPE = "A resource type or entity was expected.";
+    const ERROR_PARAM_TYPE = "A resource type or entity was expected.",
+        ERROR_UNKNOWN_TYPE = "The resource type is unknown.";
 
     /**
      * @var array
@@ -44,12 +45,12 @@ class DocFinder
         if (is_string($clue)) {
             $filepath = $this->getRamlDocFromType($clue);
         } elseif ($clue instanceof ResourceEntityInterface) {
-            $filepath = $this->getRamlDoc($clue);
+            $filepath = $this->getRamlDocFromEntity($clue);
         } else {
             throw new \InvalidArgumentException(self::ERROR_PARAM_TYPE);
         }
 
-        return Yaml::parse($filepath);
+        return (object) Yaml::parse($filepath);
     }
 
     /**
@@ -62,6 +63,7 @@ class DocFinder
         foreach ($this->magicServices as $service) {
             if (
                 $type === $service['resource_type']
+                && isset($service['raml_doc'])
                 && is_readable($service['raml_doc'])
             ) {
                 return $service['raml_doc'];
