@@ -74,6 +74,7 @@ go_integro_hateoas:
     magic_services:
       - resource_type: users
         entity_class: HateoasInc\Bundle\ExampleBundle\Entity\User
+        raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/posts.raml
       - resource_type: posts
         entity_class: HateoasInc\Bundle\ExampleBundle\Entity\Post
       - resource_type: comments

@@ -35,7 +35,7 @@ services:
       - @hateoas.metadata_miner
       - @service_container
       - %api.resource_class_path%
-      - <argument>%api.url_path%
+      - %api.url_path%
 
   hateoas.metadata_cache:
     class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\ArrayMetadataCache
@@ -63,3 +63,8 @@ services:
 
   hateoas.entity.mutator:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Mutator
+
+  hateoas.raml.finder:
+    class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
+    arguments:
+      - %go_integro_hateoas.json_api%
