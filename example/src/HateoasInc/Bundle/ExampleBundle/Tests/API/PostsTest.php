@@ -29,25 +29,12 @@ class StoresTest extends ApiTestCase
         return [new SocialDataFixture];
     }
 
-    public function testGettingMany200()
-    {
-        /* Given... (Fixture) */
-        $url = $this->getRootUrl() . self::RESOURCE_PATH;
-        $client = $this->buildHttpClient($url);
-        /* When... (Action) */
-        $transfer = $client->exec();
-        /* Then... (Assertions) */
-        $message = $transfer . "\n";
-        $this->assertResponseOK($client, $message);
-        $this->assertJsonApiSchema($transfer, $message);
-    }
-
     public function testPosting201()
     {
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH;
         $body = ['posts' => ['content' => "This is quite a post."]];
-        $client = $this->buildHttpClient($url)
+        $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt')
             ->setMethod('POST')
             ->setBody($body);
         /* When... (Action) */
@@ -60,6 +47,35 @@ class StoresTest extends ApiTestCase
         return json_decode($transfer);
     }
 
+    public function testGettingMany200()
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH;
+        $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $message = $transfer . "\n";
+        $this->assertResponseOK($client, $message);
+        $this->assertJsonApiSchema($transfer, $message);
+    }
+
+    /**
+     * @depends testPosting201
+     */
+    public function testGettingOne200()
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH;
+        $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $message = $transfer . "\n";
+        $this->assertResponseOK($client, $message);
+        $this->assertJsonApiSchema($transfer, $message);
+    }
+
     /**
      * @depends testPosting201
      */
@@ -69,7 +85,7 @@ class StoresTest extends ApiTestCase
         $url = $this->getRootUrl() . self::RESOURCE_PATH
             . '/' . $post->posts->id;
         $body = ['posts' => ['content' => "No it's not."]];
-        $client = $this->buildHttpClient($url)
+        $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt')
             ->setMethod('PUT')
             ->setBody($body);
         /* When... (Action) */

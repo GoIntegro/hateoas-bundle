@@ -27,22 +27,24 @@ use Symfony\Component\Security\Acl\Domain\ObjectIdentity,
  */
 class PostsController extends Controller
 {
-    const POSTS_SCHEMA = '/../Resources/raml/posts.schema.json';
+    const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner',
+       POSTS_SCHEMA = '/../Resources/raml/posts.schema.json';
 
     /**
      * @Route("/posts", name="api_get_posts", methods="GET")
      */
     public function getAllAction()
     {
-        // if (!$this->get('security.context')->isGranted(
-        //     'view', 'HateoasInc\Bundle\ExampleBundle\Entity\Post'
-        // )) {
-        //     throw new AccessDeniedHttpException('Unauthorized access!');
-        // }
-
         $params = $this->get('hateoas.request_parser')->parse();
         $posts = $this->get('hateoas.repo_helper')
             ->findByRequestParams($params);
+
+        foreach ($posts as $post) {
+            if (!$this->get('security.context')->isGranted('view', $post)) {
+                throw new AccessDeniedHttpException('Unauthorized access!');
+            }
+        }
+
         $resources = $this->get('hateoas.resource_manager')
             ->createCollectionFactory()
             ->setPaginator($posts->getPaginator())
@@ -86,8 +88,6 @@ class PostsController extends Controller
      */
     public function createAction()
     {
-        // @todo Access control here.
-
         $rawBody = $this->getRequest()->getContent();
 
         if (!$this->get('hateoas.json_coder')->matchSchema(
@@ -99,12 +99,24 @@ class PostsController extends Controller
         }
 
         $data = $this->get('hateoas.json_coder')->decode($rawBody);
-        $user = $this->get('doctrine.orm.entity_manager')
-            ->getRepository('HateoasInc\Bundle\ExampleBundle\Entity\User')
-            ->findOneBy([]);
-        $post = new Post;
-        $post->setAuthor($user);
-        $post->setContent($data['posts']['content']);
+        $params = $this->get('hateoas.request_parser')->parse();
+        $class = new \ReflectionClass($params->primaryClass);
+        $post = $class->newInstance();
+
+        if ($class->implementsInterface(self::AUTHOR_IS_OWNER)) {
+            $post->setOwner($this->getUser());
+        }
+
+        foreach ($data[$params->primaryType] as $field => $value) {
+            if ('links' == $field) continue;
+
+            $method = 'set'
+                . \Doctrine\Common\Util\Inflector::camelize($field);
+
+            if ($class->hasMethod($method)) $post->$method($value);
+        }
+
+        // $post->setContent($data['posts']['content']);
         $errors = $this->get('validator')->validate($post);
 
         if (0 < count($errors)) {
@@ -114,18 +126,6 @@ class PostsController extends Controller
         $em = $this->get('doctrine.orm.entity_manager');
         $em->persist($post);
         $em->flush();
-
-        // creating the ACL
-        $aclProvider = $this->get('security.acl.provider');
-        $objectIdentity = ObjectIdentity::fromDomainObject($post);
-        $acl = $aclProvider->createAcl($objectIdentity);
-        // retrieving the security identity of the currently logged-in user
-        $securityContext = $this->get('security.context');
-        // $user = $securityContext->getToken()->getUser();
-        $securityIdentity = UserSecurityIdentity::fromAccount($user);
-        // grant owner access
-        $acl->insertObjectAce($securityIdentity, MaskBuilder::MASK_OWNER);
-        $aclProvider->updateAcl($acl);
 
         $resource = $this->get('hateoas.resource_manager')
             ->createResourceFactory()

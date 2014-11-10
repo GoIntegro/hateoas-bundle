@@ -42,9 +42,9 @@ class SocialDataFixture
     public function load(ObjectManager $manager)
     {
         $user = new User;
-        $user->setUsername("this-guy");
+        $user->setUsername("this_guy");
         $user->setEmail("this.guy@gmail.com");
-        $user->setPassword("cl34rt3xt1sn0tf0rp4ssw0rds");
+        $user->setPassword("cl34rt3xt");
 
         $post = new Post;
         $post->setContent("Check this bundle out. #RockedMyWorld");

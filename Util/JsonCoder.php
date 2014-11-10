@@ -19,7 +19,8 @@ use JsonSchema\Validator;
 class JsonCoder
 {
     const FAIL_JSON_SCHEMA_MESSAGE = "Failed asserting that the JSON matches the given schema. Violations:\n",
-        JSON_API_SCHEMA_PATH = '/../Resources/json-schemas/json-api-schema.json';
+        JSON_API_SCHEMA_PATH = '/../Resources/json-schemas/json-api-schema.json',
+        ERROR_CANNOT_READ_FILE = "Could not open the JSON file.";
 
     /**
      * @var array
@@ -63,6 +64,12 @@ class JsonCoder
      */
     public function decode($json, $toObject = FALSE)
     {
+        if (is_readable($json)) {
+            $json = file_get_contents($json);
+        } else {
+            throw new \ErrorException(self::ERROR_CANNOT_READ_FILE);
+        }
+
         $value = json_decode($json, !$toObject);
 
         if ($code = json_last_error()) $this->throwError($code);
@@ -100,10 +107,6 @@ class JsonCoder
 
         if (is_string($json)) {
             $json = $this->decode($json, TRUE);
-        }
-
-        if (is_file($schema) && is_readable($schema)) {
-            $schema = file_get_contents($schema);
         }
 
         if (is_string($schema)) {

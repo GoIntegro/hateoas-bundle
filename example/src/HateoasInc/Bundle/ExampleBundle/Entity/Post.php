@@ -2,7 +2,7 @@
 /**
  * @copyright 2014 Integ S.A.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
- * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
+ * @owner Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
 namespace HateoasInc\Bundle\ExampleBundle\Entity;
@@ -11,7 +11,8 @@ namespace HateoasInc\Bundle\ExampleBundle\Entity;
 use Doctrine\ORM\Mapping as ORM,
     Doctrine\Common\Collections\ArrayCollection;
 // HATEOAS.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
+    GoIntegro\Bundle\HateoasBundle\Entity\AuthorIsOwner;
 // Validation.
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -19,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity
  * @ORM\Table
  */
-class Post implements ResourceEntityInterface
+class Post implements ResourceEntityInterface, AuthorIsOwner
 {
     /**
      * @ORM\Id
@@ -43,7 +44,7 @@ class Post implements ResourceEntityInterface
      * )
      * @Assert\NotBlank()
      */
-    protected $author;
+    protected $owner;
 
     /**
      * @var ArrayCollection
@@ -96,26 +97,26 @@ class Post implements ResourceEntityInterface
     }
 
     /**
-     * Set author
+     * Set owner
      *
-     * @param \HateoasInc\Bundle\ExampleBundle\Entity\User $author
+     * @param \HateoasInc\Bundle\ExampleBundle\Entity\User $owner
      * @return Post
      */
-    public function setAuthor(\HateoasInc\Bundle\ExampleBundle\Entity\User $author = null)
+    public function setOwner(\HateoasInc\Bundle\ExampleBundle\Entity\User $owner = null)
     {
-        $this->author = $author;
+        $this->owner = $owner;
 
         return $this;
     }
 
     /**
-     * Get author
+     * Get owner
      *
      * @return \HateoasInc\Bundle\ExampleBundle\Entity\User
      */
-    public function getAuthor()
+    public function getOwner()
     {
-        return $this->author;
+        return $this->owner;
     }
 
     /**
