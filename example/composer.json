@@ -19,7 +19,7 @@
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.0",
         "gointegro/hateoas-bundle": "dev-feature/api-48-create-resources",
-        "doctrine/data-fixtures": "*"
+        "doctrine/doctrine-fixtures-bundle": "*"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

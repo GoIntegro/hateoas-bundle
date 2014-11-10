@@ -11,7 +11,8 @@ namespace HateoasInc\Bundle\ExampleBundle\Controller;
 use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
     Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 // HTTP.
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
+    Symfony\Component\HttpFoundation\Response;
 // Entidades.
 use HateoasInc\Bundle\ExampleBundle\Entity\User,
     HateoasInc\Bundle\ExampleBundle\Entity\Post;
@@ -65,9 +66,9 @@ class PostsController extends Controller
 
         $params = $this->get('hateoas.request_parser')->parse();
 
-        $user = new User;
-        $user->setEmail('default@gmail.com');
-        $user->setPassword('sup3rs3cr3t');
+        $user = $this->get('doctrine.orm.entity_manager')
+            ->getRepository('HateoasInc\Bundle\ExampleBundle\Entity\User')
+            ->findOneBy([]);
         $post = new Post;
         $post->setAuthor($user);
         $post->setContent($data['posts']['content']);
@@ -92,6 +93,6 @@ class PostsController extends Controller
             ->create()
             ->serialize();
 
-        return $this->createETagResponse($json);
+        return $this->createETagResponse($json, Response::HTTP_CREATED);
     }
 }

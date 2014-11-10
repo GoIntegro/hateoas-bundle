@@ -24,11 +24,6 @@ class SocialDataFixture
     implements ContainerAwareInterface
 {
     /**
-     * @var ObjectManager
-     */
-    private $manager;
-
-    /**
      * @var ContainerInterface
      */
     private $container;
@@ -46,8 +41,6 @@ class SocialDataFixture
      */
     public function load(ObjectManager $manager)
     {
-        $this->manager = $manager;
-
         $user = new User;
         $user->setEmail("this.guy@gmail.com");
         $user->setPassword("cl34rt3xt1sn0tf0rp4ssw0rds");
@@ -61,9 +54,9 @@ class SocialDataFixture
         $comment->setAuthor($user);
         $post->addComment($comment);
 
-        $this->manager->persist($user);
-        $this->manager->persist($post);
-        $this->manager->persist($comment);
+        $manager->persist($user);
+        $manager->persist($post);
+        $manager->persist($comment);
 
         $manager->flush();
     }

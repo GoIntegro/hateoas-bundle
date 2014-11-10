@@ -41,4 +41,24 @@ class StoresTest extends ApiTestCase
         $this->assertResponseOK($client, $message);
         $this->assertJsonApiSchema($transfer, $message);
     }
+
+    public function testPosting201()
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH;
+        $body = [
+            'posts' => [
+                'content' => 'This is quite a post.'
+            ]
+        ];
+        $client = $this->buildHttpClient($url)
+            ->setMethod('POST')
+            ->setBody($body);
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $message = $transfer . "\n";
+        $this->assertResponseCreated($client, $message);
+        $this->assertJsonApiSchema($transfer, $message);
+    }
 }
