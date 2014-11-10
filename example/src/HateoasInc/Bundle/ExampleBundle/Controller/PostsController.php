@@ -63,9 +63,6 @@ class PostsController extends Controller
         }
 
         $data = $this->get('hateoas.json_coder')->decode($rawBody);
-
-        $params = $this->get('hateoas.request_parser')->parse();
-
         $user = $this->get('doctrine.orm.entity_manager')
             ->getRepository('HateoasInc\Bundle\ExampleBundle\Entity\User')
             ->findOneBy([]);
@@ -79,7 +76,6 @@ class PostsController extends Controller
         }
 
         $em = $this->get('doctrine.orm.entity_manager');
-        $em->persist($user);
         $em->persist($post);
         $em->flush();
 
