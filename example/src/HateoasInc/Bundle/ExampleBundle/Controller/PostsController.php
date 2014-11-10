@@ -11,11 +11,16 @@ namespace HateoasInc\Bundle\ExampleBundle\Controller;
 use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
     Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 // HTTP.
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
+    Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpFoundation\Response;
 // Entidades.
 use HateoasInc\Bundle\ExampleBundle\Entity\User,
     HateoasInc\Bundle\ExampleBundle\Entity\Post;
+// ACL.
+use Symfony\Component\Security\Acl\Domain\ObjectIdentity,
+    Symfony\Component\Security\Acl\Domain\UserSecurityIdentity,
+    Symfony\Component\Security\Acl\Permission\MaskBuilder;
 
 /**
  * @todo La búsqueda devuelve vacío con menos de cuatro caracteres.
@@ -29,6 +34,37 @@ class PostsController extends Controller
      */
     public function getAllAction()
     {
+        // if (!$this->get('security.context')->isGranted(
+        //     'view', 'HateoasInc\Bundle\ExampleBundle\Entity\Post'
+        // )) {
+        //     throw new AccessDeniedHttpException('Unauthorized access!');
+        // }
+
+        $params = $this->get('hateoas.request_parser')->parse();
+        $posts = $this->get('hateoas.repo_helper')
+            ->findByRequestParams($params);
+        $resources = $this->get('hateoas.resource_manager')
+            ->createCollectionFactory()
+            ->setPaginator($posts->getPaginator())
+            ->create();
+        $json = $this->get('hateoas.resource_manager')
+            ->createSerializerFactory()
+            ->setDocumentResources($resources)
+            ->create()
+            ->serialize();
+
+        return $this->createETagResponse($json);
+    }
+
+    /**
+     * @Route("/posts/{post}", name="api_get_post", methods="GET")
+     */
+    public function getOneAction(Post $post)
+    {
+        if (!$this->get('security.context')->isGranted('view', $post)) {
+            throw new AccessDeniedHttpException('Unauthorized access!');
+        }
+
         $params = $this->get('hateoas.request_parser')->parse();
         $posts = $this->get('hateoas.repo_helper')
             ->findByRequestParams($params);
@@ -79,6 +115,18 @@ class PostsController extends Controller
         $em->persist($post);
         $em->flush();
 
+        // creating the ACL
+        $aclProvider = $this->get('security.acl.provider');
+        $objectIdentity = ObjectIdentity::fromDomainObject($post);
+        $acl = $aclProvider->createAcl($objectIdentity);
+        // retrieving the security identity of the currently logged-in user
+        $securityContext = $this->get('security.context');
+        // $user = $securityContext->getToken()->getUser();
+        $securityIdentity = UserSecurityIdentity::fromAccount($user);
+        // grant owner access
+        $acl->insertObjectAce($securityIdentity, MaskBuilder::MASK_OWNER);
+        $aclProvider->updateAcl($acl);
+
         $resource = $this->get('hateoas.resource_manager')
             ->createResourceFactory()
             ->setEntity($post)
@@ -90,5 +138,49 @@ class PostsController extends Controller
             ->serialize();
 
         return $this->createETagResponse($json, Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("/posts/{post}", name="api_update_posts", methods="PUT")
+     */
+    public function updateAction(Post $post)
+    {
+        if (!$this->get('security.context')->isGranted('edit', $post)) {
+            throw new AccessDeniedHttpException('Unauthorized access!');
+        }
+
+        $rawBody = $this->getRequest()->getContent();
+
+        if (!$this->get('hateoas.json_coder')->matchSchema(
+            $rawBody, __DIR__ . self::POSTS_SCHEMA
+        )) {
+            $message = $this->get('hateoas.json_coder')
+                ->getSchemaErrorMessage();
+            throw new BadRequestHttpException($message);
+        }
+
+        $data = $this->get('hateoas.json_coder')->decode($rawBody);
+        $post->setContent($data['posts']['content']);
+        $errors = $this->get('validator')->validate($post);
+
+        if (0 < count($errors)) {
+            throw new BadRequestHttpException($errors);
+        }
+
+        $em = $this->get('doctrine.orm.entity_manager');
+        $em->persist($post);
+        $em->flush();
+
+        $resource = $this->get('hateoas.resource_manager')
+            ->createResourceFactory()
+            ->setEntity($post)
+            ->create();
+        $json = $this->get('hateoas.resource_manager')
+            ->createSerializerFactory()
+            ->setDocumentResources($resource)
+            ->create()
+            ->serialize();
+
+        return $this->createETagResponse($json);
     }
 }

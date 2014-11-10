@@ -1,0 +1,9 @@
+services:
+  biz.posts.create:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
+    scope: request
+    arguments:
+      - @hateoas.metadata_miner
+      - @request
+      - %api.url_path%
+      - %go_integro_hateoas.json_api%

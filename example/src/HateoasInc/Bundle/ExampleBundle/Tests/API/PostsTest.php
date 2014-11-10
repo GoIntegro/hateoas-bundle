@@ -46,11 +46,7 @@ class StoresTest extends ApiTestCase
     {
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH;
-        $body = [
-            'posts' => [
-                'content' => 'This is quite a post.'
-            ]
-        ];
+        $body = ['posts' => ['content' => "This is quite a post."]];
         $client = $this->buildHttpClient($url)
             ->setMethod('POST')
             ->setBody($body);
@@ -59,6 +55,28 @@ class StoresTest extends ApiTestCase
         /* Then... (Assertions) */
         $message = $transfer . "\n";
         $this->assertResponseCreated($client, $message);
+        $this->assertJsonApiSchema($transfer, $message);
+
+        return json_decode($transfer);
+    }
+
+    /**
+     * @depends testPosting201
+     */
+    public function testPutting200(\stdClass $post)
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH
+            . '/' . $post->posts->id;
+        $body = ['posts' => ['content' => "No it's not."]];
+        $client = $this->buildHttpClient($url)
+            ->setMethod('PUT')
+            ->setBody($body);
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $message = $transfer . "\n";
+        $this->assertResponseOK($client, $message);
         $this->assertJsonApiSchema($transfer, $message);
     }
 }
