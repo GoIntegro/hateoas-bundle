@@ -15,11 +15,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController,
 use Doctrine\Common\Collections\Collection;
 // HTTP.
 use Symfony\Component\HttpFoundation\Response,
-    Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+    Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
+    Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
+    Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
+// Security.
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+// Validator.
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Permite probar la flexibilidad de la biblioteca.
@@ -254,7 +260,14 @@ class MagicController extends SymfonyController
         }
 
         $data = $this->get('hateoas.json_coder')->decode($rawBody);
-        $entity = $this->get('hateoas.entity.builder')->create($data);
+
+        try {
+            $entity = $this->get('hateoas.entity.builder')->create($data);
+        } catch (AccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (ValidatorException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
 
         $resource = $this->get('hateoas.resource_manager')
             ->createResourceFactory()
@@ -274,6 +287,7 @@ class MagicController extends SymfonyController
      * @param string $primaryType
      * @param string $id
      * @throws NotFoundHttpException
+     * @todo Finish.
      */
     public function updateAction($primaryType, $id)
     {
