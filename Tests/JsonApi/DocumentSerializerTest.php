@@ -16,27 +16,12 @@ use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
 class DocumentSerializerTest extends TestCase
 {
-    const RESOURCE_ID = 'someId', RESOURCE_TYPE = 'resources';
+    const RESOURCE_TYPE = 'resources';
 
     public function testSerializingEmptyResourceDocument()
     {
         /* Given... (Fixture) */
-        $metadata = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceMetadata',
-            ['type' => self::RESOURCE_TYPE, 'subtype' => self::RESOURCE_TYPE]
-        );
-        $resources = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceCollection',
-            [
-                'getMetadata' => function() use ($metadata) {
-                    return $metadata;
-                },
-                'getIterator' => function() {
-                    return new \ArrayIterator;
-                },
-                'count' => function() { return 0; }
-            ]
-        );
+        $resources = $this->createResourcesMock(0);
         $document = Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\Document',
             [
@@ -55,35 +40,7 @@ class DocumentSerializerTest extends TestCase
     public function testSerializingIndividualResourceDocument()
     {
         /* Given... (Fixture) */
-        $metadata = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceMetadata',
-            [
-                'type' => self::RESOURCE_TYPE,
-                'subtype' => self::RESOURCE_TYPE,
-                'fields' => []
-            ]
-        );
-        $resource = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource',
-            [
-                'id' => self::RESOURCE_ID,
-                'getMetadata' => function() use ($metadata) {
-                    return $metadata;
-                }
-            ]
-        );
-        $resources = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceCollection',
-            [
-                'getMetadata' => function() use ($metadata) {
-                    return $metadata;
-                },
-                'getIterator' => function() use ($resource) {
-                    return new \ArrayIterator([$resource]);
-                },
-                'count' => function() { return 1; }
-            ]
-        );
+        $resources = $this->createResourcesMock(1);
         $document = Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\Document',
             [
@@ -97,8 +54,85 @@ class DocumentSerializerTest extends TestCase
         $json = $serializer->serialize();
         /* Then... (Assertions) */
         $this->assertEquals(['resources' => [
-            'id' => self::RESOURCE_ID,
+            'id' => '0',
             'type' => self::RESOURCE_TYPE
         ]], $json);
+    }
+
+    public function testSerializingMultipleResourceDocument()
+    {
+        /* Given... (Fixture) */
+        $resources = $this->createResourcesMock(3);
+        $document = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Document',
+            [
+                'wasCollection' => TRUE, // Key to this test.
+                'resources' => $resources,
+                'getResourceMeta' => function() { return []; }
+            ]
+        );
+        $serializer = new DocumentSerializer($document);
+        /* When... (Action) */
+        $json = $serializer->serialize();
+        /* Then... (Assertions) */
+        $this->assertEquals(['resources' => [
+            [
+                'id' => '0',
+                'type' => self::RESOURCE_TYPE
+            ],
+            [
+                'id' => '1',
+                'type' => self::RESOURCE_TYPE
+            ],
+            [
+                'id' => '2',
+                'type' => self::RESOURCE_TYPE
+            ]
+        ]], $json);
+    }
+
+    /**
+     *
+     */
+    private function createResourcesMock($amount)
+    {
+        $metadata = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceMetadata',
+            [
+                'type' => self::RESOURCE_TYPE,
+                'subtype' => self::RESOURCE_TYPE,
+                'fields' => []
+            ]
+        );
+
+        $resources = [];
+        for ($i = 0; $i < $amount; ++$i) {
+            $resources[] = Stub::makeEmpty(
+                'GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource',
+                [
+                    'id' => (string) $i,
+                    'getMetadata' => function() use ($metadata) {
+                        return $metadata;
+                    }
+                ]
+            );
+        }
+
+        $collection = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceCollection',
+            [
+                'getMetadata' => function() use ($metadata) {
+                    return $metadata;
+                },
+                'getIterator' => function() use ($resources) {
+                    return new \ArrayIterator($resources);
+                },
+                'count' => function() use ($resources) {
+                    return count($resources);
+                }
+            ]
+        );
+
+        return $collection;
     }
 }
