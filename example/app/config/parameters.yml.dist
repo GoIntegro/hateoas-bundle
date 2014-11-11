@@ -23,6 +23,6 @@ parameters:
     use_assetic_controller: true
 
     # HATEOAS API
-    api.base_url: "http://hateoas-example.skqr.net/app_dev.php"
+    api.base_url: "http://127.0.0.1:8000/app_dev.php"
     api.url_path: "/api/v1"
-    api.resource_class_path: "Rest2/Resource"
+    api.resource_class_path: "Rest/Resource"
