@@ -16,7 +16,7 @@ use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Colecciones.
 use Doctrine\Common\Collections\Collection as CollectionInterface;
 
-class EntityResource implements ResourceDocument
+class EntityResource implements DocumentResource
 {
     const DEFAULT_PAGE_SIZE = 10,
         ERROR_NOT_RESOURCE_ENTITY = "La relación \"%s\" contiene un <%s>, se esperaba una entidad que implementase GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface.",
@@ -74,7 +74,7 @@ class EntityResource implements ResourceDocument
     }
 
     /**
-     * @see ResourceDocument::getMetadata
+     * @see DocumentResource::getMetadata
      */
     public function getMetadata()
     {

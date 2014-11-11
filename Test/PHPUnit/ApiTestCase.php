@@ -21,9 +21,7 @@ abstract class ApiTestCase extends WebTestCase
 {
     const FAIL_RESPONSE_STATUS_PATTERN = "Failed asserting that the status code %s (\"%s)\" matches the expected %s (\"%s\").",
         WSSE_CREDENTIALS_PATTERN = "X-WSSE: UsernameToken Username=\"%s\", PasswordDigest=\"%s\", Nonce=\"%s\", Created=\"%s\"",
-        FAIL_JSON_SCHEMA_MESSAGE = "Failed asserting that the JSON matches the given schema. Violations:\n",
-        HEADER_LOCALE = 'en-GB',
-        JSON_API_SCHEMA_PATH = '/../../Resources/json-schemas/json-api-schema.json';
+        HEADER_LOCALE = 'en-GB';
 
     /**
      * @var array Los estados de respuesta HTTP y sus códigos.
@@ -123,32 +121,11 @@ abstract class ApiTestCase extends WebTestCase
         $expectedSchema, $actualJson, $message = ''
     )
     {
-        $condition = null;
-        $validator = new Validator();
-
-        if (is_file($expectedSchema) && is_readable($expectedSchema)) {
-            $expectedSchema = file_get_contents($expectedSchema);
-        }
-
-        // Ya sea que obtuvimos un string o leímos un archivo, lo decodificamos.
-        if (is_string($expectedSchema)) {
-            $expectedSchema = json_decode($expectedSchema);
-        }
-
-        if (is_string($actualJson)) {
-            $actualJson = json_decode($actualJson);
-        }
-
-        $test = $validator->check($actualJson, $expectedSchema);
-
-        if (!$condition = $validator->isValid()) { // Asignación.
-            $message .= self::FAIL_JSON_SCHEMA_MESSAGE;
-            foreach ($validator->getErrors() as $error) {
-                $message .= sprintf(
-                    "[%s] %s\n", $error['property'], $error['message']
-                );
-            }
-        }
+        $jsonCoder = static::$kernel
+            ->getContainer()
+            ->get('hateoas.json_coder');
+        $condition = $jsonCoder->matchSchema($actualJson, $expectedSchema);
+        $message .= $jsonCoder->getSchemaErrorMessage();
 
         return static::assertThat($condition, static::isTrue(), $message);
     }
@@ -160,9 +137,13 @@ abstract class ApiTestCase extends WebTestCase
      */
     public static function assertJsonApiSchema($actualJson, $message = '')
     {
-        $schema = __DIR__ . static::JSON_API_SCHEMA_PATH;
+        $jsonCoder = static::$kernel
+            ->getContainer()
+            ->get('hateoas.json_coder');
+        $condition = $jsonCoder->assertJsonApi($actualJson);
+        $message .= $jsonCoder->getSchemaErrorMessage();
 
-        return static::assertJsonSchema($schema, $actualJson, $message);
+        return static::assertThat($condition, static::isTrue(), $message);
     }
 
     /**
@@ -185,7 +166,7 @@ abstract class ApiTestCase extends WebTestCase
                 [$this, 'assertResponseStatus'], $args
             );
         } else {
-            throw new \BadMethodCallException();
+            throw new \BadMethodCallException("No such method can be called.");
         }
     }
 

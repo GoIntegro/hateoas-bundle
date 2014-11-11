@@ -13,3 +13,6 @@ vendor/*
 # Sublime Text
 *.sublime-project
 *.sublime-workspace
+
+# Example app db
+example/app/data/*

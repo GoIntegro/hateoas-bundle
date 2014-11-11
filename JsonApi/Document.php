@@ -59,7 +59,7 @@ class Document implements IteratorAggregate, Countable
      * @todo Organizar.
      */
     public function __construct(
-        ResourceDocument $resourceDocument,
+        DocumentResource $documentResource,
         ResourceCache $resourceCache,
         array $include = [],
         array $sparseFields = [],
@@ -71,35 +71,35 @@ class Document implements IteratorAggregate, Countable
         $this->include = $include;
         $this->sparseFields = $sparseFields;
 
-        if ($resourceDocument instanceof ResourceCollectionInterface) {
+        if ($documentResource instanceof ResourceCollectionInterface) {
             $this->wasCollection = TRUE;
 
             if (!empty($pagination)) {
                 $this->pagination = $pagination;
 
-                if ($resourceDocument instanceof Paginated) {
-                    $this->pagination->fill($resourceDocument);
+                if ($documentResource instanceof Paginated) {
+                    $this->pagination->fill($documentResource);
                 }
             }
         } else {
-            $resourceDocument
-                = ResourceCollection::buildFromResource($resourceDocument);
+            $documentResource
+                = ResourceCollection::buildFromResource($documentResource);
         }
 
-        foreach ($resourceDocument as $resource) {
+        foreach ($documentResource as $resource) {
             $this->primaryResources->addResource($resource);
         }
 
-        $this->resources = $resourceDocument;
+        $this->resources = $documentResource;
     }
 
     /**
-     * @param ResourceDocument $resource
+     * @param DocumentResource $resource
      * @param array $meta
      * @return self
      */
     public function getResourceMeta(
-        ResourceDocument $resource = NULL, $key = NULL
+        DocumentResource $resource = NULL, $key = NULL
     )
     {
         $meta = NULL;
@@ -116,11 +116,11 @@ class Document implements IteratorAggregate, Countable
     }
 
     /**
-     * @param ResourceDocument $resource
+     * @param DocumentResource $resource
      * @param array $meta
      * @return self
      */
-    public function addResourceMeta(ResourceDocument $resource, array $meta)
+    public function addResourceMeta(DocumentResource $resource, array $meta)
     {
         if (!isset($this->meta[$resource->getMetadata()->type])) {
             $this->meta[$resource->getMetadata()->type] = [];

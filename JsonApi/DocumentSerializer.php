@@ -123,11 +123,11 @@ class DocumentSerializer
     }
 
     /**
-     * @param ResourceDocument $resource
+     * @param DocumentResource $resource
      * @return array
      */
     protected function serializeResourceObject(
-        ResourceDocument $resource, array $fields = []
+        DocumentResource $resource, array $fields = []
     )
     {
         $serializer = new ResourceObjectSerializer(
