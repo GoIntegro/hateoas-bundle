@@ -4,6 +4,21 @@ This is a library and Symfony 2 bundle that allows you to magically expose your 
 
 Pagination and [faceted searches](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html) are supported as an extension to the JSON-API spec. (Although the extensions are not yet accompanied by the corresponding [profiles](http://jsonapi.org/extending/).)
 
+Try it out
+==========
+
+There's a small example app bundled with the bundle, so you can feel the magic in your finger tips without much ado.
+
+If you have SQLite and a couple of minutes, you can
+- clone the project,
+- open the `example/` dir,
+- install the [Composer](http://getcomposer.org/) deps there,
+- [setup a minimal S2 vhost](http://symfony.com/doc/current/cookbook/configuration/web_server_configuration.html)
+
+and try out the HATEOAS API on `http://hateoas-example.skqr.net/app_dev.php/api/v1`.
+
+The `/users`, `/posts`, and `/comments` resources are available.
+
 Installation
 ============
 
