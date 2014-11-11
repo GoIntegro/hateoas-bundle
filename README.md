@@ -13,6 +13,7 @@ If you have SQLite and a couple of minutes, you can
 - clone the project,
 - open the `example/` dir,
 - install the [Composer](http://getcomposer.org/) deps there,
+- run `app/console doctrine:schema:create` to setup the db,
 - [setup a minimal S2 vhost](http://symfony.com/doc/current/cookbook/configuration/web_server_configuration.html)
 
 and try out the HATEOAS API on `http://hateoas-example.skqr.net/app_dev.php/api/v1`.
