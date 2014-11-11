@@ -74,7 +74,7 @@ class Document implements IteratorAggregate, Countable
         if ($documentResource instanceof ResourceCollectionInterface) {
             $this->wasCollection = TRUE;
 
-            if (!empty($pagination) && count($documentResource)) {
+            if (!empty($pagination)) {
                 $this->pagination = $pagination;
 
                 if ($documentResource instanceof Paginated) {
