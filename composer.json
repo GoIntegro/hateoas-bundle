@@ -25,7 +25,8 @@
         "symfony/doctrine-bridge": "*",
         "doctrine/doctrine-bundle": "*",
         "doctrine/orm": "*",
-        "justinrainbow/json-schema": "*"
+        "justinrainbow/json-schema": "*",
+        "rhumsaa/uuid": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "*",

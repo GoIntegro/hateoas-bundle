@@ -13,7 +13,7 @@ use GoIntegro\Bundle\HateoasBundle\Metadata\Entity\MetadataCache;
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // ORM.
 use Doctrine\ORM\Mapping\ClassMetadata;
-// Reflexión.
+// Reflection.
 use GoIntegro\Bundle\HateoasBundle\Util\Reflection;
 
 class EntityMetadataMiner implements MetadataMinerInterface
@@ -21,12 +21,6 @@ class EntityMetadataMiner implements MetadataMinerInterface
     use MiningTools;
 
     const ERROR_MAPPING_TYPE_UNKNOWN = "El tipo de mapeo es desconocido.";
-
-    /**
-     * @var array
-     * @see http://jsonapi.org/format/#document-structure-resource-object-attributes
-     */
-    private static $reservedGetters = ["getId", "getType", "getHref", "getLinks"];
 
     /**
      * @var MetadataCache
@@ -73,13 +67,32 @@ class EntityMetadataMiner implements MetadataMinerInterface
      */
     protected function parseType($entityClassName)
     {
+        $entityClassName = $this->getEntityClass($entityClassName);
+
+        return $this->parseSubtype($entityClassName);
+    }
+
+    /**
+     * @param \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface|string $entityClass
+     * @return string
+     */
+    protected function getEntityClass($entityClassName)
+    {
         $mapping = $this->metadataCache->getMapping($entityClassName);
 
         if (!empty($mapping->parentClasses)) {
-            $entityClassName = reset($mapping->parentClasses);
+            $parentClassName = reset($mapping->parentClasses);
+            $parentClass
+                = $this->metadataCache->getReflection($parentClassName);
+
+            if ($parentClass->implementsInterface(
+                MetadataMiner::RESOURCE_ENTITY_INTERFACE
+            )) {
+                $entityClassName = $parentClassName;
+            }
         }
 
-        return $this->parseSubtype($entityClassName);
+        return $entityClassName;
     }
 
     /**
@@ -126,41 +139,6 @@ class EntityMetadataMiner implements MetadataMinerInterface
         }
 
         return $relationships;
-    }
-
-    /**
-     * @param \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface|string $entityClassName
-     * @param ResourceRelationships $relationships
-     * @return array
-     * @todo Publicar o eliminar el parámetro $entityClassName.
-     */
-    protected function getFields(
-        $entityClassName,
-        ResourceRelationships $relationships
-    )
-    {
-        $fields = [];
-        $class = $this->metadataCache->getReflection($entityClassName);
-
-        foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            if (in_array($method->getShortName(), self::$reservedGetters)) {
-                continue;
-            }
-
-            if (Reflection::isMethodGetter($method)) {
-                $fields[] = Inflector::hyphenate(
-                    substr($method->getShortName(), 3)
-                );
-            }
-        }
-
-        foreach (ResourceRelationships::$kinds as $kind) {
-            $fields = array_diff($fields, array_keys($relationships->$kind));
-        }
-
-        $fields = array_diff($fields, $relationships->dbOnly);
-
-        return new ResourceFields($fields);
     }
 
     /**
@@ -218,16 +196,5 @@ class EntityMetadataMiner implements MetadataMinerInterface
             default:
                 throw new \Exception(self::ERROR_MAPPING_TYPE_UNKNOWN);
         }
-    }
-
-    /**
-     * @param \ReflectionClass $class
-     * @return string
-     */
-    protected function entityClassToResourceClass(\ReflectionClass $class)
-    {
-        $path = strtr($this->resourceClassPath, '/', '\\');
-
-        return str_replace('Entity', $path, $class->getName()) . 'Resource';
     }
 }

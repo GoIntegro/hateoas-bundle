@@ -50,8 +50,8 @@ class AppKernel extends Kernel
 ?>
 ```
 
-Step 3: Add these to your parameters
-------------------------------------
+Step 3: Add these parameters
+----------------------------
 
 ```yaml
 # app/config/parameters.yml
@@ -122,6 +122,8 @@ That's why you don't have to.
 Just register your entity as a "magic service".
 
 ```yaml
+# app/config/config.yml
+
 # The resource_type *must* match the calculated type - for now.
 go_integro_hateoas:
   json_api:
@@ -398,6 +400,20 @@ class SomeResourceTest extends ApiTestCase
     }
 }
 ?>
+```
+
+Error handling
+--------------
+
+JSON-API covers [how to inform about errors](http://jsonapi.org/format/#errors) as well.
+
+Our implementation isn't trully as complete as could be, but you can tell Twig to use our ExceptionController instead of its own in order to have your errors serialized properly.
+
+```yaml
+# app/config/config.yml
+
+twig:
+  exception_controller: 'GoIntegro\Bundle\HateoasBundle\Controller\ExceptionController::showAction'
 ```
 
 Fetching multiple URLs

@@ -7,6 +7,9 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Metadata\Resource;
 
+// Reflection.
+use GoIntegro\Bundle\HateoasBundle\Util\Reflection;
+
 /**
  * @pattern facade
  */
