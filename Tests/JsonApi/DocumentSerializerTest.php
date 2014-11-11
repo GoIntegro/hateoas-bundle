@@ -21,7 +21,7 @@ class DocumentSerializerTest extends TestCase
     public function testSerializingEmptyResourceDocument()
     {
         /* Given... (Fixture) */
-        $resources = $this->createResourcesMock(0);
+        $resources = self::createResourcesMock(0);
         $document = Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\Document',
             [
@@ -40,7 +40,7 @@ class DocumentSerializerTest extends TestCase
     public function testSerializingIndividualResourceDocument()
     {
         /* Given... (Fixture) */
-        $resources = $this->createResourcesMock(1);
+        $resources = self::createResourcesMock(1);
         $document = Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\Document',
             [
@@ -62,7 +62,7 @@ class DocumentSerializerTest extends TestCase
     public function testSerializingMultipleResourceDocument()
     {
         /* Given... (Fixture) */
-        $resources = $this->createResourcesMock(3);
+        $resources = self::createResourcesMock(3);
         $document = Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\Document',
             [
@@ -91,10 +91,57 @@ class DocumentSerializerTest extends TestCase
         ]], $json);
     }
 
+    public function testSerializingPaginatedDocument()
+    {
+        /* Given... (Fixture) */
+        $resources = self::createResourcesMock(3);
+        $pagination = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination',
+            [
+                'total' => 1000,
+                'size' => 5,
+                'page' => 3,
+                'offset' => 10
+            ]
+        );
+        $document = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Document',
+            [
+                'wasCollection' => TRUE, // Key to this test.
+                'resources' => $resources,
+                'getResourceMeta' => function() { return []; },
+                'pagination' => $pagination
+            ]
+        );
+        $serializer = new DocumentSerializer($document);
+        /* When... (Action) */
+        $json = $serializer->serialize();
+        /* Then... (Assertions) */
+        $this->assertEquals(['resources' => [
+            [
+                'id' => '0',
+                'type' => self::RESOURCE_TYPE
+            ],
+            [
+                'id' => '1',
+                'type' => self::RESOURCE_TYPE
+            ],
+            [
+                'id' => '2',
+                'type' => self::RESOURCE_TYPE
+            ]
+        ], 'meta' => ['resources' => ['pagination' => [
+            'page' => 3,
+            'size' => 5,
+            'total' => 1000
+        ]]]], $json);
+    }
+
     /**
-     *
+     * @param integer $amount
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceCollection
      */
-    private function createResourcesMock($amount)
+    private static function createResourcesMock($amount)
     {
         $metadata = Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceMetadata',
