@@ -14,11 +14,13 @@ If you have SQLite and a couple of minutes, you can
 - open the `example/` dir,
 - install the [Composer](http://getcomposer.org/) deps there,
 - run `app/console doctrine:schema:create` to setup the db,
-- [setup a minimal S2 vhost](http://symfony.com/doc/current/cookbook/configuration/web_server_configuration.html)
+- run `php app/console server:run` to run the app at `127.0.0.1:8000`,
 
-and try out the HATEOAS API on `http://hateoas-example.skqr.net/app_dev.php/api/v1`.
+and try out the HATEOAS API on `http://127.0.0.1:8000/api/v1`.
 
 The `/users`, `/posts`, and `/comments` resources are available.
+
+(You'll need to create some entities using the API or by running `app/console doctrine:fixtures:load --fixtures=src/HateoasInc/Bundle/ExampleBundle/DataFixtures/ORM`.)
 
 Installation
 ============
