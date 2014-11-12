@@ -72,3 +72,5 @@ services:
 
   hateoas.raml.parser:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocParser
+    arguments:
+      - @hateoas.json_coder

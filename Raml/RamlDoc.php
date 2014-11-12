@@ -45,7 +45,7 @@ class RamlDoc
     public function getSchema($name)
     {
         foreach ($this->schemaMaps as $map) {
-            foreach ($this->map as $key => $schema) {
+            foreach ($map as $key => $schema) {
                 if ($key === $name) return $schema;
             }
         }
