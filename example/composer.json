@@ -29,10 +29,12 @@
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.0",
         "gointegro/hateoas-bundle": "dev-feature/api-49-update-resources",
-        "doctrine/doctrine-fixtures-bundle": "*"
+        "doctrine/doctrine-fixtures-bundle": "*",
+        "skqr/php-raml-parser": "dev-master"
     },
     "require-dev": {
-        "sensio/generator-bundle": "~2.3"
+        "sensio/generator-bundle": "~2.3",
+        "skqr/reverse-regex": "dev-master"
     },
     "scripts": {
         "post-root-package-install": [
