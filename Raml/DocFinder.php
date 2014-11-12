@@ -56,7 +56,7 @@ class DocFinder
             throw new \InvalidArgumentException(self::ERROR_PARAM_TYPE);
         }
 
-        return $this->parser($filePath);
+        return $this->parser->parse($filePath);
     }
 
     /**
