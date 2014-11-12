@@ -1,10 +1,23 @@
 <?php
+/**
+ * @copyright 2014 Integ S.A.
+ * @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
+ */
 
 namespace HateoasInc\Bundle\ExampleBundle\Controller;
 
 // Controladores.
 use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
     Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+// HTTP.
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
+    Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
+    Symfony\Component\HttpFoundation\Response;
+// ACL.
+use Symfony\Component\Security\Acl\Domain\ObjectIdentity,
+    Symfony\Component\Security\Acl\Domain\UserSecurityIdentity,
+    Symfony\Component\Security\Acl\Permission\MaskBuilder;
 // Entidades.
 use HateoasInc\Bundle\ExampleBundle\Entity\User;
 

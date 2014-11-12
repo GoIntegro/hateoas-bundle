@@ -18,15 +18,21 @@ class DocFinder
         ERROR_UNKNOWN_TYPE = "The resource type is unknown.";
 
     /**
+     * @var DocParser
+     */
+    private $parser;
+    /**
      * @var array
      */
     private $magicServices;
 
     /**
+     * @param DocParser $parser
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(DocParser $parser, array $config = [])
     {
+        $this->parser = $parser;
         // @todo Esta verificación debería estar en el DI.
         $this->magicServices = isset($config['magic_services'])
             ? $config['magic_services']
@@ -40,17 +46,17 @@ class DocFinder
      */
     public function find($clue)
     {
-        $filepath = NULL;
+        $filePath = NULL;
 
         if (is_string($clue)) {
-            $filepath = $this->getRamlDocFromType($clue);
+            $filePath = $this->getRamlDocFromType($clue);
         } elseif ($clue instanceof ResourceEntityInterface) {
-            $filepath = $this->getRamlDocFromEntity($clue);
+            $filePath = $this->getRamlDocFromEntity($clue);
         } else {
             throw new \InvalidArgumentException(self::ERROR_PARAM_TYPE);
         }
 
-        return (object) Yaml::parse($filepath);
+        return $this->parser($filePath);
     }
 
     /**
@@ -63,6 +69,31 @@ class DocFinder
         foreach ($this->magicServices as $service) {
             if (
                 $type === $service['resource_type']
+                && isset($service['raml_doc'])
+                && is_readable($service['raml_doc'])
+            ) {
+                return $service['raml_doc'];
+            }
+        }
+
+        throw new \RuntimeException(self::ERROR_UNKNOWN_TYPE);
+    }
+
+    /**
+     * @param ResourceEntityInterface $entity
+     * @return string
+     * @throws \RuntimeException
+     */
+    private function getRamlDocFromEntity(ResourceEntityInterface $entity)
+    {
+        $className = get_class($entity);
+
+        foreach ($this->magicServices as $service) {
+            if (
+                (
+                    $className === $service['entity_class']
+                    || is_subclass_of($entity, $service['entity_class'])
+                )
                 && isset($service['raml_doc'])
                 && is_readable($service['raml_doc'])
             ) {
