@@ -18,7 +18,7 @@
         "sensio/distribution-bundle": "~3.0",
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.0",
-        "gointegro/hateoas-bundle": "dev-feature/api-48-create-resources",
+        "gointegro/hateoas-bundle": "dev-feature/api-49-update-resources",
         "doctrine/doctrine-fixtures-bundle": "*"
     },
     "require-dev": {
