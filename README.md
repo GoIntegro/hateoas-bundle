@@ -4,6 +4,24 @@ This is a library and Symfony 2 bundle that allows you to magically expose your 
 
 Pagination and [faceted searches](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html) are supported as an extension to the JSON-API spec. (Although the extensions are not yet accompanied by the corresponding [profiles](http://jsonapi.org/extending/).)
 
+Try it out
+==========
+
+There's a small example app bundled with the bundle, so you can feel the magic in your finger tips without much ado.
+
+If you have SQLite and a couple of minutes, you can
+- clone the project,
+- open the `example/` dir,
+- install the [Composer](http://getcomposer.org/) deps there,
+- run `app/console doctrine:schema:create` to setup the db,
+- run `php app/console server:run` to run the app at `127.0.0.1:8000`,
+
+and try out the HATEOAS API on `http://127.0.0.1:8000/api/v1`.
+
+The `/users`, `/posts`, and `/comments` resources are available.
+
+(You'll need to create some entities using the API or by running `app/console doctrine:fixtures:load --fixtures=src/HateoasInc/Bundle/ExampleBundle/DataFixtures/ORM`.)
+
 Installation
 ============
 
@@ -106,7 +124,7 @@ class UsersController extends Controller {
         ->create();
 
       $json = $resourceManager->createSerializerFactory()
-        ->setResourceDocument($resource)
+        ->setDocumentResources($resource)
         ->create()
         ->serialize();
 
@@ -435,5 +453,3 @@ Feedback
 ========
 
 Feel free to **open an issue** if you have valuable (or otherwise) feedback. Hoping to hear from you (either way).
-
-Also, we're hoping to be included in the [JSON-API example page](http://jsonapi.org/examples/). Here's the [pull request](https://github.com/json-api/json-api/pull/299). You might want to add a comment there if you have feedback on our implementation of the [JSON-API spec](http://jsonapi.org/format/).

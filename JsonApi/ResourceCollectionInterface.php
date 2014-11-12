@@ -13,7 +13,7 @@ use Countable, Traversable, ArrayAccess;
 use Closure;
 
 interface ResourceCollectionInterface
-    extends ResourceDocument, Countable, Traversable, ArrayAccess
+    extends DocumentResource, Countable, Traversable, ArrayAccess
 {
     /**
      * @param Closure $func

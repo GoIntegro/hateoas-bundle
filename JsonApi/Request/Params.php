@@ -8,7 +8,7 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // Resources.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceDocument;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource;
 // ORM.
 use Doctrine\Common\Collections\Criteria;
 

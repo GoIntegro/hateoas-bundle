@@ -12,14 +12,10 @@
     stopOnFailure               = "false"
     syntaxCheck                 = "false"
     bootstrap                   = "vendor/autoload.php" >
-    <!-- bootstrap="./vendor/autoload.php"> -->
 
     <testsuites>
         <testsuite name="Presidential Suite">
             <directory>Tests</directory>
-            <!-- El tag <exclude> no funciona; se añadirán los bundles individualmente. -->
-            <!-- <directory>../src/GoIntegro/Bundle/*Bundle/Tests</directory> -->
-            <!-- <exclude>../src/GoIntegro/Bundle/*ApiBundle/Tests</exclude> -->
         </testsuite>
     </testsuites>
 </phpunit>

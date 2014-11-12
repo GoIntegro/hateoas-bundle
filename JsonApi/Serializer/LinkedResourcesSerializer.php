@@ -13,7 +13,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
     GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceCollectionInterface,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceCollection,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceDocument;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource;
 // Metadata.
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceRelationship;
 // Excepciones.
@@ -257,7 +257,7 @@ class LinkedResourcesSerializer implements SerializerInterface
     }
 
     /**
-     * @param ResourceDocument $resource
+     * @param DocumentResource $resource
      * @return array
      */
     protected function serializeResourceObject(EntityResource $resource)

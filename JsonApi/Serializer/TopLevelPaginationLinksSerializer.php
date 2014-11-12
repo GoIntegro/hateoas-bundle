@@ -9,7 +9,7 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer;
 
 // Recursos REST.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceDocument;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource;
 // Colecciones.
 use Doctrine\Common\Collections\Collection as CollectionInterface;
 // JSON-API
@@ -68,12 +68,12 @@ class TopLevelPaginationLinksSerializer implements SerializerInterface
     }
 
     /**
-     * @param ResourceDocument $resource
+     * @param DocumentResource $resource
      * @param string $relationship
      * @return string
      */
     public static function buildRelationKey(
-        ResourceDocument $resource, $relationship
+        DocumentResource $resource, $relationship
     )
     {
         return $resource->getMetadata()->type . ':' . $relationship;

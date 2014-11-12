@@ -13,7 +13,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
 // Datos.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Recursos.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceDocument,
+use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource,
     GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource;
 // Excepciones.
 use Exception;
@@ -27,7 +27,7 @@ class ResourceObjectSerializer implements SerializerInterface
     public $fields = [];
 
     public function __construct(
-        ResourceDocument $resource,
+        DocumentResource $resource,
         array $sparseFields = []
     )
     {
@@ -90,7 +90,7 @@ class ResourceObjectSerializer implements SerializerInterface
         return $serializer->serialize();
     }
 
-    private function getResourceLinks(ResourceDocument $resource)
+    private function getResourceLinks(DocumentResource $resource)
     {
         $links = [];
 

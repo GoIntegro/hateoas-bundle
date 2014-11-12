@@ -43,6 +43,7 @@ class Configuration implements ConfigurationInterface
                                         ->isRequired()
                                         ->cannotBeEmpty()
                                     ->end()
+                                    ->scalarNode('raml_doc')->end()
                                 ->end()
                             ->end()
                         ->end()
