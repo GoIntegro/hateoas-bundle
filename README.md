@@ -14,7 +14,7 @@ If you have SQLite and a couple of minutes, you can
 - open the `example/` dir,
 - install the [Composer](http://getcomposer.org/) deps there,
 - run `app/console doctrine:schema:create` to setup the db,
-- run `php app/console server:run` to run the app at `127.0.0.1:8000`,
+- run `app/console server:run` to run the app at `127.0.0.1:8000`,
 
 and try out the HATEOAS API on `http://127.0.0.1:8000/api/v1`.
 
