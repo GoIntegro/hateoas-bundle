@@ -6,6 +6,16 @@
     "autoload": {
         "psr-0": { "": "src/", "SymfonyStandard": "app/" }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/skqr/php-raml-parser.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/skqr/ReverseRegex.git"
+        }
+    ],
     "require": {
         "php": ">=5.3.3",
         "symfony/symfony": "2.5.*",
