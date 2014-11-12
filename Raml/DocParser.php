@@ -42,13 +42,14 @@ class DocParser extends Parser
      */
     public function parse($filePath)
     {
-        $ramlDoc = new RamlDoc(parent::parse($filePath));
+        $apiDef = parent::parse($filePath);
+        $rawRaml = Yaml::parse($filePath);
+        $ramlDoc = new RamlDoc($apiDef, $rawRaml);
 
-        $ramlSource = Yaml::parse($filePath);
         $this->fileDir = dirname($filePath);
 
-        if (isset($ramlSource['schemas'])) {
-            foreach ($ramlSource['schemas'] as $map) {
+        if (isset($rawRaml['schemas'])) {
+            foreach ($rawRaml['schemas'] as $map) {
                 if (is_array($map)) {
                     $this->dereferenceIncludes($map);
                     $ramlDoc->addSchemaMap($map);
@@ -71,22 +72,13 @@ class DocParser extends Parser
     {
         foreach ($map as $key => &$value) {
             if (is_string($value)) {
-                if (self::isInclude($value)) {
+                if (RamlDoc::isInclude($value)) {
                     $value = $this->dereferenceInclude($value);
                 }
             } else {
                 throw new \ErrorException(self::ERROR_UNEXPECTED_VALUE);
             }
         }
-    }
-
-    /**
-     * @param string $value
-     * @return value
-     */
-    protected static function isInclude($value)
-    {
-        return 0 === strpos($value, '!include ');
     }
 
     /**

@@ -39,6 +39,8 @@ class DocParserTest extends TestCase
         $this->assertInstanceOf(
             'GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc', $ramlDoc
         );
-        $this->assertEquals(self::TEST_SCHEMA, $ramlDoc->getSchema('default'));
+        $this->assertEquals(
+            self::TEST_SCHEMA, $ramlDoc->getNamedSchema('default')
+        );
     }
 }

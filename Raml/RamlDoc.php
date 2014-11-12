@@ -12,10 +12,39 @@ use Raml\ApiDefinition;
 
 class RamlDoc
 {
+    const HTTP_OPTIONS = 'options',
+        HTTP_HEAD = 'head',
+        HTTP_GET = 'get',
+        HTTP_POST = 'post',
+        HTTP_PUT = 'put',
+        HTTP_DELETE = 'delete',
+        HTTP_PATCH = 'patch';
+
+    const MEDIA_TYPE_JSON = 'application/json',
+        MEDIA_TYPE_XML = 'text/xml';
+
+    const ERROR_INVALID_METHOD = "The provided method \"%s\" is invalid.";
+
+    /**
+     * @var array
+     */
+    private static $methods = [
+        self::HTTP_OPTIONS,
+        self::HTTP_HEAD,
+        self::HTTP_GET,
+        self::HTTP_POST,
+        self::HTTP_PUT,
+        self::HTTP_DELETE,
+        self::HTTP_PATCH
+    ];
     /**
      * @var ApiDefinition
      */
     private $apiDef;
+    /**
+     * @var array
+     */
+    private $rawRaml;
     /**
      * @var array
      */
@@ -24,9 +53,10 @@ class RamlDoc
     /**
      * @param $apiDef
      */
-    public function __construct(ApiDefinition $apiDef)
+    public function __construct(ApiDefinition $apiDef, array $rawRaml)
     {
         $this->apiDef = $apiDef;
+        $this->rawRaml = $rawRaml;
     }
 
     /**
@@ -42,13 +72,33 @@ class RamlDoc
      * @param string $name
      * @return \stdClass|NULL
      */
-    public function getSchema($name)
+    protected function getNamedSchema($name)
     {
         foreach ($this->schemaMaps as $map) {
             foreach ($map as $key => $schema) {
                 if ($key === $name) return $schema;
             }
         }
+
+        return NULL;
+    }
+
+    /**
+     * @param string $method
+     * @param string $resourceType
+     * @param string $mediaType
+     * @return \stdClass|NULL
+     */
+    public function findRequestSchema(
+        $method, $resourceUri, $mediaType = self::MEDIA_TYPE_JSON
+    )
+    {
+        if (!self::isValidMethod($method)) {
+            $message = sprintf(self::ERROR_INVALID_METHOD, $method);
+            throw new \UnexpectedValueException($message);
+        }
+
+        $this->rawRaml[$resourceUri]
 
         return NULL;
     }
@@ -66,5 +116,32 @@ class RamlDoc
         } else {
             throw \BadMethodCallException("No such method here.");
         }
+    }
+
+    /**
+     * @param string $method
+     * @return boolean
+     */
+    public static function isValidMethod($method)
+    {
+        return in_array($method, self::$methods);
+    }
+
+    /**
+     * @param string $value
+     * @return boolean
+     */
+    public static function isInclude($value)
+    {
+        return 0 === strpos($value, '!include ');
+    }
+
+    /**
+     * @param string $value
+     * @return boolean
+     */
+    public static function isResource($value)
+    {
+        return 0 === strpos($value, '/');
     }
 }
