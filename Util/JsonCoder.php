@@ -21,7 +21,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class JsonCoder
 {
     const FAIL_JSON_SCHEMA_MESSAGE = "Failed asserting that the JSON matches the given schema. Violations:\n",
-        JSON_API_SCHEMA_PATH = '@GoIntegroHateoasBundle/Resources/json-schemas/json-api-schema.json',
+        JSON_API_SCHEMA_PATH = '@GoIntegroHateoasBundle/Resources/json-schemas/json-api.schema.json',
+        JSON_SCHEMA_SCHEMA_PATH = '@GoIntegroHateoasBundle/Resources/json-schemas/json-schema.schema.json',
         ERROR_CANNOT_READ_FILE = "Could not open the JSON file.";
 
     /**
@@ -142,6 +143,17 @@ class JsonCoder
     public function assertJsonApi($json)
     {
         $schema = $this->kernel->locateResource(self::JSON_API_SCHEMA_PATH);
+
+        return $this->matchSchema($json, $schema);
+    }
+
+    /**
+     * @param string $json
+     * @return boolean
+     */
+    public function assertJsonSchema($json)
+    {
+        $schema = $this->kernel->locateResource(self::JSON_SCHEMA_SCHEMA_PATH);
 
         return $this->matchSchema($json, $schema);
     }

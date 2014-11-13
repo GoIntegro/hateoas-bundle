@@ -94,7 +94,22 @@ class RamlDoc
      * @param string $name
      * @return \stdClass|NULL
      */
-    protected function getNamedSchema($name)
+    public function hasNamedSchema($name)
+    {
+        foreach ($this->schemaMaps as $map) {
+            foreach ($map as $key => $schema) {
+                if ($key === $name) return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * @param string $name
+     * @return \stdClass|NULL
+     */
+    public function getNamedSchema($name)
     {
         foreach ($this->schemaMaps as $map) {
             foreach ($map as $key => $schema) {

@@ -17,7 +17,7 @@ use GoIntegro\Bundle\HateoasBundle\Raml\DocParser,
 
 class DocParserTest extends TestCase
 {
-    const RAML_PATH = '/../../example/src/HateoasInc/Bundle/ExampleBundle/Resources/raml/posts.raml',
+    const RAML_PATH = '/../Resources/raml/some-resources.raml',
         TEST_SCHEMA = "This is the schema";
 
     public function testParsingRamlDoc()
@@ -40,10 +40,28 @@ class DocParserTest extends TestCase
         $this->assertInstanceOf(
             'GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc', $ramlDoc
         );
-        $this->assertEquals(
-            self::TEST_SCHEMA,
-            $parser->createNavigator($ramlDoc)
-                ->findRequestSchema(RamlDoc::HTTP_POST, '/posts')
+    }
+
+    public function testCreatingDocNavigator()
+    {
+        /* Given... (Fixture) */
+        $jsonCoder = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\Util\JsonCoder',
+            ['decode' => function($filePath) {
+                if (!is_readable($filePath)) {
+                    throw new \ErrorException("The file is not readable.");
+                }
+
+                return self::TEST_SCHEMA;
+            }]
+        );
+        $parser = new DocParser($jsonCoder);
+        $ramlDoc = $parser->parse(__DIR__ . self::RAML_PATH);
+        /* When... (Action) */
+        $navigator = $parser->createNavigator($ramlDoc);
+        /* Then... (Assertions) */
+        $this->assertInstanceOf(
+            'GoIntegro\Bundle\HateoasBundle\Raml\DocNavigator', $navigator
         );
     }
 }

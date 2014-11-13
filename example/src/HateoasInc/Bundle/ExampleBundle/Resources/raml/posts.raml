@@ -15,9 +15,6 @@ traits: !include traits.raml
     responses:
       200:
   post:
-    body:
-      application/json:
-        schema: !include posts.schema.json
     description: Creates one or more posts.
     responses:
       201:
@@ -32,4 +29,3 @@ traits: !include traits.raml
         204:
     delete:
       description: Deletes one or more posts.
-      description: This method will *delete* an **individual song**

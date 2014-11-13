@@ -15,7 +15,8 @@ class DocNavigator
     use DereferencesIncludes;
 
     const ERROR_INVALID_METHOD = "The provided method \"%s\" is invalid.",
-        ERROR_INVALID_MEDIA_TYPE = "The provided media type \"%s\" is invalid.";
+        ERROR_INVALID_MEDIA_TYPE = "The provided media type \"%s\" is invalid.",
+        ERROR_INVALID_SCHEMA = "The provided schema is not valid.";
 
     /**
      * @var RamlDoc
@@ -60,13 +61,22 @@ class DocNavigator
             $this->ramlDoc->rawRaml[$resourceUri][$method]
             [RamlDoc::REQUEST_BODY][$mediaType][RamlDoc::BODY_SCHEMA]
         )) {
-            return $this->dereferenceInclude(
-                $this->ramlDoc->rawRaml[$resourceUri][$method]
-                [RamlDoc::REQUEST_BODY][$mediaType][RamlDoc::BODY_SCHEMA],
-                $this->ramlDoc->fileDir
-            );
+            $schema = $this->ramlDoc->rawRaml[$resourceUri][$method]
+                [RamlDoc::REQUEST_BODY][$mediaType][RamlDoc::BODY_SCHEMA];
+
+            if (RamlDoc::isInclude($schema)) {
+                $schema = $this->dereferenceInclude(
+                    $schema, $this->ramlDoc->fileDir
+                );
+            } elseif ($this->ramlDoc->hasNamedSchema($schema)) {
+                $schema = $this->ramlDoc->getNamedSchema($schema);
+            } elseif (!$this->jsonCoder->assertJsonSchema($schema)) {
+                throw new \ErrorException(self::ERROR_INVALID_SCHEMA);
+            }
+
+            return $schema;
         } else {
-            return $this->getNamedSchema('default');
+            return $this->ramlDoc->getNamedSchema('default');
         }
     }
 }
