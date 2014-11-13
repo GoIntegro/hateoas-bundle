@@ -25,7 +25,7 @@ abstract class Controller extends SymfonyController
      * @param Params $params
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource
      */
-    public function getResourcesFromRepo(Params $params)
+    protected function getResourcesFromRepo(Params $params)
     {
         $entities = $this->get('hateoas.repo_helper')
             ->findByRequestParams($params);

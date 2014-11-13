@@ -36,14 +36,14 @@
         "doctrine/doctrine-bundle": "*",
         "doctrine/orm": "*",
         "justinrainbow/json-schema": "*",
-        "rhumsaa/uuid": "*"
+        "rhumsaa/uuid": "*",
+        "skqr/php-raml-parser": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "*",
         "phpdocumentor/phpdocumentor": "*",
         "codeception/codeception": "*",
-        "skqr/reverse-regex": "dev-master",
-        "skqr/php-raml-parser": "dev-master"
+        "skqr/reverse-regex": "dev-master"
     },
     "autoload": {
         "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }
