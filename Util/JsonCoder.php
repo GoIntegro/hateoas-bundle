@@ -9,6 +9,8 @@ namespace GoIntegro\Bundle\HateoasBundle\Util;
 
 // JSON.
 use JsonSchema\Validator;
+// Symfony 2.
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * La fachada del servicio de validación de JSON schemas.
@@ -19,7 +21,7 @@ use JsonSchema\Validator;
 class JsonCoder
 {
     const FAIL_JSON_SCHEMA_MESSAGE = "Failed asserting that the JSON matches the given schema. Violations:\n",
-        JSON_API_SCHEMA_PATH = '/../Resources/json-schemas/json-api-schema.json',
+        JSON_API_SCHEMA_PATH = '@HateoasBundle/Resources/json-schemas/json-api-schema.json',
         ERROR_CANNOT_READ_FILE = "Could not open the JSON file.";
 
     /**
@@ -38,9 +40,21 @@ class JsonCoder
     ];
 
     /**
+     * @var KernelInterface
+     */
+    private $kernel;
+    /**
      * @var array
      */
     private $lastSchemaErrors = [];
+
+    /**
+     * @param KernelInterface $kernel
+     */
+    public function __construct(KernelInterface $kernel)
+    {
+        $this->kernel = $kernel;
+    }
 
     /**
      * Codifica el parámetro a JSON.
@@ -127,7 +141,7 @@ class JsonCoder
      */
     public function assertJsonApi($json)
     {
-        $schema = __DIR__ . self::JSON_API_SCHEMA_PATH;
+        $schema = $this->kernel->locateResource(self::JSON_API_SCHEMA_PATH);
 
         return $this->matchSchema($json, $schema);
     }

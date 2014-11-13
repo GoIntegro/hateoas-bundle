@@ -51,6 +51,7 @@ services:
 
   hateoas.json_coder:
     class: GoIntegro\Bundle\HateoasBundle\Util\JsonCoder
+    arguments: [@kernel]
 
   hateoas.entity.builder:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Builder
