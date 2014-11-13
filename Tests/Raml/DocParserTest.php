@@ -12,14 +12,15 @@ use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 // Mocks.
 use Codeception\Util\Stub;
 // RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml\DocParser;
+use GoIntegro\Bundle\HateoasBundle\Raml\DocParser,
+    GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc;
 
 class DocParserTest extends TestCase
 {
     const RAML_PATH = '/../../example/src/HateoasInc/Bundle/ExampleBundle/Resources/raml/posts.raml',
         TEST_SCHEMA = "This is the schema";
 
-    public function testCreatingResourceFactory()
+    public function testParsingRamlDoc()
     {
         /* Given... (Fixture) */
         $jsonCoder = Stub::makeEmpty(
@@ -40,7 +41,9 @@ class DocParserTest extends TestCase
             'GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc', $ramlDoc
         );
         $this->assertEquals(
-            self::TEST_SCHEMA, $ramlDoc->getNamedSchema('default')
+            self::TEST_SCHEMA,
+            $parser->createNavigator($ramlDoc)
+                ->findRequestSchema(RamlDoc::HTTP_POST, '/posts')
         );
     }
 }

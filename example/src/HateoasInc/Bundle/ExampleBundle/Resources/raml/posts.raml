@@ -15,6 +15,9 @@ traits: !include traits.raml
     responses:
       200:
   post:
+    body:
+      application/json:
+        schema: !include posts.schema.json
     description: Creates one or more posts.
     responses:
       201:

@@ -16,6 +16,8 @@ use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 
 class DocParser extends Parser
 {
+    use DereferencesIncludes;
+
     const ERROR_ROOT_SCHEMA_VALUE = "The root section \"schemas\" have an unsupported item.",
         ERROR_UNEXPECTED_VALUE = "An unexpected value was found when parsing the RAML.";
 
@@ -44,14 +46,12 @@ class DocParser extends Parser
     {
         $apiDef = parent::parse($filePath);
         $rawRaml = Yaml::parse($filePath);
-        $ramlDoc = new RamlDoc($apiDef, $rawRaml);
-
-        $this->fileDir = dirname($filePath);
+        $ramlDoc = new RamlDoc($apiDef, $rawRaml, $filePath);
 
         if (isset($rawRaml['schemas'])) {
             foreach ($rawRaml['schemas'] as $map) {
                 if (is_array($map)) {
-                    $this->dereferenceIncludes($map);
+                    $this->dereferenceIncludes($map, $ramlDoc->fileDir);
                     $ramlDoc->addSchemaMap($map);
                 } elseif (is_string($map)) {
                     // @todo Finish.
@@ -65,32 +65,11 @@ class DocParser extends Parser
     }
 
     /**
-     * @param array &$map
-     * @return array
+     * @param RamlDoc $ramlDoc
+     * @return DocNavigator
      */
-    protected function dereferenceIncludes(array &$map)
+    public function createNavigator(RamlDoc $ramlDoc)
     {
-        foreach ($map as $key => &$value) {
-            if (is_string($value)) {
-                if (RamlDoc::isInclude($value)) {
-                    $value = $this->dereferenceInclude($value);
-                }
-            } else {
-                throw new \ErrorException(self::ERROR_UNEXPECTED_VALUE);
-            }
-        }
-    }
-
-    /**
-     * @param string $value
-     * @return value
-     * @todo Support other file types.
-     */
-    protected function dereferenceInclude($value)
-    {
-        $filePath = $this->fileDir
-            . preg_replace('/^!include +/', '/', $value);
-
-        return $this->jsonCoder->decode($filePath, TRUE);
+        return new DocNavigator($ramlDoc, $this->jsonCoder);
     }
 }

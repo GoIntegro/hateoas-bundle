@@ -23,7 +23,8 @@ class RamlDoc
     const MEDIA_TYPE_JSON = 'application/json',
         MEDIA_TYPE_XML = 'text/xml';
 
-    const ERROR_INVALID_METHOD = "The provided method \"%s\" is invalid.";
+    const REQUEST_BODY = 'body',
+        BODY_SCHEMA = 'schema';
 
     /**
      * @var array
@@ -38,13 +39,28 @@ class RamlDoc
         self::HTTP_PATCH
     ];
     /**
-     * @var ApiDefinition
-     */
-    private $apiDef;
-    /**
      * @var array
      */
-    private $rawRaml;
+    private static $mediaTypes = [
+        self::MEDIA_TYPE_JSON,
+        self::MEDIA_TYPE_XML
+    ];
+    /**
+     * @var ApiDefinition
+     */
+    public $apiDef;
+    /**
+     * @var array Read-only.
+     */
+    public $rawRaml;
+    /**
+     * @var string
+     */
+    public $fileName;
+    /**
+     * @var string
+     */
+    public $fileDir;
     /**
      * @var array
      */
@@ -52,11 +68,17 @@ class RamlDoc
 
     /**
      * @param $apiDef
+     * @param array $rawRaml
+     * @param string $fileName
      */
-    public function __construct(ApiDefinition $apiDef, array $rawRaml)
+    public function __construct(
+        ApiDefinition $apiDef, array $rawRaml, $fileName
+    )
     {
         $this->apiDef = $apiDef;
         $this->rawRaml = $rawRaml;
+        $this->fileName = $fileName;
+        $this->fileDir = dirname($fileName);
     }
 
     /**
@@ -84,26 +106,6 @@ class RamlDoc
     }
 
     /**
-     * @param string $method
-     * @param string $resourceType
-     * @param string $mediaType
-     * @return \stdClass|NULL
-     */
-    public function findRequestSchema(
-        $method, $resourceUri, $mediaType = self::MEDIA_TYPE_JSON
-    )
-    {
-        if (!self::isValidMethod($method)) {
-            $message = sprintf(self::ERROR_INVALID_METHOD, $method);
-            throw new \UnexpectedValueException($message);
-        }
-
-        $this->rawRaml[$resourceUri]
-
-        return NULL;
-    }
-
-    /**
      * @param string $name
      * @param array $args
      */
@@ -125,6 +127,15 @@ class RamlDoc
     public static function isValidMethod($method)
     {
         return in_array($method, self::$methods);
+    }
+
+    /**
+     * @param string $mediaType
+     * @return boolean
+     */
+    public static function isValidMediaType($mediaType)
+    {
+        return in_array($mediaType, self::$mediaTypes);
     }
 
     /**
