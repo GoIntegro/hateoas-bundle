@@ -15,7 +15,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 use Doctrine\ORM\EntityManagerInterface;
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
-    Symfony\Component\Validator\Exception\ValidatorException;
+    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
@@ -87,7 +87,7 @@ class Builder
         $errors = $this->validator->validate($entity);
 
         if (0 < count($errors)) {
-            throw new ValidatorException($errors);
+            throw new ValidationException($errors);
         }
 
         $this->em->persist($entity);

@@ -16,6 +16,7 @@ use Doctrine\Common\Collections\Collection;
 // HTTP.
 use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
+    Symfony\Component\HttpKernel\Exception\ConflictHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 // JSON-API.
@@ -25,7 +26,8 @@ use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Security.
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 // Validator.
-use Symfony\Component\Validator\Exception\ValidatorException;
+use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface,
+    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface;
 
 /**
  * Permite probar la flexibilidad de la biblioteca.
@@ -265,7 +267,9 @@ class MagicController extends SymfonyController
             $entity = $this->get('hateoas.entity.builder')->create($data);
         } catch (AccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (ValidatorException $e) {
+        } catch (EntityConflictExceptionInterface $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
+        } catch (ValidationExceptionInterface $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         }
 
@@ -307,14 +311,9 @@ class MagicController extends SymfonyController
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
-        // @todo Terminar.
-        $post = array_pop($entities);
-
-        if (!$this->get('security.context')->isGranted('edit', $post)) {
-            throw new AccessDeniedHttpException('Unauthorized access!');
-        }
-
         $rawBody = $this->getRequest()->getContent();
+
+        $params = $this->get('hateoas.request_parser')->parse();
         $raml = $this->get('hateoas.raml.finder')->find($params->primaryType);
 
         if (!$this->get('hateoas.json_coder')->matchSchema($rawBody, $raml)) {
@@ -324,20 +323,21 @@ class MagicController extends SymfonyController
         }
 
         $data = $this->get('hateoas.json_coder')->decode($rawBody);
-        $post->setContent($data['posts']['content']);
-        $errors = $this->get('validator')->validate($post);
 
-        if (0 < count($errors)) {
-            throw new BadRequestHttpException($errors);
+        try {
+            $entity = $this->get('hateoas.entity.mutator')
+                ->update($entity, $data);
+        } catch (AccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityConflictExceptionInterface $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
+        } catch (ValidationExceptionInterface $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
         }
-
-        $em = $this->get('doctrine.orm.entity_manager');
-        $em->persist($post);
-        $em->flush();
 
         $resource = $this->get('hateoas.resource_manager')
             ->createResourceFactory()
-            ->setEntity($post)
+            ->setEntity($entity)
             ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
@@ -345,6 +345,6 @@ class MagicController extends SymfonyController
             ->create()
             ->serialize();
 
-        return $this->createETagResponse($json);
+        return $this->createETagResponse($json, Response::HTTP_CREATED);
     }
 }
