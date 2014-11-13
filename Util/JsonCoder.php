@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class JsonCoder
 {
     const FAIL_JSON_SCHEMA_MESSAGE = "Failed asserting that the JSON matches the given schema. Violations:\n",
-        JSON_API_SCHEMA_PATH = '@HateoasBundle/Resources/json-schemas/json-api-schema.json',
+        JSON_API_SCHEMA_PATH = '@GoIntegroHateoasBundle/Resources/json-schemas/json-api-schema.json',
         ERROR_CANNOT_READ_FILE = "Could not open the JSON file.";
 
     /**
