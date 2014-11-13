@@ -15,12 +15,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpFoundation\Response;
 // Entidades.
-use HateoasInc\Bundle\ExampleBundle\Entity\User,
-    HateoasInc\Bundle\ExampleBundle\Entity\Post;
-// ACL.
-use Symfony\Component\Security\Acl\Domain\ObjectIdentity,
-    Symfony\Component\Security\Acl\Domain\UserSecurityIdentity,
-    Symfony\Component\Security\Acl\Permission\MaskBuilder;
+use HateoasInc\Bundle\ExampleBundle\Entity\Post;
 
 /**
  * @todo La búsqueda devuelve vacío con menos de cuatro caracteres.

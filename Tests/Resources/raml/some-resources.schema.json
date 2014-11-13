@@ -1,0 +1,46 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "type": "object",
+    "description": "A random resource.",
+    "properties": {
+        "links": {
+            "type": "object",
+            "properties": {
+                "some-resources.author": {
+                    "type": "object",
+                    "properties": {
+                        "href": { "type": "string" },
+                        "type": { "type": "string" }
+                    },
+                    "required": [ "href", "type" ]
+                },
+                "some-resources.comments": {
+                    "type": "object",
+                    "properties": {
+                        "href": { "type": "string" },
+                        "type": { "type": "string" }
+                    },
+                    "required": [ "href", "type" ]
+                }
+            },
+            "required": [ "content" ]
+        },
+        "some-resources": {
+            "type": "object",
+            "properties": {
+                "id":  { "type": "string" },
+                "content": { "type": "string" },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "author": { "type": "string" },
+                        "comments": { "type": "array" }
+                    },
+                    "required": [ "author" ]
+                }
+            },
+            "required": [ "content" ]
+        }
+    },
+    "required": [ "some-resources" ]
+}

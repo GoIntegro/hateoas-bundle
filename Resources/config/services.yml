@@ -51,6 +51,7 @@ services:
 
   hateoas.json_coder:
     class: GoIntegro\Bundle\HateoasBundle\Util\JsonCoder
+    arguments: [@kernel]
 
   hateoas.entity.builder:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Builder
@@ -67,4 +68,10 @@ services:
   hateoas.raml.finder:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
     arguments:
+      - @hateoas.raml.parser
       - %go_integro_hateoas.json_api%
+
+  hateoas.raml.parser:
+    class: GoIntegro\Bundle\HateoasBundle\Raml\DocParser
+    arguments:
+      - @hateoas.json_coder
