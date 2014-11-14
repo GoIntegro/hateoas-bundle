@@ -192,7 +192,7 @@ class MagicController extends SymfonyController
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(current($entities))
+                ->setEntity(reset($entities))
                 ->create();
 
         $json = $this->get('hateoas.resource_manager')
@@ -342,7 +342,7 @@ class MagicController extends SymfonyController
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(current($entities))
+                ->setEntity(reset($entities))
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
@@ -350,7 +350,7 @@ class MagicController extends SymfonyController
             ->create()
             ->serialize();
 
-        return $this->createETagResponse($json, Response::HTTP_CREATED);
+        return $this->createETagResponse($json);
     }
 
     /**
