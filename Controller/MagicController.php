@@ -43,9 +43,7 @@ class MagicController extends SymfonyController
         ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
         ERROR_RELATIONSHIP_NOT_FOUND = "No relationship by that name found.",
-        ERROR_FIELD_NOT_FOUND = "No field by that name found.",
-        ERROR_MISSING_DATA = "No data set found for the resource with the Id \"%s\".",
-        ERROR_MISSING_ID = "A data set provided is missing the Id.";
+        ERROR_FIELD_NOT_FOUND = "No field by that name found.";
 
     /**
      * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_relation", methods="GET")
@@ -389,57 +387,5 @@ class MagicController extends SymfonyController
         }
 
         return $entities;
-    }
-
-    /**
-     * @param ResourceEntityInterface $entity
-     * @return $data
-     * @throws BadRequestHttpException
-     * @todo Move to parser.
-     */
-    private function getDataForEntity(ResourceEntityInterface $entity)
-    {
-        $rawBody = $this->getRequest()->getContent();
-        $data = $this->get('hateoas.json_coder')->decode($rawBody);
-        $params = $this->get('hateoas.request_parser')->parse();
-        $entityData = NULL;
-
-        if (isset($data[$params->primaryType]['id'])) {
-            if (
-                (string) $entity->getId()
-                    === $data[$params->primaryType]['id']
-            ) {
-                $entityData = $data;
-            } else {
-                $message = sprintf(self::ERROR_MISSING_DATA, $entity->getId());
-                throw new BadRequestHttpException($message);
-            }
-        } else {
-            foreach ($data[$params->primaryType] as $datum) {
-                if (!isset($datum['id'])) {
-                    throw new BadRequestHttpException(self::ERROR_MISSING_ID);
-                } elseif ((string) $entity->getId() === $datum['id']) {
-                    $entityData = $datum;
-                    break;
-                }
-            }
-
-            if (empty($entityData)) {
-                $message = sprintf(self::ERROR_MISSING_DATA, $entity->getId());
-                throw new BadRequestHttpException($message);
-            }
-        }
-
-        $raml = $this->get('hateoas.raml.finder')->find($params->primaryType);
-
-        if (!$this->get('hateoas.json_coder')->matchSchema(
-            $entityData, $raml
-        )) {
-            $message = $this->get('hateoas.json_coder')
-                ->getSchemaErrorMessage();
-            throw new BadRequestHttpException($message);
-        }
-
-        return $entityData;
     }
 }

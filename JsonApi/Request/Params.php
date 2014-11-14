@@ -65,6 +65,10 @@ class Params
      * @see http://jsonapi.org/format/#fetching-filtering
      */
     public $filters = [];
+    /**
+     * @var array
+     */
+    public $resources;
 
     /**
      * @param string $field

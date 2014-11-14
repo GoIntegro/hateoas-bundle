@@ -13,6 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 // Inflector.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
+// JSON.
+use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
+// RAML.
+use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
 
 /**
  * @see http://jsonapi.org/format/#fetching
@@ -28,13 +32,21 @@ class Parser
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "No pueden pedirse múltiples Ids al pedir un recurso relacionado.";
 
     /**
+     * @var Request
+     */
+    private $request;
+    /**
      * @var MetadataMinerInterface
      */
     private $metadataMiner;
     /**
-     * @var Request
+     * @var JsonCoder
      */
-    private $request;
+    private $jsonCoder;
+    /**
+     * @var DocFinder
+     */
+    private $docFinder;
     /**
      * @var string
      */
@@ -51,22 +63,31 @@ class Parser
      * @var FilterParser
      */
     private $filterParser;
+    /**
+     * @var BodyParser
+     */
+    private $bodyParser;
 
     /**
-     * @param MetadataMinerInterface $metadataMiner
      * @param Request $request
+     * @param MetadataMinerInterface $metadataMiner
+     * @param JsonCoder $jsonCoder
      * @param string $apiUrlPath
      * @param array $config
      */
     public function __construct(
-        MetadataMinerInterface $metadataMiner,
         Request $request,
+        MetadataMinerInterface $metadataMiner,
+        JsonCoder $jsonCoder,
+        DocFinder $docFinder,
         $apiUrlPath = '',
         array $config = []
     )
     {
         $this->request = $request;
         $this->metadataMiner = $metadataMiner;
+        $this->jsonCoder = $jsonCoder;
+        $this->docFinder = $docFinder;
         $this->apiUrlPath = $apiUrlPath;
         // @todo Esta verificación debería estar en el DI.
         $this->magicServices = isset($config['magic_services'])
@@ -76,6 +97,8 @@ class Parser
             = new PaginationParser($metadataMiner, $this->magicServices);
         $this->filterParser
             = new FilterParser($metadataMiner, $this->magicServices);
+        $this->bodyParser
+            = new BodyParser($jsonCoder, $docFinder);
     }
 
     /**
@@ -112,6 +135,7 @@ class Parser
         }
 
         $params->filters = $this->filterParser->parse($request, $params);
+        $params->resources = $this->bodyParser->parse($request, $params);
 
         return $params;
     }

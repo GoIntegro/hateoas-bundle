@@ -3,8 +3,10 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
     scope: request
     arguments:
-      - @hateoas.metadata_miner
       - @request
+      - @hateoas.metadata_miner
+      - @hateoas.json_coder
+      - @hateoas.raml.finder
       - %api.url_path%
       - %go_integro_hateoas.json_api%
 

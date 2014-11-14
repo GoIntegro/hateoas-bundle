@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
 class ParserTest extends TestCase
 {
-    const API_BASE_URL = '/api/v2';
+    const API_BASE_URL = '/api/v1';
 
     /**
      * @var \Parser
@@ -39,7 +39,7 @@ class ParserTest extends TestCase
     {
         // Given...
         $request = self::createRequest(
-            '/api/v2/posts/1/linked/likes',
+            '/api/v1/posts/1/linked/likes',
             ['has' => function() { return FALSE; }]
         );
         $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
@@ -57,7 +57,7 @@ class ParserTest extends TestCase
         $has = function($param) { return 'fields' == $param; };
         $get = function() { return 'name,surname,email'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v2/users', $queryOverrides);
+        $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
         // When...
         $params = $parser->parse();
@@ -77,7 +77,7 @@ class ParserTest extends TestCase
         $has = function($param) { return 'include' == $param; };
         $get = function() { return 'platform.account,workspaces-joined'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v2/users', $queryOverrides);
+        $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
         // When...
         $params = $parser->parse();
@@ -97,7 +97,7 @@ class ParserTest extends TestCase
         $has = function($param) { return 'sort' == $param; };
         $get = function() { return 'surname,name,-registered-date'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v2/users', $queryOverrides);
+        $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
         // When...
         $params = $parser->parse();
@@ -121,7 +121,7 @@ class ParserTest extends TestCase
         $has = function($param) { return in_array($param, ['page', 'size']); };
         $get = function($param) { return 'page' == $param ? 2 : 4; };
         $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v2/users', $queryOverrides);
+        $request = self::createRequest('/api/v1/users', $queryOverrides);
         $config = [
             'magic_services' => [
                 [
@@ -147,6 +147,30 @@ class ParserTest extends TestCase
             'GoIntegro\Bundle\HateoasBundle\Http\Url',
             $params->pagination->paginationlessUrl
         );
+    }
+
+    public function testParsingARequestWithAnUpdateBody()
+    {
+        // Given...
+        $queryOverrides = [
+            'getContent' => function() { return self::UPDATE_BODY; }
+        ];
+        $request = self::createRequest('/api/v1/users', $queryOverrides);
+        $config = [
+            'magic_services' => [
+                [
+                    'resource_type' => 'users',
+                    'entity_class' => 'Entity\User'
+                ]
+            ]
+        ];
+        $parser
+            = new Parser($this->miner, $request, self::API_BASE_URL, $config);
+        // When...
+        $params = $parser->parse();
+        // Then...
+        $this->assertEquals('users', $params->primaryType);
+        $this->assertEquals('users', $params->primaryType);
     }
 
     /**
