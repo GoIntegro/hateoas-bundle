@@ -179,6 +179,12 @@ class MagicController extends SymfonyController
         $params = $this->get('hateoas.request_parser')->parse();
         $entities = $this->getEntitiesFromParams($ids);
 
+        foreach ($entities as $entity) {
+            if (!$this->get('security.context')->isGranted('view', $entity)) {
+                throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
+            }
+        }
+
         $resources = 1 < count($entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
@@ -221,7 +227,7 @@ class MagicController extends SymfonyController
                 $this->get('security.context')->isGranted('view', $entity);
             });
 
-        if (empty($entities)) {
+        if (0 == count($entities)) {
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
@@ -302,6 +308,12 @@ class MagicController extends SymfonyController
         $params = $this->get('hateoas.request_parser')->parse();
         $entities = $this->getEntitiesFromParams($params);
 
+        foreach ($entities as $entity) {
+            if (!$this->get('security.context')->isGranted('edit', $entity)) {
+                throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
+            }
+        }
+
         if (1 == count($entities)) {
             // @todo Call methods derived from code below.
         } else {
@@ -359,12 +371,6 @@ class MagicController extends SymfonyController
             ->getManager()
             ->getRepository($params->primaryClass)
             ->findById($params->primaryIds);
-
-        foreach ($entities as $entity) {
-            if ($this->get('security.context')->isGranted('view', $entity)) {
-                throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
-            }
-        }
 
         if (
             empty($entities)
