@@ -255,6 +255,8 @@ class MagicController extends SymfonyController
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
      * @see http://jsonapi.org/format/#crud-creating-resources
+     * @todo Support multi-create.
+     * @todo Rollback everything if anything goes wrong.
      */
     public function createAction($primaryType)
     {
@@ -302,6 +304,7 @@ class MagicController extends SymfonyController
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
      * @see http://jsonapi.org/format/#crud-updating
+     * @todo Rollback everything if anything goes wrong.
      */
     public function updateAction($primaryType, $ids)
     {
