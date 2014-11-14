@@ -16,7 +16,7 @@ use HateoasInc\Bundle\ExampleBundle\DataFixtures\ORM\SocialDataFixture;
  * Tests the functionality implemented in the class.
  *
  */
-class StoresTest extends ApiTestCase
+class PostsTest extends ApiTestCase
 {
     const RESOURCE_PATH = '/api/v1/posts';
 
@@ -84,7 +84,9 @@ class StoresTest extends ApiTestCase
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH
             . '/' . $post->posts->id;
-        $body = ['posts' => ['content' => "No it's not."]];
+        $body = ['posts' => [
+            'id' => $post->posts->id, 'content' => "No it's not."
+        ]];
         $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt')
             ->setMethod('PUT')
             ->setBody($body);

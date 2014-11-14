@@ -15,6 +15,7 @@ class PostVoter implements VoterInterface
 {
     const VIEW = 'view';
     const EDIT = 'edit';
+    const SUPPORTED_CLASS = 'HateoasInc\\Bundle\\ExampleBundle\\Entity\\Post';
 
     public function supportsAttribute($attribute)
     {
@@ -23,10 +24,8 @@ class PostVoter implements VoterInterface
 
     public function supportsClass($class)
     {
-        $supportedClass = 'HateoasInc\Bundle\ExampleBundle\Entity\Post';
-
-        return $supportedClass === $class
-            || is_subclass_of($class, $supportedClass);
+        return self::SUPPORTED_CLASS === $class
+            || is_subclass_of($class, self::SUPPORTED_CLASS);
     }
 
     /**
