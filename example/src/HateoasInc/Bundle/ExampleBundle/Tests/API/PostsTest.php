@@ -61,12 +61,14 @@ class PostsTest extends ApiTestCase
     }
 
     /**
+     * @param \stdClass $doc
      * @depends testPosting201
      */
-    public function testGettingOne200()
+    public function testGettingOne200(\stdClass $doc)
     {
         /* Given... (Fixture) */
-        $url = $this->getRootUrl() . self::RESOURCE_PATH;
+        $url = $this->getRootUrl() . self::RESOURCE_PATH
+            . '/' . $doc->posts->id;
         $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
         /* When... (Action) */
         $transfer = $client->exec();
@@ -77,13 +79,14 @@ class PostsTest extends ApiTestCase
     }
 
     /**
+     * @param \stdClass $doc
      * @depends testPosting201
      */
-    public function testGettingContentField200(\stdClass $post)
+    public function testGettingContentField200(\stdClass $doc)
     {
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH
-            . '/' . $post->posts->id
+            . '/' . $doc->posts->id
             . '/content';
         $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
         /* When... (Action) */
@@ -92,18 +95,19 @@ class PostsTest extends ApiTestCase
         $message = $transfer . "\n";
         $this->assertResponseOK($client, $message);
         $this->assertEquals(
-            "\"{$post->posts->content}\"", $transfer, $message
+            "\"{$doc->posts->content}\"", $transfer, $message
         );
     }
 
     /**
+     * @param \stdClass $doc
      * @depends testPosting201
      */
-    public function testGettingUnknownField404(\stdClass $post)
+    public function testGettingUnknownField404(\stdClass $doc)
     {
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH
-            . '/' . $post->posts->id
+            . '/' . $doc->posts->id
             . '/unknown';
         $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
         /* When... (Action) */
@@ -115,13 +119,14 @@ class PostsTest extends ApiTestCase
     }
 
     /**
+     * @param \stdClass $doc
      * @depends testPosting201
      */
-    public function testGettingOwnerRelation200(\stdClass $post)
+    public function testGettingOwnerRelation200(\stdClass $doc)
     {
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH
-            . '/' . $post->posts->id
+            . '/' . $doc->posts->id
             . '/links/owner';
         $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
         /* When... (Action) */
@@ -133,13 +138,14 @@ class PostsTest extends ApiTestCase
     }
 
     /**
+     * @param \stdClass $doc
      * @depends testPosting201
      */
-    public function testGettingUnknownRelation404(\stdClass $post)
+    public function testGettingUnknownRelation404(\stdClass $doc)
     {
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH
-            . '/' . $post->posts->id
+            . '/' . $doc->posts->id
             . '/links/unknown';
         $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
         /* When... (Action) */
@@ -151,15 +157,16 @@ class PostsTest extends ApiTestCase
     }
 
     /**
+     * @param \stdClass $doc
      * @depends testPosting201
      */
-    public function testPutting200(\stdClass $post)
+    public function testPutting200(\stdClass $doc)
     {
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH
-            . '/' . $post->posts->id;
+            . '/' . $doc->posts->id;
         $body = ['posts' => [
-            'id' => $post->posts->id, 'content' => "No it's not."
+            'id' => $doc->posts->id, 'content' => "No it's not."
         ]];
         $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt')
             ->setMethod('PUT')

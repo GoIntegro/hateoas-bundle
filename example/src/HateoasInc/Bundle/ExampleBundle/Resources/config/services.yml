@@ -3,6 +3,11 @@ services:
     class: HateoasInc\Bundle\ExampleBundle\Service\UserBuilder
   biz.users.update:
     class: HateoasInc\Bundle\ExampleBundle\Service\UserMutator
+  security.access.user_voter:
+    class: HateoasInc\Bundle\ExampleBundle\Security\Authorization\Voter\UserVoter
+    public: false
+    tags:
+      - { name: security.voter }
   security.access.post_voter:
     class: HateoasInc\Bundle\ExampleBundle\Security\Authorization\Voter\PostVoter
     public: false

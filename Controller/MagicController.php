@@ -73,17 +73,17 @@ class MagicController extends SymfonyController
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
-        // @todo Intentar evitar crear el recurso. Necesitamos poder manejar los blacklists desde la metadata, o algo así.
-        $primaryResource = $this->get('hateoas.resource_manager')
-            ->createResourceFactory()
-            ->setEntity($entity)
-            ->create();
-        $metadata = $primaryResource->getMetadata();
+        $metadata = $this->get('hateoas.metadata_miner')
+            ->mine($params->primaryClass);
         $json = NULL;
         $relation = NULL;
         $relatedResource = NULL;
 
         if ($metadata->isRelationship($relationship)) {
+            $primaryResource = $this->get('hateoas.resource_manager')
+                ->createResourceFactory()
+                ->setEntity($entity)
+                ->create();
             $relation = $primaryResource->callGetter($relationship);
         } else {
             throw new NotFoundHttpException(
@@ -163,15 +163,15 @@ class MagicController extends SymfonyController
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
-        // @todo Intentar evitar crear el recurso. Necesitamos poder manejar los blacklists desde la metadata, o algo así.
-        $resource = $this->get('hateoas.resource_manager')
-            ->createResourceFactory()
-            ->setEntity($entity)
-            ->create();
-        $metadata = $resource->getMetadata();
+        $metadata = $this->get('hateoas.metadata_miner')
+            ->mine($params->primaryClass);
         $json = NULL;
 
         if ($metadata->isField($field)) {
+            $resource = $this->get('hateoas.resource_manager')
+                ->createResourceFactory()
+                ->setEntity($entity)
+                ->create();
             $json = $resource->callGetter($field);
         } else {
             throw new NotFoundHttpException(self::ERROR_FIELD_NOT_FOUND);
@@ -188,7 +188,7 @@ class MagicController extends SymfonyController
     public function getByIdsAction($primaryType, $ids)
     {
         $params = $this->get('hateoas.request_parser')->parse();
-        $entities = $this->getEntitiesFromParams($ids);
+        $entities = $this->getEntitiesFromParams($params);
 
         foreach ($entities as $entity) {
             if (!$this->get('security.context')->isGranted('view', $entity)) {
@@ -243,10 +243,15 @@ class MagicController extends SymfonyController
             throw new DocumentTooLargeHttpException;
         }
 
-        $resources = $this->get('hateoas.resource_manager')
-            ->createCollectionFactory()
-            ->setPaginator($entities->getPaginator())
-            ->create();
+        $resources = 0 === count($entities)
+            ? $this->get('hateoas.resource_manager')
+                ->createCollectionFactory()
+                ->addEntities($entities->toArray())
+                ->create()
+            : $this->get('hateoas.resource_manager')
+                ->createCollectionFactory()
+                ->setPaginator($entities->getPaginator())
+                ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
             ->setDocumentResources($resources)

@@ -64,4 +64,28 @@ class PaginatedCollection extends ArrayCollection implements Paginated
             ? count($this->paginator)
             : count($this);
     }
+
+    /**
+     * @param \Closure $func
+     * @return self
+     */
+    public function map(\Closure $func)
+    {
+        $collection = new static(array_map($func, $this->toArray()));
+        $collection->setPaginator($this->paginator);
+
+        return $collection;
+    }
+
+    /**
+     * @param \Closure $func
+     * @return self
+     */
+    public function filter(\Closure $p)
+    {
+        $collection = new static(array_filter($this->toArray(), $p));
+        $collection->setPaginator($this->paginator);
+
+        return $collection;
+    }
 }
