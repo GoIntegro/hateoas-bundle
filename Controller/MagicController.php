@@ -21,7 +21,8 @@ use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Security.
