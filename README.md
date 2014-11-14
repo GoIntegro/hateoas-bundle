@@ -245,6 +245,8 @@ Access control is handled by [Symfony's Security Component](http://symfony.com/d
 
 If you don't want security at all, just configure a single voter accepting anything that implements `GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface`. Not the best advice ever, though.
 
+There is an unresolved [issue related to access control and pagination](https://github.com/GoIntegro/hateoas-bundle/issues/10).
+
 Ghosts
 ------
 
