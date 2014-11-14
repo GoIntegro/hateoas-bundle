@@ -79,6 +79,80 @@ class PostsTest extends ApiTestCase
     /**
      * @depends testPosting201
      */
+    public function testGettingContentField200(\stdClass $post)
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH
+            . '/' . $post->posts->id
+            . '/content';
+        $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $message = $transfer . "\n";
+        $this->assertResponseOK($client, $message);
+        $this->assertEquals(
+            "\"{$post->posts->content}\"", $transfer, $message
+        );
+    }
+
+    /**
+     * @depends testPosting201
+     */
+    public function testGettingUnknownField404(\stdClass $post)
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH
+            . '/' . $post->posts->id
+            . '/unknown';
+        $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $message = $transfer . "\n";
+        $this->assertResponseNotFound($client, $message);
+        $this->assertJsonApiSchema($transfer, $message);
+    }
+
+    /**
+     * @depends testPosting201
+     */
+    public function testGettingOwnerRelation200(\stdClass $post)
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH
+            . '/' . $post->posts->id
+            . '/links/owner';
+        $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $message = $transfer . "\n";
+        $this->assertResponseOK($client, $message);
+        $this->assertJsonApiSchema($transfer, $message);
+    }
+
+    /**
+     * @depends testPosting201
+     */
+    public function testGettingUnknownRelation404(\stdClass $post)
+    {
+        /* Given... (Fixture) */
+        $url = $this->getRootUrl() . self::RESOURCE_PATH
+            . '/' . $post->posts->id
+            . '/links/unknown';
+        $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt');
+        /* When... (Action) */
+        $transfer = $client->exec();
+        /* Then... (Assertions) */
+        $message = $transfer . "\n";
+        $this->assertResponseNotFound($client, $message);
+        $this->assertJsonApiSchema($transfer, $message);
+    }
+
+    /**
+     * @depends testPosting201
+     */
     public function testPutting200(\stdClass $post)
     {
         /* Given... (Fixture) */

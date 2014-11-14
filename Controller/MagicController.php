@@ -48,12 +48,13 @@ class MagicController extends SymfonyController
         ERROR_MISSING_ID = "A data set provided is missing the Id.";
 
     /**
-     * @Route("/{primaryType}/{id}/linked/{relationship}", name="hateoas_magic_relation", methods="GET")
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_relation", methods="GET")
      * @param string $primaryType
      * @param string $id
      * @param string $relationship
      * @throws HttpException
      * @throws NotFoundHttpException
+     * @see http://jsonapi.org/format/#urls-relationships
      * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.14
      */
     public function getRelationAction($primaryType, $id, $relationship)
@@ -93,7 +94,17 @@ class MagicController extends SymfonyController
         if ($metadata->isToManyRelationship($relationship)) {
             if ($relation instanceof Collection) {
                 $relation = $relation->toArray();
+            } elseif (!is_array($relation)) {
+                throw new \LogicException(
+                    self::ERROR_INVALID_TO_MANY_RELATION
+                );
             }
+
+            $filter = function(ResourceEntityInterface $entity) {
+                return $this->get('security.context')
+                    ->isGranted('view', $entity);
+            };
+            $relation = array_filter($relation, $filter);
 
             if (Controller::DEFAULT_RESOURCE_LIMIT < count($relation)) {
                 throw new DocumentTooLargeHttpException;
@@ -221,15 +232,12 @@ class MagicController extends SymfonyController
 
         $resources = NULL;
         $params = $this->get('hateoas.request_parser')->parse();
+        $filter = function(ResourceEntityInterface $entity) {
+            return $this->get('security.context')->isGranted('view', $entity);
+        };
         $entities = $this->get('hateoas.repo_helper')
             ->findByRequestParams($params)
-            ->filter(function($entity) {
-                $this->get('security.context')->isGranted('view', $entity);
-            });
-
-        if (0 == count($entities)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
+            ->filter($filter);
 
         if (Controller::DEFAULT_RESOURCE_LIMIT < count($entities)) {
             throw new DocumentTooLargeHttpException;
