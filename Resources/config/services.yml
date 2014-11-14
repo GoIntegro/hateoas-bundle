@@ -64,6 +64,12 @@ services:
 
   hateoas.entity.mutator:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Mutator
+    scope: request
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @security.context
+      - @validator
+      - @hateoas.request_parser
 
   hateoas.raml.finder:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder

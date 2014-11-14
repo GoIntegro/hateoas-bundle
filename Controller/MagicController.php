@@ -312,26 +312,19 @@ class MagicController extends SymfonyController
             if (!$this->get('security.context')->isGranted('edit', $entity)) {
                 throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
             }
-        }
 
-        if (1 == count($entities)) {
-            // @todo Call methods derived from code below.
-        } else {
-            // @todo Move to method.
-            foreach ($entities as $entity) {
-                $data = $this->getDataForEntity($entity);
+            $data = $this->getDataForEntity($entity);
 
-                try {
-                    // @todo Improve the signature of update().
-                    $entity = $this->get('hateoas.entity.mutator')
-                        ->update($entity, $data);
-                } catch (AccessDeniedException $e) {
-                    throw new AccessDeniedHttpException($e->getMessage(), $e);
-                } catch (EntityConflictExceptionInterface $e) {
-                    throw new ConflictHttpException($e->getMessage(), $e);
-                } catch (ValidationExceptionInterface $e) {
-                    throw new BadRequestHttpException($e->getMessage(), $e);
-                }
+            try {
+                // @todo Improve the signature of update().
+                $entity = $this->get('hateoas.entity.mutator')
+                    ->update($entity, $data);
+            } catch (AccessDeniedException $e) {
+                throw new AccessDeniedHttpException($e->getMessage(), $e);
+            } catch (EntityConflictExceptionInterface $e) {
+                throw new ConflictHttpException($e->getMessage(), $e);
+            } catch (ValidationExceptionInterface $e) {
+                throw new BadRequestHttpException($e->getMessage(), $e);
             }
         }
 
@@ -392,17 +385,21 @@ class MagicController extends SymfonyController
     {
         $rawBody = $this->getRequest()->getContent();
         $data = $this->get('hateoas.json_coder')->decode($rawBody);
+        $params = $this->get('hateoas.request_parser')->parse();
         $entityData = NULL;
 
-        if (isset($data[$primaryType]['id'])) {
-            if ((string) $entity->getId() === $data['id']) {
+        if (isset($data[$params->primaryType]['id'])) {
+            if (
+                (string) $entity->getId()
+                    === $data[$params->primaryType]['id']
+            ) {
                 $entityData = $data;
             } else {
                 $message = sprintf(self::ERROR_MISSING_DATA, $entity->getId());
                 throw new BadRequestHttpException($message);
             }
         } else {
-            foreach ($data[$primaryType] as $datum) {
+            foreach ($data[$params->primaryType] as $datum) {
                 if (!isset($datum['id'])) {
                     throw new BadRequestHttpException(self::ERROR_MISSING_ID);
                 } elseif ((string) $entity->getId() === $datum['id']) {

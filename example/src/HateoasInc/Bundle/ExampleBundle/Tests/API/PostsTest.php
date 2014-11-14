@@ -84,7 +84,9 @@ class PostsTest extends ApiTestCase
         /* Given... (Fixture) */
         $url = $this->getRootUrl() . self::RESOURCE_PATH
             . '/' . $post->posts->id;
-        $body = ['posts' => ['content' => "No it's not."]];
+        $body = ['posts' => [
+            'id' => $post->posts->id, 'content' => "No it's not."
+        ]];
         $client = $this->buildHttpClient($url, 'this_guy', 'cl34rt3xt')
             ->setMethod('PUT')
             ->setBody($body);
