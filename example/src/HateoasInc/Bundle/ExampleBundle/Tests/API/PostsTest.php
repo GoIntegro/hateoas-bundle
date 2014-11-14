@@ -16,7 +16,7 @@ use HateoasInc\Bundle\ExampleBundle\DataFixtures\ORM\SocialDataFixture;
  * Tests the functionality implemented in the class.
  *
  */
-class StoresTest extends ApiTestCase
+class PostsTest extends ApiTestCase
 {
     const RESOURCE_PATH = '/api/v1/posts';
 

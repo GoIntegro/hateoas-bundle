@@ -35,9 +35,9 @@ class JsonCoder
         JSON_ERROR_CTRL_CHAR => "Control character error, possibly incorrectly encoded.",
         JSON_ERROR_SYNTAX => "Syntax error.",
         JSON_ERROR_UTF8 => "Malformed UTF-8 characters, possibly incorrectly encoded.",
-        JSON_ERROR_RECURSION => "One or more recursive references in the value to be encoded.",
-        JSON_ERROR_INF_OR_NAN => "One or more NAN or INF values in the value to be encoded.",
-        JSON_ERROR_UNSUPPORTED_TYPE => "A value of a type that cannot be encoded was given."
+        6 => "One or more recursive references in the value to be encoded.", // JSON_ERROR_RECURSION in PHP5.5.
+        7 => "One or more NAN or INF values in the value to be encoded.", // JSON_ERROR_INF_OR_NAN in PHP5.5
+        8 => "A value of a type that cannot be encoded was given." // JSON_ERROR_UNSUPPORTED_TYPE in PHP5.5
     ];
 
     /**
