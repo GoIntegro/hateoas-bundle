@@ -15,7 +15,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination;
 // JSON.
 use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 // RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
+use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder,
+    GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc;
 
 /**
  * @see http://jsonapi.org/format/#fetching
@@ -23,7 +24,8 @@ use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
 class UpdateBodyParser
 {
     const ERROR_MISSING_DATA = "No data set found for the resource with the Id \"%s\".",
-        ERROR_MISSING_ID = "A data set provided is missing the Id.";
+        ERROR_MISSING_ID = "A data set provided is missing the Id.",
+        ERROR_DUPLICATED_ID = "The Id \"%s\" was sent twice.";
 
     /**
      * @var JsonCoder
@@ -56,38 +58,34 @@ class UpdateBodyParser
         $entityData = [];
 
         if (isset($data[$params->primaryType]['id'])) {
-            if (isset($entityData[$data[$params->primaryType]['id']])) {
+            $id = $data[$params->primaryType]['id'];
 
-            } elseif (
-                (string) $entity->getId()
-                    === $data[$params->primaryType]['id']
-            ) {
-                $entityData[$entity->getId()] = $data[$params->primaryType];
+            if (isset($entityData[$id])) {
+                $message = sprintf(self::ERROR_DUPLICATED_ID, $id);
+                throw new ParseException($message);
             } else {
-                $message = sprintf(self::ERROR_MISSING_DATA, $entity->getId());
-                throw new BadRequestHttpException($message);
+                $entityData[$id] = $data[$params->primaryType];
             }
         } else {
             foreach ($data[$params->primaryType] as $datum) {
                 if (!isset($datum['id'])) {
-                    throw new BadRequestHttpException(self::ERROR_MISSING_ID);
-                } elseif ((string) $entity->getId() === $datum['id']) {
-                    $entityData = $datum;
-                    break;
+                    throw new ParseException(self::ERROR_MISSING_ID);
+                } else {
+                    $entityData[$datum['id']] = $datum;
                 }
-            }
-
-            if (empty($entityData)) {
-                $message = sprintf(self::ERROR_MISSING_DATA, $entity->getId());
-                throw new BadRequestHttpException($message);
             }
         }
 
-        $raml = $this->docFinder->find($params->primaryType);
+        $ramlDoc = $this->docFinder->find($params->primaryType);
+        $jsonSchema = $this->docFinder
+            ->createNavigator($ramlDoc)
+            ->findRequestSchema(RamlDoc::HTTP_PUT, $params->primaryType);
 
-        if (!$this->jsonCoder->matchSchema($entityData, $raml)) {
-            $message = $this->jsonCoder->getSchemaErrorMessage();
-            throw new BadRequestHttpException($message);
+        foreach ($entityData as $data) {
+            if (!$this->jsonCoder->matchSchema($entityData, $jsonSchema)) {
+                $message = $this->jsonCoder->getSchemaErrorMessage();
+                throw new ParseException($message);
+            }
         }
 
         return $entityData;

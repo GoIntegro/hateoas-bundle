@@ -77,6 +77,7 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
     arguments:
       - @hateoas.raml.parser
+      - @hateoas.json_coder
       - %go_integro_hateoas.json_api%
 
   hateoas.raml.parser:

@@ -16,12 +16,32 @@ use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
 class ParserTest extends TestCase
 {
-    const API_BASE_URL = '/api/v1';
+    const API_BASE_URL = '/api/v1',
+        HTTP_PUT_BODY = <<<'JSON'
+{
+    "users": {
+        "id": "7",
+        "name": "John",
+        "surname": "Connor"
+    }
+}
+JSON;
 
     /**
      * @var \Parser
      */
     protected $miner;
+    /**
+     * @var array
+     */
+    private static $config = [
+        'magic_services' => [
+            [
+                'resource_type' => 'users',
+                'entity_class' => 'Entity\User'
+            ]
+        ]
+    ];
 
     protected function setUp()
     {
@@ -42,7 +62,14 @@ class ParserTest extends TestCase
             '/api/v1/posts/1/linked/likes',
             ['has' => function() { return FALSE; }]
         );
-        $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
+        $parser = new Parser(
+            $request,
+            $this->miner,
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -58,7 +85,14 @@ class ParserTest extends TestCase
         $get = function() { return 'name,surname,email'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
         $request = self::createRequest('/api/v1/users', $queryOverrides);
-        $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
+        $parser = new Parser(
+            $request,
+            $this->miner,
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -78,7 +112,14 @@ class ParserTest extends TestCase
         $get = function() { return 'platform.account,workspaces-joined'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
         $request = self::createRequest('/api/v1/users', $queryOverrides);
-        $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
+        $parser = new Parser(
+            $request,
+            $this->miner,
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -98,7 +139,14 @@ class ParserTest extends TestCase
         $get = function() { return 'surname,name,-registered-date'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
         $request = self::createRequest('/api/v1/users', $queryOverrides);
-        $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
+        $parser = new Parser(
+            $request,
+            $this->miner,
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -122,16 +170,14 @@ class ParserTest extends TestCase
         $get = function($param) { return 'page' == $param ? 2 : 4; };
         $queryOverrides = ['has' => $has, 'get' => $get];
         $request = self::createRequest('/api/v1/users', $queryOverrides);
-        $config = [
-            'magic_services' => [
-                [
-                    'resource_type' => 'users',
-                    'entity_class' => 'Entity\User'
-                ]
-            ]
-        ];
-        $parser
-            = new Parser($this->miner, $request, self::API_BASE_URL, $config);
+        $parser = new Parser(
+            $request,
+            $this->miner,
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -155,30 +201,45 @@ class ParserTest extends TestCase
         $queryOverrides = [
             'getContent' => function() { return self::UPDATE_BODY; }
         ];
-        $request = self::createRequest('/api/v1/users', $queryOverrides);
-        $config = [
-            'magic_services' => [
-                [
-                    'resource_type' => 'users',
-                    'entity_class' => 'Entity\User'
-                ]
-            ]
-        ];
-        $parser
-            = new Parser($this->miner, $request, self::API_BASE_URL, $config);
+        $request = self::createRequest(
+            '/api/v1/users',
+            $queryOverrides,
+            Parser::HTTP_PUT,
+            self::HTTP_PUT_BODY
+        );
+        $parser = new Parser(
+            $request,
+            $this->miner,
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
-        $this->assertEquals('users', $params->primaryType);
-        $this->assertEquals('users', $params->primaryType);
+        $this->assertSame([
+            '7' => [
+                'id' => '7',
+                'name' => 'John',
+                'surname' => 'Connor'
+            ]
+        ], $params->resources);
     }
 
     /**
      * @param string $pathInfo
      * @param array $queryOverrides
+     * @param string $method
+     * @param string $body
      * @return Request
      */
-    private static function createRequest($pathInfo, array $queryOverrides)
+    private static function createRequest(
+        $pathInfo,
+        array $queryOverrides,
+        $method = Parser::HTTP_GET,
+        $body = NULL
+    )
     {
         $defaultOverrides = [
             'getIterator' => function() { return new \ArrayIterator([]); }
@@ -190,9 +251,51 @@ class ParserTest extends TestCase
         );
         $request = Stub::makeEmpty(
             'Symfony\Component\HttpFoundation\Request',
-            ['query' => $query, 'getPathInfo' => $pathInfo]
+            [
+                'query' => $query,
+                'getPathInfo' => $pathInfo,
+                'getMethod' => $method,
+                'getContent' => $body
+            ]
         );
 
         return $request;
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\Util\JsonCoder
+     */
+    private static function createJsonCoder()
+    {
+        $jsonCoder = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\Util\JsonCoder',
+            [
+                'decode' => function($json) {
+                    return json_decode($json, TRUE);
+                },
+                'matchSchema' => TRUE
+            ]
+        );
+
+        return $jsonCoder;
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
+     */
+    private static function createDocFinder()
+    {
+        $ramlDoc = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\RamlDoc'
+        );
+        $docNavigator = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\DocNavigator'
+        );
+        $docFinder = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\DocFinder',
+            ['find' => $ramlDoc, 'createNavigator' => $docNavigator]
+        );
+
+        return $docFinder;
     }
 }

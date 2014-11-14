@@ -22,6 +22,8 @@ use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
  */
 class BodyParser
 {
+    const ERROR_UNSUPPORTED_HTTP_METHOD = "The HTTP method \"%s\" is not supported.";
+
     /**
      * @param JsonCoder $jsonCoder
      * @param DocFinder $docFinder
@@ -39,15 +41,19 @@ class BodyParser
     public function parse(Request $request, Params $params)
     {
         switch ($request->getMethod()) {
-            case 'POST':
+            case Parser::HTTP_POST:
                 break;
 
-            case 'PUT':
+            case Parser::HTTP_PUT:
                 return $this->updateBodyParser->parse($request, $params);
                 break;
 
             default:
-                throw new \Exception;
+                $message = sprintf(
+                    self::ERROR_UNSUPPORTED_HTTP_METHOD,
+                    $request->getMethod()
+                );
+                throw new \ErrorException($message);
         }
     }
 }

@@ -30,6 +30,8 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 // Validator.
 use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface;
+// Request.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException;
 
 /**
  * Permite probar la flexibilidad de la biblioteca.
@@ -273,7 +275,12 @@ class MagicController extends SymfonyController
     {
         $rawBody = $this->getRequest()->getContent();
 
-        $params = $this->get('hateoas.request_parser')->parse();
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+
         $raml = $this->get('hateoas.raml.finder')->find($params->primaryType);
 
         if (!$this->get('hateoas.json_coder')->matchSchema($rawBody, $raml)) {
@@ -319,7 +326,12 @@ class MagicController extends SymfonyController
      */
     public function updateAction($primaryType, $ids)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+
         $entities = $this->getEntitiesFromParams($params);
 
         foreach ($entities as $entity) {

@@ -13,14 +13,15 @@ use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 use Codeception\Util\Stub;
 // RAML.
 use GoIntegro\Bundle\HateoasBundle\Raml\DocParser,
+    GoIntegro\Bundle\HateoasBundle\Raml\DocFinder,
     GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc;
 
-class DocParserTest extends TestCase
+class DocFinderTest extends TestCase
 {
     const RAML_PATH = '/../Resources/raml/some-resources.raml',
         TEST_SCHEMA = "This is the schema";
 
-    public function testParsingRamlDoc()
+    public function testCreatingDocNavigator()
     {
         /* Given... (Fixture) */
         $jsonCoder = Stub::makeEmpty(
@@ -34,11 +35,13 @@ class DocParserTest extends TestCase
             }]
         );
         $parser = new DocParser($jsonCoder);
-        /* When... (Action) */
         $ramlDoc = $parser->parse(__DIR__ . self::RAML_PATH);
+        $finder = new DocFinder($parser, $jsonCoder);
+        /* When... (Action) */
+        $navigator = $finder->createNavigator($ramlDoc);
         /* Then... (Assertions) */
         $this->assertInstanceOf(
-            'GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc', $ramlDoc
+            'GoIntegro\Bundle\HateoasBundle\Raml\DocNavigator', $navigator
         );
     }
 }

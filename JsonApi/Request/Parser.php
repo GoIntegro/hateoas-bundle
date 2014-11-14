@@ -23,6 +23,14 @@ use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
  */
 class Parser
 {
+    const HTTP_OPTIONS = 'OPTIONS',
+        HTTP_HEAD = 'HEAD',
+        HTTP_GET = 'GET',
+        HTTP_POST = 'POST',
+        HTTP_PUT = 'PUT',
+        HTTP_DELETE = 'DELETE',
+        HTTP_PATCH = 'PATCH';
+
     const PRIMARY_RESOURCE_TYPE = 0,
         PRIMARY_RESOURCE_IDS = 1,
         PRIMARY_RESOURCE_FIELD = 2,
@@ -135,7 +143,10 @@ class Parser
         }
 
         $params->filters = $this->filterParser->parse($request, $params);
-        $params->resources = $this->bodyParser->parse($request, $params);
+
+        if (!empty($request->getContent())) {
+            $params->resources = $this->bodyParser->parse($request, $params);
+        }
 
         return $params;
     }
