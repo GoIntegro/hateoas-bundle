@@ -324,24 +324,56 @@ class MagicController extends SymfonyController
 
         $data = $this->get('hateoas.json_coder')->decode($rawBody);
 
-        try {
-            $entity = $this->get('hateoas.entity.mutator')
-                ->update($entity, $data);
-        } catch (AccessDeniedException $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityConflictExceptionInterface $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
-        } catch (ValidationExceptionInterface $e) {
-            throw new BadRequestHttpException($e->getMessage(), $e);
+        if (1 == count($entities)) {
+            // @todo Call methods derived from code below.
+        } else {
+            // @todo Move to method.
+            foreach ($entities as $entity) {
+                // @todo Move to parser.
+                $entityData = NULL;
+
+                // @todo Move to parser.
+                foreach ($data[$primaryType] as $datum) {
+                    if (!isset($datum['id'])) {
+                        throw new BadRequestHttpException(self::ERROR_MISSING_ID);
+                    } elseif ((string) $entity->getId() === $datum['id']) {
+                        $entityData = $datum;
+                        break;
+                    }
+                }
+
+                // @todo Move to parser.
+                if (empty($entityData)) {
+                    $message = sprintf(self::ERROR_MISSING_DATA, $entity->getId());
+                    throw new BadRequestHttpException($message);
+                }
+
+                try {
+                    // @todo Improve the signature of update().
+                    $entity = $this->get('hateoas.entity.mutator')
+                        ->update($entity, $entityData);
+                } catch (AccessDeniedException $e) {
+                    throw new AccessDeniedHttpException($e->getMessage(), $e);
+                } catch (EntityConflictExceptionInterface $e) {
+                    throw new ConflictHttpException($e->getMessage(), $e);
+                } catch (ValidationExceptionInterface $e) {
+                    throw new BadRequestHttpException($e->getMessage(), $e);
+                }
+            }
         }
 
-        $resource = $this->get('hateoas.resource_manager')
-            ->createResourceFactory()
-            ->setEntity($entity)
-            ->create();
+        $resource = 1 < count($entities)
+            ? $this->get('hateoas.resource_manager')
+                ->createCollectionFactory()
+                ->addEntities($entities)
+                ->create()
+            : $this->get('hateoas.resource_manager')
+                ->createResourceFactory()
+                ->setEntity(current($entities))
+                ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
-            ->setDocumentResources($resource)
+            ->setDocumentResources($resources)
             ->create()
             ->serialize();
 
