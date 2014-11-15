@@ -17,6 +17,8 @@ use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 // RAML.
 use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 
 /**
  * @see http://jsonapi.org/format/#fetching
@@ -176,10 +178,12 @@ class Parser
         $ids = !empty($ids) ? explode(',', $ids) : [];
 
         if (1 < count($ids) && !empty($relationshipType)) {
-            throw new \Exception(self::ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP);
+            throw new ParseException(
+                self::ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP
+            );
         }
 
-        if (Document::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
+        if (Document::DEFAULT_RESOURCE_LIMIT < count($ids)) {
             throw new DocumentTooLargeHttpException;
         }
 

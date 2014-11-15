@@ -42,6 +42,8 @@ class ParserTest extends TestCase
             self::createFilterParser(),
             self::createPaginationParser(),
             self::createBodyParser(),
+            self::createActionParser(),
+            self::createParamEntityFinder(),
             self::API_BASE_URL,
             self::$config
         );
@@ -65,6 +67,8 @@ class ParserTest extends TestCase
             self::createFilterParser(),
             self::createPaginationParser(),
             self::createBodyParser(),
+            self::createActionParser(),
+            self::createParamEntityFinder(),
             self::API_BASE_URL,
             self::$config
         );
@@ -92,6 +96,8 @@ class ParserTest extends TestCase
             self::createFilterParser(),
             self::createPaginationParser(),
             self::createBodyParser(),
+            self::createActionParser(),
+            self::createParamEntityFinder(),
             self::API_BASE_URL,
             self::$config
         );
@@ -119,6 +125,8 @@ class ParserTest extends TestCase
             self::createFilterParser(),
             self::createPaginationParser(),
             self::createBodyParser(),
+            self::createActionParser(),
+            self::createParamEntityFinder(),
             self::API_BASE_URL,
             self::$config
         );
@@ -206,6 +214,26 @@ class ParserTest extends TestCase
     {
         return Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser'
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
+     */
+    private static function createActionParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser'
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder
+     */
+    private static function createParamEntityFinder()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder'
         );
     }
 }

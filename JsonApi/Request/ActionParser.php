@@ -22,14 +22,16 @@ use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
  */
 class ActionParser
 {
+    const ERROR_REQUEST_SCOPE_UNKNOWN = "Could not calculate request scope; whether it affects one or many resources.";
+
     /**
      * @var array This mapping is defined by JSON-API, not HTTP nor REST.
      */
     private static $methodToAction = [
-        Parser::GET => RequestAction::ACTION_FETCH,
-        Parser::POST => RequestAction::ACTION_CREATE,
-        Parser::PUT => RequestAction::ACTION_UPDATE,
-        Parser::DELETE => RequestAction::ACTION_DELETE
+        Parser::HTTP_GET => RequestAction::ACTION_FETCH,
+        Parser::HTTP_POST => RequestAction::ACTION_CREATE,
+        Parser::HTTP_PUT => RequestAction::ACTION_UPDATE,
+        Parser::HTTP_DELETE => RequestAction::ACTION_DELETE
     ];
 
     /**
@@ -42,38 +44,23 @@ class ActionParser
         $action = new RequestAction;
 
         $action->name = self::$methodToAction[$request->getMethod()];
-
-        if (
-            in_array(
-                $action->name,
-                [RequestAction::ACTION_FETCH, RequestAction::ACTION_CREATE]
-            )
-            && !empty($params->primaryIds)
-        ) {
-            $action->type = 1 < count($params->primaryIds)
-                ? RequestAction::TYPE_MULTIPLE
-                : RequestAction::TYPE_SINGLE;
-        } elseif (RequestAction::ACTION_CREATE && !empty($params->resources)) {
-            $action->type = 1 < count($params->resources)
-                ? RequestAction::TYPE_MULTIPLE
-                : RequestAction::TYPE_SINGLE;
-        } elseif (RequestAction::ACTION_UPDATE && !empty($params->entities)) {
-            $action->type = 1 < count($params->entities)
-                ? RequestAction::TYPE_MULTIPLE
-                : RequestAction::TYPE_SINGLE;
-        } else {
-            throw new ParseException(self::ERROR_REQUEST_SCOPE_UNKNOWN);
-        }
+        $action->type = 1 < count($this->getCountable($params, $action))
+            ? RequestAction::TYPE_MULTIPLE
+            : RequestAction::TYPE_SINGLE;
+        $action->target = !empty($params->relationshipType)
+            ? RequestAction::TARGET_RELATIONSHIP
+            : RequestAction::TARGET_RESOURCE;
 
         return $action;
     }
 
     /**
+     * @param Params $params
      * @param RequestAction $action
      * @return array
      * @throws ParseException
      */
-    private function getCountable(RequestAction $action)
+    private function getCountable(Params $params, RequestAction $action)
     {
         if (
             in_array(
