@@ -18,6 +18,8 @@ use Doctrine\ORM\EntityManagerInterface,
  */
 class Deleter
 {
+    const ERROR_COULD_NOT_DELETE = "Could not delete the resource.";
+
     /**
      * @var EntityManagerInterface
      */

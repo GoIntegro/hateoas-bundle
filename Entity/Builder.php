@@ -17,10 +17,13 @@ use Doctrine\ORM\EntityManagerInterface,
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
+// Security.
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class Builder
 {
-    const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner';
+    const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner',
+        ERROR_COULD_NOT_CREATE = "Could not create the resource.";
 
     /**
      * @var EntityManagerInterface
@@ -31,6 +34,10 @@ class Builder
      */
     private $validator;
     /**
+     * @var SecurityContextInterface
+     */
+    private $securityContext;
+    /**
      * @var Parser
      */
     private $parser;
@@ -38,16 +45,19 @@ class Builder
     /**
      * @param EntityManagerInterface $em
      * @param ValidatorInterface $validator
+     * @param SecurityContextInterface $securityContext
      * @param Parser $parser
      */
     public function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
+        SecurityContextInterface $securityContext,
         Parser $parser
     )
     {
         $this->em = $em;
         $this->validator = $validator;
+        $this->securityContext = $securityContext;
         $this->parser = $parser;
     }
 
@@ -68,7 +78,7 @@ class Builder
         }
 
         // @todo Mover al parser.
-        foreach ($data[$params->primaryType] as $field => $value) {
+        foreach ($data as $field => $value) {
             if ('links' == $field) continue;
 
             $method = 'set' . Inflector::camelize($field);
@@ -86,7 +96,7 @@ class Builder
             $this->em->persist($entity);
             $this->em->flush();
         } catch (ORMException $e) {
-            throw new PersistenceException(self::ERROR_COULD_NOT_DELETE);
+            throw new PersistenceException(self::ERROR_COULD_NOT_CREATE);
         }
 
         return $entity;

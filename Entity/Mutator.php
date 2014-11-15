@@ -21,6 +21,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface,
 
 class Mutator
 {
+    const ERROR_COULD_NOT_UPDATE = "Could not update the resource.";
+
     /**
      * @var EntityManagerInterface
      */
@@ -81,7 +83,7 @@ class Mutator
             $this->em->persist($entity);
             $this->em->flush();
         } catch (ORMException $e) {
-            throw new PersistenceException(self::ERROR_COULD_NOT_DELETE);
+            throw new PersistenceException(self::ERROR_COULD_NOT_UPDATE);
         }
 
         return $entity;

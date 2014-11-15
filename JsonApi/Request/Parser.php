@@ -150,7 +150,7 @@ class Parser
         // Needs the params from the BodyParser.
         $params->action = $this->actionParser->parse($request, $params);
 
-        if (!empty($request->getContent())) {
+        if (!empty($params->primaryIds)) {
             // Needs the params from the ActionParser.
             $params->entities = $this->entityFinder->find($params);
         }

@@ -95,6 +95,7 @@ services:
     arguments:
       - @doctrine.orm.entity_manager
       - @validator
+      - @security.context
       - @hateoas.request_parser
 
   hateoas.entity.mutator:

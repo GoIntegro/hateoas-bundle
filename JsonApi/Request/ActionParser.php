@@ -65,7 +65,11 @@ class ActionParser
         if (
             in_array(
                 $action->name,
-                [RequestAction::ACTION_FETCH, RequestAction::ACTION_CREATE]
+                [
+                    RequestAction::ACTION_FETCH,
+                    RequestAction::ACTION_UPDATE,
+                    RequestAction::ACTION_DELETE
+                ]
             )
             && !empty($params->primaryIds)
         ) {
