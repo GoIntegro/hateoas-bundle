@@ -89,7 +89,6 @@ services:
     scope: request
     arguments:
       - @doctrine.orm.entity_manager
-      - @security.context
       - @validator
       - @hateoas.request_parser
 
@@ -98,7 +97,6 @@ services:
     scope: request
     arguments:
       - @doctrine.orm.entity_manager
-      - @security.context
       - @validator
       - @hateoas.request_parser
 
