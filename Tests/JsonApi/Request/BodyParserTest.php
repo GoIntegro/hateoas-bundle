@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 class BodyParserTest extends TestCase
 {
     const API_BASE_URL = '/api/v1',
+        RESOURCE_TYPE = 'users',
         HTTP_PUT_BODY = <<<'JSON'
 {
     "users": {
@@ -42,7 +43,7 @@ JSON;
         );
         $params = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
-            ['primaryType' => 'users']
+            ['primaryType' => self::RESOURCE_TYPE]
         );
         $parser = new BodyParser(
             self::createJsonCoder(),
@@ -118,11 +119,17 @@ JSON;
      */
     private static function createDocFinder()
     {
+        $schema = (object) [
+            'properties' => (object) [
+                self::RESOURCE_TYPE => []
+            ]
+        ];
+        $docNavigator = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\DocNavigator',
+            ['findRequestSchema' => $schema]
+        );
         $ramlDoc = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\Raml\\RamlDoc'
-        );
-        $docNavigator = Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\DocNavigator'
         );
         $docFinder = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\Raml\\DocFinder',
