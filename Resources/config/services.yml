@@ -7,6 +7,7 @@ services:
       - @hateoas.request_parser.filter
       - @hateoas.request_parser.pagination
       - @hateoas.request_parser.body
+      - @hateoas.request_parser.action
       - @hateoas.request_parser.entities
       - %api.url_path%
       - %go_integro_hateoas.json_api%
@@ -31,6 +32,10 @@ services:
     arguments:
       - @hateoas.json_coder
       - @hateoas.raml.finder
+
+  hateoas.request_parser.action:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
+    public: false
 
   hateoas.request_parser.entities:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder
