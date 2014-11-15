@@ -7,20 +7,7 @@ Pagination and [faceted searches](http://www.elasticsearch.org/guide/en/elastics
 Try it out
 ==========
 
-There's a small example app bundled with the bundle, so you can feel the magic in your finger tips without much ado.
-
-If you have SQLite and a couple of minutes, you can
-- clone the project,
-- open the `example/` dir,
-- install the [Composer](http://getcomposer.org/) deps there,
-- run `app/console doctrine:schema:create` to setup the db,
-- run `app/console server:run` to run the app at `127.0.0.1:8000`,
-
-and try out the HATEOAS API on `http://127.0.0.1:8000/api/v1`.
-
-The `/users`, `/posts`, and `/comments` resources are available.
-
-(You'll need to create some entities using the API or by running `app/console doctrine:fixtures:load --fixtures=src/HateoasInc/Bundle/ExampleBundle/DataFixtures/ORM`.)
+Check out [the example app project](https://github.com/skqr/hateoas-bundle-example), so you can feel the magic in your finger tips without much ado.
 
 Installation
 ============
