@@ -19,14 +19,13 @@ use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder,
     GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc;
 
 /**
- * @see http://jsonapi.org/format/#crud-updating
+ * @see http://jsonapi.org/format/#crud-creating-resources
  */
-class UpdateBodyParser
+class CreateBodyParser
 {
-    const ERROR_MISSING_DATA = "No data set found for the resource with the Id \"%s\".",
-        ERROR_MISSING_ID = "A data set provided is missing the Id.",
-        ERROR_DUPLICATED_ID = "The Id \"%s\" was sent twice.",
-        ERROR_PRIMARY_TYPE_KEY = "The resource type key is missing from the body.";
+    const ERROR_PRIMARY_TYPE_KEY = "The resource type key is missing from the body.",
+        // @todo http://jsonapi.org/format/#crud-creating-client-ids
+        ERROR_ID_NOT_SUPPORTED = "Providing an Id on creation is not supported magically yet.";
 
     /**
      * @var JsonCoder
@@ -60,21 +59,18 @@ class UpdateBodyParser
 
         if (empty($data[$params->primaryType])) {
             throw new ParseException(self::ERROR_PRIMARY_TYPE_KEY);
-        } elseif (isset($data[$params->primaryType]['id'])) {
-            $id = $data[$params->primaryType]['id'];
-
-            if (isset($entityData[$id])) {
-                $message = sprintf(self::ERROR_DUPLICATED_ID, $id);
-                throw new ParseException($message);
+        } elseif ($this->isAssociative($data[$params->primaryType])) {
+            if (isset($data[$params->primaryType]['id'])) {
+                throw new ParseException(self::ERROR_ID_NOT_SUPPORTED);
             } else {
-                $entityData[$id] = $data[$params->primaryType];
+                $entityData[] = $data[$params->primaryType];
             }
         } else {
             foreach ($data[$params->primaryType] as $datum) {
-                if (!isset($datum['id'])) {
-                    throw new ParseException(self::ERROR_MISSING_ID);
+                if (isset($datum['id'])) {
+                    throw new ParseException(self::ERROR_ID_NOT_SUPPORTED);
                 } else {
-                    $entityData[$datum['id']] = $datum;
+                    $entityData[] = $datum;
                 }
             }
         }
@@ -96,5 +92,16 @@ class UpdateBodyParser
         }
 
         return $entityData;
+    }
+
+    /**
+     * @param array $array
+     * @return boolean
+     * @todo Move to helper in utils.
+     * @see http://stackoverflow.com/a/173479
+     */
+    private function isAssociative(array $array)
+    {
+        return array_keys($array) !== range(0, count($array) - 1);
     }
 }

@@ -201,13 +201,6 @@ class MagicController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        foreach ($params->entities as $entity) {
-            // @todo Move to ParamEntityFinder? GET == view
-            if (!$this->get('security.context')->isGranted('view', $entity)) {
-                throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
-            }
-        }
-
         $resources = 1 < count($params->entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
@@ -285,32 +278,27 @@ class MagicController extends SymfonyController
      */
     public function createAction($primaryType)
     {
-        $rawBody = $this->getRequest()->getContent();
-
         try {
             $params = $this->get('hateoas.request_parser')->parse();
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
-        }
-
-        $raml = $this->get('hateoas.raml.finder')->find($params->primaryType);
-
-        if (!$this->get('hateoas.json_coder')->matchSchema($rawBody, $raml)) {
-            $message = $this->get('hateoas.json_coder')
-                ->getSchemaErrorMessage();
-            throw new BadRequestHttpException($message);
-        }
-
-        $data = $this->get('hateoas.json_coder')->decode($rawBody);
-
-        try {
-            $entity = $this->get('hateoas.entity.builder')->create($data);
-        } catch (AccessDeniedException $e) {
+        } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityConflictExceptionInterface $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
-        } catch (ValidationExceptionInterface $e) {
-            throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        }
+
+        foreach ($params->resources as $data) {
+            try {
+                // @todo Improve the signature of create().
+                $entity = $this->get('hateoas.entity.builder')->create($data);
+            } catch (EntityConflictExceptionInterface $e) {
+                throw new ConflictHttpException($e->getMessage(), $e);
+            } catch (ValidationExceptionInterface $e) {
+                throw new BadRequestHttpException($e->getMessage(), $e);
+            }
         }
 
         $resource = $this->get('hateoas.resource_manager')
@@ -323,7 +311,7 @@ class MagicController extends SymfonyController
             ->create()
             ->serialize();
 
-        return $this->createETagResponse($json, Response::HTTP_CREATED);
+        return $this->createNoCacheResponse($json, Response::HTTP_CREATED);
     }
 
     /**
@@ -350,24 +338,13 @@ class MagicController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        if (Document::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
-            throw new DocumentTooLargeHttpException;
-        }
-
         foreach ($params->entities as $entity) {
-            // @todo Move to ParamEntityFinder? PUT == edit
-            if (!$this->get('security.context')->isGranted('edit', $entity)) {
-                throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
-            }
-
             $data = $params->resources[$entity->getId()];
 
             try {
                 // @todo Improve the signature of update().
                 $entity = $this->get('hateoas.entity.mutator')
                     ->update($entity, $data);
-            } catch (AccessDeniedException $e) {
-                throw new AccessDeniedHttpException($e->getMessage(), $e);
             } catch (EntityConflictExceptionInterface $e) {
                 throw new ConflictHttpException($e->getMessage(), $e);
             } catch (ValidationExceptionInterface $e) {
@@ -390,6 +367,41 @@ class MagicController extends SymfonyController
             ->create()
             ->serialize();
 
-        return $this->createETagResponse($json);
+        return $this->createNoCacheResponse($json);
+    }
+
+    /**
+     * @Route("/{primaryType}/{ids}", name="hateoas_magic_delete", methods="DELETE")
+     * @param string $primaryType
+     * @param string $ids
+     * @throws AccessDeniedHttpException
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     * @see http://jsonapi.org/format/#crud-deleting
+     * @todo Rollback everything if anything goes wrong.
+     */
+    public function deleteAction($primaryType, $ids)
+    {
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        }
+
+        foreach ($params->entities as $entity) {
+            try {
+                $this->get('hateoas.entity.deleter')->delete($entity);
+            } catch (AccessDeniedException $e) {
+                throw new AccessDeniedHttpException($e->getMessage(), $e);
+            }
+        }
+
+        return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
     }
 }

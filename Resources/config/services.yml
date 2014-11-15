@@ -100,6 +100,13 @@ services:
       - @validator
       - @hateoas.request_parser
 
+  hateoas.entity.deleter:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\Deleter
+    scope: request
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @hateoas.request_parser
+
   hateoas.raml.finder:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
     arguments:

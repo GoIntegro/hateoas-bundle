@@ -13,12 +13,11 @@ use Doctrine\Common\Util\Inflector;
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // ORM.
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManagerInterface,
+    Doctrine\ORM\ORMException;
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
-// Security.
-use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class Mutator
 {
@@ -57,6 +56,7 @@ class Mutator
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      * @todo No params, just the parser?
      * @todo Replace the HTTP bad request exception.
+     * @todo Entity conflict?
      */
     public function update(ResourceEntityInterface $entity, array $data)
     {
@@ -77,8 +77,12 @@ class Mutator
             throw new ValidationException($errors);
         }
 
-        $this->em->persist($entity);
-        $this->em->flush();
+        try {
+            $this->em->persist($entity);
+            $this->em->flush();
+        } catch (ORMException $e) {
+            throw new PersistenceException(self::ERROR_COULD_NOT_DELETE);
+        }
 
         return $entity;
     }

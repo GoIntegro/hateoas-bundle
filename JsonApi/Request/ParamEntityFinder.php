@@ -14,9 +14,22 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class ParamEntityFinder
 {
-    const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
-        ERROR_RESOURCE_NOT_FOUND = "The resource was not found.";
+    const ACCESS_VIEW = 'view',
+        ACCESS_EDIT = 'edit',
+        ACCESS_DELETE = 'delete';
 
+    const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
+        ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
+        ERROR_CANNOT_CHOOSE_ACCESS = "Cannot choose right access to check";
+
+    /**
+     * @var array
+     */
+    private static $actionToAccess = [
+        RequestAction::ACTION_FETCH => self::ACCESS_VIEW,
+        RequestAction::ACTION_UPDATE => self::ACCESS_EDIT,
+        RequestAction::ACTION_DELETE => self::ACCESS_DELETE
+    ];
     /**
      * @var EntityManagerInterface
      */
@@ -54,7 +67,13 @@ class ParamEntityFinder
             ->findById($params->primaryIds);
 
         foreach ($entities as $entity) {
-            if ($this->securityContext->isGranted('view', $entity)) {
+            if (empty(self::$actionToAccess[$params->action->name])) {
+                throw new ParseException(self::ERROR_CANNOT_CHOOSE_ACCESS);
+            }
+
+            $access = self::$actionToAccess[$params->action->name];
+
+            if ($this->securityContext->isGranted($access, $entity)) {
                 throw new EntityAccessDeniedException(
                     self::ERROR_ACCESS_DENIED
                 );

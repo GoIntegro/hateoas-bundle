@@ -8,10 +8,7 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // HTTP.
-use Symfony\Component\HttpFoundation\Request,
-    GoIntegro\Bundle\HateoasBundle\Http\Url;
-// Recursos.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination;
+use Symfony\Component\HttpFoundation\Request;
 // JSON.
 use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 // RAML.
@@ -30,6 +27,7 @@ class BodyParser
      */
     public function __construct(JsonCoder $jsonCoder, DocFinder $docFinder)
     {
+        $this->createBodyParser = new CreateBodyParser($jsonCoder, $docFinder);
         $this->updateBodyParser = new UpdateBodyParser($jsonCoder, $docFinder);
     }
 
@@ -42,6 +40,7 @@ class BodyParser
     {
         switch ($request->getMethod()) {
             case Parser::HTTP_POST:
+                return $this->createBodyParser->parse($request, $params);
                 break;
 
             case Parser::HTTP_PUT:

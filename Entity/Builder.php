@@ -12,12 +12,11 @@ use Doctrine\Common\Util\Inflector;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 // ORM.
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManagerInterface,
+    Doctrine\ORM\ORMException;
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
-// Security.
-use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class Builder
 {
@@ -83,8 +82,12 @@ class Builder
             throw new ValidationException($errors);
         }
 
-        $this->em->persist($entity);
-        $this->em->flush();
+        try {
+            $this->em->persist($entity);
+            $this->em->flush();
+        } catch (ORMException $e) {
+            throw new PersistenceException(self::ERROR_COULD_NOT_DELETE);
+        }
 
         return $entity;
     }
