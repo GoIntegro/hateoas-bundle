@@ -70,8 +70,7 @@ class Mutator
         $params = $this->parser->parse();
         $class = new \ReflectionClass($params->primaryClass);
 
-        // @todo Mover al parser.
-        foreach ($data[$params->primaryType] as $field => $value) {
+        foreach ($data as $field => $value) {
             if ('links' == $field) continue;
 
             $method = 'set' . Inflector::camelize($field);

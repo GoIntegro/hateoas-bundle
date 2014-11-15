@@ -124,10 +124,14 @@ class JsonCoder
 
         if (is_string($json)) {
             $json = $this->decode($json, TRUE);
+        } elseif (is_array($json)) {
+            $json = (object) $json;
         }
 
         if (is_string($schema)) {
             $schema = $this->decode($schema, TRUE);
+        } elseif (is_array($schema)) {
+            $schema = (object) $schema;
         }
 
         $validator->check($json, $schema);

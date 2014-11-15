@@ -84,8 +84,12 @@ class UpdateBodyParser
             ->createNavigator($ramlDoc)
             ->findRequestSchema(RamlDoc::HTTP_PUT, $params->primaryType);
 
+        // @todo Move. (To method? To DocNav?)
+        $resourceObjectSchema
+            = $jsonSchema->properties->{$params->primaryType};
+
         foreach ($entityData as $data) {
-            if (!$this->jsonCoder->matchSchema($entityData, $jsonSchema)) {
+            if (!$this->jsonCoder->matchSchema($data, $resourceObjectSchema)) {
                 $message = $this->jsonCoder->getSchemaErrorMessage();
                 throw new ParseException($message);
             }

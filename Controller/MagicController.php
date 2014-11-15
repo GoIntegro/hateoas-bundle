@@ -339,7 +339,7 @@ class MagicController extends SymfonyController
                 throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
             }
 
-            $data = $this->getDataForEntity($entity);
+            $data = $params->resources[$entity->getId()];
 
             try {
                 // @todo Improve the signature of update().
