@@ -22,7 +22,8 @@ use Symfony\Component\HttpFoundation\Response,
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Security.
@@ -31,7 +32,10 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface;
 // Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityNotFoundException,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DocumentTooLargeException;
 
 /**
  * Permite probar la flexibilidad de la biblioteca.
@@ -106,7 +110,7 @@ class MagicController extends SymfonyController
             };
             $relation = array_filter($relation, $filter);
 
-            if (Controller::DEFAULT_RESOURCE_LIMIT < count($relation)) {
+            if (Document::DEFAULT_RESOURCE_LIMIT < count($relation)) {
                 throw new DocumentTooLargeHttpException;
             }
 
@@ -187,10 +191,14 @@ class MagicController extends SymfonyController
      */
     public function getByIdsAction($primaryType, $ids)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
-
-        if (Controller::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
-            throw new DocumentTooLargeHttpException;
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
         foreach ($params->entities as $entity) {
@@ -243,7 +251,7 @@ class MagicController extends SymfonyController
             ->findByRequestParams($params)
             ->filter($filter);
 
-        if (Controller::DEFAULT_RESOURCE_LIMIT < count($entities)) {
+        if (Document::DEFAULT_RESOURCE_LIMIT < count($entities)) {
             throw new DocumentTooLargeHttpException;
         }
 
@@ -334,9 +342,15 @@ class MagicController extends SymfonyController
             $params = $this->get('hateoas.request_parser')->parse();
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        if (Controller::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
+        if (Document::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
             throw new DocumentTooLargeHttpException;
         }
 

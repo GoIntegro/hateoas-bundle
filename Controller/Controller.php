@@ -11,14 +11,14 @@ namespace GoIntegro\Bundle\HateoasBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController;
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 
 /**
  * An abstract controller that custom JSON-API controllers can extend.
  */
 abstract class Controller extends SymfonyController
 {
-    const DEFAULT_RESOURCE_LIMIT = 50;
-
     use CommonResponseTrait;
 
     /**
@@ -30,7 +30,7 @@ abstract class Controller extends SymfonyController
         $entities = $this->get('hateoas.repo_helper')
             ->findByRequestParams($params);
 
-        if (self::DEFAULT_RESOURCE_LIMIT < count($entities)) {
+        if (Document::DEFAULT_RESOURCE_LIMIT < count($entities)) {
             throw new DocumentTooLargeHttpException;
         }
 

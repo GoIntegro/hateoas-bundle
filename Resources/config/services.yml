@@ -37,6 +37,7 @@ services:
     public: false
     arguments:
       - @doctrine.orm.entity_manager
+      - @security.context
 
   hateoas.metadata_miner:
     class: GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMiner

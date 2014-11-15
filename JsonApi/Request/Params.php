@@ -69,6 +69,10 @@ class Params
      * @var array
      */
     public $resources;
+    /**
+     * @var RequestAction
+     */
+    public $action;
 
     /**
      * @param string $field

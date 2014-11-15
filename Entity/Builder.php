@@ -32,29 +32,22 @@ class Builder
      */
     private $validator;
     /**
-     * @var SecurityContextInterface
-     */
-    private $securityContext;
-    /**
      * @var Parser
      */
     private $parser;
 
     /**
      * @param EntityManagerInterface $em
-     * @param SecurityContextInterface $securityContext
      * @param ValidatorInterface $validator
      * @param Parser $parser
      */
     public function __construct(
         EntityManagerInterface $em,
-        SecurityContextInterface $securityContext,
         ValidatorInterface $validator,
         Parser $parser
     )
     {
         $this->em = $em;
-        $this->securityContext = $securityContext;
         $this->validator = $validator;
         $this->parser = $parser;
     }

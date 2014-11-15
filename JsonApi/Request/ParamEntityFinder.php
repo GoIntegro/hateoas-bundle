@@ -9,20 +9,34 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // ORM.
 use Doctrine\ORM\EntityManagerInterface;
+// Security.
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class ParamEntityFinder
 {
+    const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
+        ERROR_RESOURCE_NOT_FOUND = "The resource was not found.";
+
     /**
      * @var EntityManagerInterface
      */
     private $em;
+    /**
+     * @var SecurityContextInterface
+     */
+    private $securityContext;
 
     /**
      * @param EntityManagerInterface $em
+     * @param SecurityContextInterface $securityContext
      */
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(
+        EntityManagerInterface $em,
+        SecurityContextInterface $securityContext
+    )
     {
         $this->em = $em;
+        $this->securityContext = $securityContext;
     }
 
     /**
@@ -32,18 +46,26 @@ class ParamEntityFinder
     public function find(Params $params)
     {
         if (empty($params->primaryClass)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
+            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
         $entities = $this->em
             ->getRepository($params->primaryClass)
             ->findById($params->primaryIds);
 
+        foreach ($entities as $entity) {
+            if ($this->securityContext->isGranted('view', $entity)) {
+                throw new EntityAccessDeniedException(
+                    self::ERROR_ACCESS_DENIED
+                );
+            }
+        }
+
         if (
             empty($entities)
             || count($entities) !== count($params->primaryIds)
         ) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
+            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
         return $entities;

@@ -64,6 +64,10 @@ class Parser
      */
     private $bodyParser;
     /**
+     * @var ActionParser
+     */
+    private $actionParser;
+    /**
      * @var ParamEntityFinder
      */
     private $entityFinder;
@@ -73,6 +77,7 @@ class Parser
      * @param FilterParser $filterParser
      * @param PaginationParser $paginationParser
      * @param BodyParser $bodyParser
+     * @param ActionParser $actionParser
      * @param ParamEntityFinder $entityFinder
      * @param string $apiUrlPath
      * @param array $config
@@ -82,6 +87,7 @@ class Parser
         FilterParser $filterParser,
         PaginationParser $paginationParser,
         BodyParser $bodyParser,
+        ActionParser $actionParser,
         ParamEntityFinder $entityFinder,
         $apiUrlPath = '',
         array $config = []
@@ -96,6 +102,7 @@ class Parser
         $this->paginationParser = $paginationParser;
         $this->filterParser = $filterParser;
         $this->bodyParser = $bodyParser;
+        $this->actionParser = $actionParser;
         $this->entityFinder = $entityFinder;
     }
 
@@ -136,6 +143,13 @@ class Parser
 
         if (!empty($request->getContent())) {
             $params->resources = $this->bodyParser->parse($request, $params);
+        }
+
+        // Needs the params from the BodyParser.
+        $params->action = $this->actionParser->parse($request, $params);
+
+        if (!empty($request->getContent())) {
+            // Needs the params from the ActionParser.
             $params->entities = $this->entityFinder->find($params);
         }
 
@@ -163,6 +177,10 @@ class Parser
 
         if (1 < count($ids) && !empty($relationshipType)) {
             throw new \Exception(self::ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP);
+        }
+
+        if (Document::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
+            throw new DocumentTooLargeHttpException;
         }
 
         return $ids;
