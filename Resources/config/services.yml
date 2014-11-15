@@ -7,26 +7,36 @@ services:
       - @hateoas.request_parser.filter
       - @hateoas.request_parser.pagination
       - @hateoas.request_parser.body
+      - @hateoas.request_parser.entities
       - %api.url_path%
       - %go_integro_hateoas.json_api%
+
   hateoas.request_parser.filter:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser
     public: false
     arguments:
       - @hateoas.metadata_miner
       - %go_integro_hateoas.json_api%
+
   hateoas.request_parser.pagination:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser
     public: false
     arguments:
       - @hateoas.metadata_miner
       - %go_integro_hateoas.json_api%
+
   hateoas.request_parser.body:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser
     public: false
     arguments:
       - @hateoas.json_coder
       - @hateoas.raml.finder
+
+  hateoas.request_parser.entities:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder
+    public: false
+    arguments:
+      - @doctrine.orm.entity_manager
 
   hateoas.metadata_miner:
     class: GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMiner

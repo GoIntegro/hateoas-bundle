@@ -188,22 +188,26 @@ class MagicController extends SymfonyController
     public function getByIdsAction($primaryType, $ids)
     {
         $params = $this->get('hateoas.request_parser')->parse();
-        $entities = $this->getEntitiesFromParams($params);
 
-        foreach ($entities as $entity) {
+        if (Controller::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
+            throw new DocumentTooLargeHttpException;
+        }
+
+        foreach ($params->entities as $entity) {
+            // @todo Move to ParamEntityFinder? GET == view
             if (!$this->get('security.context')->isGranted('view', $entity)) {
                 throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
             }
         }
 
-        $resources = 1 < count($entities)
+        $resources = 1 < count($params->entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->addEntities($entities)
+                ->addEntities($params->entities)
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($entities))
+                ->setEntity(reset($params->entities))
                 ->create();
 
         $json = $this->get('hateoas.resource_manager')
@@ -332,9 +336,12 @@ class MagicController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         }
 
-        $entities = $this->getEntitiesFromParams($params);
+        if (Controller::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
+            throw new DocumentTooLargeHttpException;
+        }
 
-        foreach ($entities as $entity) {
+        foreach ($params->entities as $entity) {
+            // @todo Move to ParamEntityFinder? PUT == edit
             if (!$this->get('security.context')->isGranted('edit', $entity)) {
                 throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
             }
@@ -354,14 +361,14 @@ class MagicController extends SymfonyController
             }
         }
 
-        $resources = 1 < count($entities)
+        $resources = 1 < count($params->entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->addEntities($entities)
+                ->addEntities($params->entities)
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($entities))
+                ->setEntity(reset($params->entities))
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
@@ -370,34 +377,5 @@ class MagicController extends SymfonyController
             ->serialize();
 
         return $this->createETagResponse($json);
-    }
-
-    /**
-     * @param Params $params
-     * @return array
-     */
-    private function getEntitiesFromParams(Params $params)
-    {
-        if (Controller::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
-            throw new DocumentTooLargeHttpException;
-        }
-
-        if (empty($params->primaryClass)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
-        $entities = $this->getDoctrine()
-            ->getManager()
-            ->getRepository($params->primaryClass)
-            ->findById($params->primaryIds);
-
-        if (
-            empty($entities)
-            || count($entities) !== count($params->primaryIds)
-        ) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
-        return $entities;
     }
 }

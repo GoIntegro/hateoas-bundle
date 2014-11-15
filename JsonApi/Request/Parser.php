@@ -63,12 +63,17 @@ class Parser
      * @var BodyParser
      */
     private $bodyParser;
+    /**
+     * @var ParamEntityFinder
+     */
+    private $entityFinder;
 
     /**
      * @param Request $request
      * @param FilterParser $filterParser
      * @param PaginationParser $paginationParser
      * @param BodyParser $bodyParser
+     * @param ParamEntityFinder $entityFinder
      * @param string $apiUrlPath
      * @param array $config
      */
@@ -77,6 +82,7 @@ class Parser
         FilterParser $filterParser,
         PaginationParser $paginationParser,
         BodyParser $bodyParser,
+        ParamEntityFinder $entityFinder,
         $apiUrlPath = '',
         array $config = []
     )
@@ -90,6 +96,7 @@ class Parser
         $this->paginationParser = $paginationParser;
         $this->filterParser = $filterParser;
         $this->bodyParser = $bodyParser;
+        $this->entityFinder = $entityFinder;
     }
 
     /**
@@ -129,6 +136,7 @@ class Parser
 
         if (!empty($request->getContent())) {
             $params->resources = $this->bodyParser->parse($request, $params);
+            $params->entities = $this->entityFinder->find($params);
         }
 
         return $params;
