@@ -38,7 +38,10 @@ class FilterParser
     )
     {
         $this->metadataMiner = $metadataMiner;
-        $this->magicServices = $magicServices;
+        // @todo Esta verificación debería estar en el DI.
+        $this->magicServices = isset($config['magic_services'])
+            ? $config['magic_services']
+            : [];
     }
 
     /**

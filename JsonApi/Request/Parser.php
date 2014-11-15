@@ -44,18 +44,6 @@ class Parser
      */
     private $request;
     /**
-     * @var MetadataMinerInterface
-     */
-    private $metadataMiner;
-    /**
-     * @var JsonCoder
-     */
-    private $jsonCoder;
-    /**
-     * @var DocFinder
-     */
-    private $docFinder;
-    /**
      * @var string
      */
     private $apiUrlPath;
@@ -78,35 +66,30 @@ class Parser
 
     /**
      * @param Request $request
-     * @param MetadataMinerInterface $metadataMiner
-     * @param JsonCoder $jsonCoder
+     * @param FilterParser $filterParser
+     * @param PaginationParser $paginationParser
+     * @param BodyParser $bodyParser
      * @param string $apiUrlPath
      * @param array $config
      */
     public function __construct(
         Request $request,
-        MetadataMinerInterface $metadataMiner,
-        JsonCoder $jsonCoder,
-        DocFinder $docFinder,
+        FilterParser $filterParser,
+        PaginationParser $paginationParser,
+        BodyParser $bodyParser,
         $apiUrlPath = '',
         array $config = []
     )
     {
         $this->request = $request;
-        $this->metadataMiner = $metadataMiner;
-        $this->jsonCoder = $jsonCoder;
-        $this->docFinder = $docFinder;
         $this->apiUrlPath = $apiUrlPath;
         // @todo Esta verificación debería estar en el DI.
         $this->magicServices = isset($config['magic_services'])
             ? $config['magic_services']
             : [];
-        $this->paginationParser
-            = new PaginationParser($metadataMiner, $this->magicServices);
-        $this->filterParser
-            = new FilterParser($metadataMiner, $this->magicServices);
-        $this->bodyParser
-            = new BodyParser($jsonCoder, $docFinder);
+        $this->paginationParser = $paginationParser;
+        $this->filterParser = $filterParser;
+        $this->bodyParser = $bodyParser;
     }
 
     /**

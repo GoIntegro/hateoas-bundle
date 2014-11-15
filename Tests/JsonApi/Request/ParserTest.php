@@ -9,28 +9,15 @@ namespace JsonApi\Request;
 
 // Mocks.
 use Codeception\Util\Stub;
-// Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+// Request.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 
 class ParserTest extends TestCase
 {
-    const API_BASE_URL = '/api/v1',
-        HTTP_PUT_BODY = <<<'JSON'
-{
-    "users": {
-        "id": "7",
-        "name": "John",
-        "surname": "Connor"
-    }
-}
-JSON;
+    const API_BASE_URL = '/api/v1';
 
-    /**
-     * @var \Parser
-     */
-    protected $miner;
     /**
      * @var array
      */
@@ -43,18 +30,6 @@ JSON;
         ]
     ];
 
-    protected function setUp()
-    {
-        $this->miner = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface'
-        );
-    }
-
-    protected function tearDown()
-    {
-        unset($this->miner);
-    }
-
     public function testParsingASimpleRequest()
     {
         // Given...
@@ -64,9 +39,9 @@ JSON;
         );
         $parser = new Parser(
             $request,
-            $this->miner,
-            self::createJsonCoder(),
-            self::createDocFinder(),
+            self::createFilterParser(),
+            self::createPaginationParser(),
+            self::createBodyParser(),
             self::API_BASE_URL,
             self::$config
         );
@@ -87,9 +62,9 @@ JSON;
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
             $request,
-            $this->miner,
-            self::createJsonCoder(),
-            self::createDocFinder(),
+            self::createFilterParser(),
+            self::createPaginationParser(),
+            self::createBodyParser(),
             self::API_BASE_URL,
             self::$config
         );
@@ -114,9 +89,9 @@ JSON;
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
             $request,
-            $this->miner,
-            self::createJsonCoder(),
-            self::createDocFinder(),
+            self::createFilterParser(),
+            self::createPaginationParser(),
+            self::createBodyParser(),
             self::API_BASE_URL,
             self::$config
         );
@@ -141,9 +116,9 @@ JSON;
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
             $request,
-            $this->miner,
-            self::createJsonCoder(),
-            self::createDocFinder(),
+            self::createFilterParser(),
+            self::createPaginationParser(),
+            self::createBodyParser(),
             self::API_BASE_URL,
             self::$config
         );
@@ -161,70 +136,6 @@ JSON;
             ]],
             $params->sorting
         );
-    }
-
-    public function testParsingARequestWithPagination()
-    {
-        // Given...
-        $has = function($param) { return in_array($param, ['page', 'size']); };
-        $get = function($param) { return 'page' == $param ? 2 : 4; };
-        $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v1/users', $queryOverrides);
-        $parser = new Parser(
-            $request,
-            $this->miner,
-            self::createJsonCoder(),
-            self::createDocFinder(),
-            self::API_BASE_URL,
-            self::$config
-        );
-        // When...
-        $params = $parser->parse();
-        // Then...
-        $this->assertEquals('users', $params->primaryType);
-        $this->assertEmpty($params->primaryIds);
-        $this->assertNull($params->relationshipType);
-        $this->assertNotNull($params->pagination);
-        $this->assertNull($params->pagination->total);
-        $this->assertEquals(2, $params->pagination->page);
-        $this->assertEquals(4, $params->pagination->size);
-        $this->assertEquals(4, $params->pagination->offset);
-        $this->assertInstanceOf(
-            'GoIntegro\Bundle\HateoasBundle\Http\Url',
-            $params->pagination->paginationlessUrl
-        );
-    }
-
-    public function testParsingARequestWithAnUpdateBody()
-    {
-        // Given...
-        $queryOverrides = [
-            'getContent' => function() { return self::UPDATE_BODY; }
-        ];
-        $request = self::createRequest(
-            '/api/v1/users',
-            $queryOverrides,
-            Parser::HTTP_PUT,
-            self::HTTP_PUT_BODY
-        );
-        $parser = new Parser(
-            $request,
-            $this->miner,
-            self::createJsonCoder(),
-            self::createDocFinder(),
-            self::API_BASE_URL,
-            self::$config
-        );
-        // When...
-        $params = $parser->parse();
-        // Then...
-        $this->assertSame([
-            '7' => [
-                'id' => '7',
-                'name' => 'John',
-                'surname' => 'Connor'
-            ]
-        ], $params->resources);
     }
 
     /**
@@ -252,6 +163,12 @@ JSON;
         $request = Stub::makeEmpty(
             'Symfony\Component\HttpFoundation\Request',
             [
+                'request' => new \stdClass,
+                'attributes' => new \stdClass,
+                'cookies' => new \stdClass,
+                'files' => new \stdClass,
+                'server' => new \stdClass,
+                'headers' => new \stdClass,
                 'query' => $query,
                 'getPathInfo' => $pathInfo,
                 'getMethod' => $method,
@@ -263,39 +180,32 @@ JSON;
     }
 
     /**
-     * @return \GoIntegro\Bundle\HateoasBundle\Util\JsonCoder
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser
      */
-    private static function createJsonCoder()
+    private static function createFilterParser()
     {
-        $jsonCoder = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\Util\JsonCoder',
-            [
-                'decode' => function($json) {
-                    return json_decode($json, TRUE);
-                },
-                'matchSchema' => TRUE
-            ]
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser'
         );
-
-        return $jsonCoder;
     }
 
     /**
-     * @return \GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser
      */
-    private static function createDocFinder()
+    private static function createPaginationParser()
     {
-        $ramlDoc = Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\RamlDoc'
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser'
         );
-        $docNavigator = Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\DocNavigator'
-        );
-        $docFinder = Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\DocFinder',
-            ['find' => $ramlDoc, 'createNavigator' => $docNavigator]
-        );
+    }
 
-        return $docFinder;
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser
+     */
+    private static function createBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser'
+        );
     }
 }

@@ -25,7 +25,8 @@ class UpdateBodyParser
 {
     const ERROR_MISSING_DATA = "No data set found for the resource with the Id \"%s\".",
         ERROR_MISSING_ID = "A data set provided is missing the Id.",
-        ERROR_DUPLICATED_ID = "The Id \"%s\" was sent twice.";
+        ERROR_DUPLICATED_ID = "The Id \"%s\" was sent twice.",
+        ERROR_PRIMARY_TYPE_KEY = "The resource type key is missing from the body.";
 
     /**
      * @var JsonCoder
@@ -57,7 +58,9 @@ class UpdateBodyParser
         $data = $this->jsonCoder->decode($rawBody);
         $entityData = [];
 
-        if (isset($data[$params->primaryType]['id'])) {
+        if (empty($data[$params->primaryType])) {
+            throw new ParseException(self::ERROR_PRIMARY_TYPE_KEY);
+        } elseif (isset($data[$params->primaryType]['id'])) {
             $id = $data[$params->primaryType]['id'];
 
             if (isset($entityData[$id])) {
