@@ -63,7 +63,11 @@ class MagicController extends SymfonyController
      */
     public function getRelationAction($primaryType, $id, $relationship)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
 
         if (empty($params->primaryClass)) {
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
@@ -153,7 +157,11 @@ class MagicController extends SymfonyController
      */
     public function getFieldAction($primaryType, $id, $field)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
 
         if (empty($params->primaryClass)) {
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
@@ -229,7 +237,11 @@ class MagicController extends SymfonyController
      */
     public function getWithFiltersAction($primaryType)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
 
         if (empty($params->primaryClass)) {
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
