@@ -55,6 +55,7 @@ class RedisResourceCache implements ResourceCache
         $this->metadataCache = $metadataCache;
         $this->metadataMiner = $metadataMiner;
         $this->serviceContainer = $serviceContainer;
+        // @todo Make the Redis parameters configurable.
         $this->redis = new Client;
     }
 
