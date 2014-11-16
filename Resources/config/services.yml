@@ -1,3 +1,7 @@
+parameters:
+  hateoas.resource_cache.class: GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache
+  hateoas.metadata_cache.class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\ArrayMetadataCache
+
 services:
   hateoas.request_parser:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
@@ -65,7 +69,7 @@ services:
       - %api.url_path%
 
   hateoas.resource_cache:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache
+    class: %hateoas.resource_cache.class%
     arguments:
       - @hateoas.metadata_cache
       - @hateoas.metadata_miner
@@ -74,7 +78,7 @@ services:
       - %api.url_path%
 
   hateoas.metadata_cache:
-    class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\ArrayMetadataCache
+    class: %hateoas.metadata_cache.class%
     arguments: [@doctrine.orm.entity_manager]
 
   hateoas.repo_helper:
