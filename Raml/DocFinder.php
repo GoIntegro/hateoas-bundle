@@ -11,6 +11,8 @@ namespace GoIntegro\Bundle\HateoasBundle\Raml;
 use Symfony\Component\Yaml\Yaml;
 // HATEOAS.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+// JSON.
+use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 
 class DocFinder
 {
@@ -22,17 +24,25 @@ class DocFinder
      */
     private $parser;
     /**
+     * @var JsonCoder
+     */
+    private $jsonCoder;
+    /**
      * @var array
      */
     private $magicServices;
 
     /**
      * @param DocParser $parser
+     * @param JsonCoder $jsonCoder
      * @param array $config
      */
-    public function __construct(DocParser $parser, array $config = [])
+    public function __construct(
+        DocParser $parser, JsonCoder $jsonCoder, array $config = []
+    )
     {
         $this->parser = $parser;
+        $this->jsonCoder = $jsonCoder;
         // @todo Esta verificación debería estar en el DI.
         $this->magicServices = isset($config['magic_services'])
             ? $config['magic_services']
@@ -102,5 +112,14 @@ class DocFinder
         }
 
         throw new \RuntimeException(self::ERROR_UNKNOWN_TYPE);
+    }
+
+    /**
+     * @param RamlDoc $ramlDoc
+     * @return DocNavigator
+     */
+    public function createNavigator(RamlDoc $ramlDoc)
+    {
+        return new DocNavigator($ramlDoc, $this->jsonCoder);
     }
 }

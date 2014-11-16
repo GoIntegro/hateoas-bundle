@@ -1,9 +1,0 @@
-# HATEOAS API
-hateoas_inc_example:
-    resource: "@HateoasIncExampleBundle/Controller/"
-    prefix: /api/v1
-
-# HATEOAS bundle
-go_integro_hateoas:
-    resource: "@GoIntegroHateoasBundle/Resources/config/routing.yml"
-    prefix: /api/v1

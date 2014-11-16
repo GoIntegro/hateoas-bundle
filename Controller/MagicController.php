@@ -22,7 +22,8 @@ use Symfony\Component\HttpFoundation\Response,
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Security.
@@ -30,6 +31,11 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 // Validator.
 use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface;
+// Request.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityNotFoundException,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DocumentTooLargeException;
 
 /**
  * Permite probar la flexibilidad de la biblioteca.
@@ -43,22 +49,25 @@ class MagicController extends SymfonyController
         ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
         ERROR_RELATIONSHIP_NOT_FOUND = "No relationship by that name found.",
-        ERROR_FIELD_NOT_FOUND = "No field by that name found.",
-        ERROR_MISSING_DATA = "No data set found for the resource with the Id \"%s\".",
-        ERROR_MISSING_ID = "A data set provided is missing the Id.";
+        ERROR_FIELD_NOT_FOUND = "No field by that name found.";
 
     /**
-     * @Route("/{primaryType}/{id}/linked/{relationship}", name="hateoas_magic_relation", methods="GET")
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_relation", methods="GET")
      * @param string $primaryType
      * @param string $id
      * @param string $relationship
      * @throws HttpException
      * @throws NotFoundHttpException
+     * @see http://jsonapi.org/format/#urls-relationships
      * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.14
      */
     public function getRelationAction($primaryType, $id, $relationship)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
 
         if (empty($params->primaryClass)) {
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
@@ -72,17 +81,17 @@ class MagicController extends SymfonyController
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
-        // @todo Intentar evitar crear el recurso. Necesitamos poder manejar los blacklists desde la metadata, o algo así.
-        $primaryResource = $this->get('hateoas.resource_manager')
-            ->createResourceFactory()
-            ->setEntity($entity)
-            ->create();
-        $metadata = $primaryResource->getMetadata();
+        $metadata = $this->get('hateoas.metadata_miner')
+            ->mine($params->primaryClass);
         $json = NULL;
         $relation = NULL;
         $relatedResource = NULL;
 
         if ($metadata->isRelationship($relationship)) {
+            $primaryResource = $this->get('hateoas.resource_manager')
+                ->createResourceFactory()
+                ->setEntity($entity)
+                ->create();
             $relation = $primaryResource->callGetter($relationship);
         } else {
             throw new NotFoundHttpException(
@@ -93,9 +102,19 @@ class MagicController extends SymfonyController
         if ($metadata->isToManyRelationship($relationship)) {
             if ($relation instanceof Collection) {
                 $relation = $relation->toArray();
+            } elseif (!is_array($relation)) {
+                throw new \LogicException(
+                    self::ERROR_INVALID_TO_MANY_RELATION
+                );
             }
 
-            if (Controller::DEFAULT_RESOURCE_LIMIT < count($relation)) {
+            $filter = function(ResourceEntityInterface $entity) {
+                return $this->get('security.context')
+                    ->isGranted('view', $entity);
+            };
+            $relation = array_filter($relation, $filter);
+
+            if (Document::DEFAULT_RESOURCE_LIMIT < count($relation)) {
                 throw new DocumentTooLargeHttpException;
             }
 
@@ -138,7 +157,11 @@ class MagicController extends SymfonyController
      */
     public function getFieldAction($primaryType, $id, $field)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
 
         if (empty($params->primaryClass)) {
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
@@ -152,15 +175,15 @@ class MagicController extends SymfonyController
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
-        // @todo Intentar evitar crear el recurso. Necesitamos poder manejar los blacklists desde la metadata, o algo así.
-        $resource = $this->get('hateoas.resource_manager')
-            ->createResourceFactory()
-            ->setEntity($entity)
-            ->create();
-        $metadata = $resource->getMetadata();
+        $metadata = $this->get('hateoas.metadata_miner')
+            ->mine($params->primaryClass);
         $json = NULL;
 
         if ($metadata->isField($field)) {
+            $resource = $this->get('hateoas.resource_manager')
+                ->createResourceFactory()
+                ->setEntity($entity)
+                ->create();
             $json = $resource->callGetter($field);
         } else {
             throw new NotFoundHttpException(self::ERROR_FIELD_NOT_FOUND);
@@ -176,23 +199,24 @@ class MagicController extends SymfonyController
      */
     public function getByIdsAction($primaryType, $ids)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
-        $entities = $this->getEntitiesFromParams($ids);
-
-        foreach ($entities as $entity) {
-            if (!$this->get('security.context')->isGranted('view', $entity)) {
-                throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
-            }
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        $resources = 1 < count($entities)
+        $resources = 1 < count($params->entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->addEntities($entities)
+                ->addEntities($params->entities)
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($entities))
+                ->setEntity(reset($params->entities))
                 ->create();
 
         $json = $this->get('hateoas.resource_manager')
@@ -213,7 +237,11 @@ class MagicController extends SymfonyController
      */
     public function getWithFiltersAction($primaryType)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
 
         if (empty($params->primaryClass)) {
             throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
@@ -221,24 +249,26 @@ class MagicController extends SymfonyController
 
         $resources = NULL;
         $params = $this->get('hateoas.request_parser')->parse();
+        $filter = function(ResourceEntityInterface $entity) {
+            return $this->get('security.context')->isGranted('view', $entity);
+        };
         $entities = $this->get('hateoas.repo_helper')
             ->findByRequestParams($params)
-            ->filter(function($entity) {
-                $this->get('security.context')->isGranted('view', $entity);
-            });
+            ->filter($filter);
 
-        if (0 == count($entities)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
-        if (Controller::DEFAULT_RESOURCE_LIMIT < count($entities)) {
+        if (Document::DEFAULT_RESOURCE_LIMIT < count($entities)) {
             throw new DocumentTooLargeHttpException;
         }
 
-        $resources = $this->get('hateoas.resource_manager')
-            ->createCollectionFactory()
-            ->setPaginator($entities->getPaginator())
-            ->create();
+        $resources = 0 === count($entities)
+            ? $this->get('hateoas.resource_manager')
+                ->createCollectionFactory()
+                ->addEntities($entities->toArray())
+                ->create()
+            : $this->get('hateoas.resource_manager')
+                ->createCollectionFactory()
+                ->setPaginator($entities->getPaginator())
+                ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
             ->setDocumentResources($resources)
@@ -260,27 +290,27 @@ class MagicController extends SymfonyController
      */
     public function createAction($primaryType)
     {
-        $rawBody = $this->getRequest()->getContent();
-
-        $params = $this->get('hateoas.request_parser')->parse();
-        $raml = $this->get('hateoas.raml.finder')->find($params->primaryType);
-
-        if (!$this->get('hateoas.json_coder')->matchSchema($rawBody, $raml)) {
-            $message = $this->get('hateoas.json_coder')
-                ->getSchemaErrorMessage();
-            throw new BadRequestHttpException($message);
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        $data = $this->get('hateoas.json_coder')->decode($rawBody);
-
-        try {
-            $entity = $this->get('hateoas.entity.builder')->create($data);
-        } catch (AccessDeniedException $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityConflictExceptionInterface $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
-        } catch (ValidationExceptionInterface $e) {
-            throw new BadRequestHttpException($e->getMessage(), $e);
+        foreach ($params->resources as $data) {
+            try {
+                // @todo Improve the signature of create().
+                $entity = $this->get('hateoas.entity.builder')->create($data);
+            } catch (EntityConflictExceptionInterface $e) {
+                throw new ConflictHttpException($e->getMessage(), $e);
+            } catch (ValidationExceptionInterface $e) {
+                throw new BadRequestHttpException($e->getMessage(), $e);
+            }
         }
 
         $resource = $this->get('hateoas.resource_manager')
@@ -293,7 +323,7 @@ class MagicController extends SymfonyController
             ->create()
             ->serialize();
 
-        return $this->createETagResponse($json, Response::HTTP_CREATED);
+        return $this->createNoCacheResponse($json, Response::HTTP_CREATED);
     }
 
     /**
@@ -308,22 +338,25 @@ class MagicController extends SymfonyController
      */
     public function updateAction($primaryType, $ids)
     {
-        $params = $this->get('hateoas.request_parser')->parse();
-        $entities = $this->getEntitiesFromParams($params);
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        }
 
-        foreach ($entities as $entity) {
-            if (!$this->get('security.context')->isGranted('edit', $entity)) {
-                throw new AccessDeniedHttpException(self::ERROR_ACCESS_DENIED);
-            }
-
-            $data = $this->getDataForEntity($entity);
+        foreach ($params->entities as $entity) {
+            $data = $params->resources[$entity->getId()];
 
             try {
                 // @todo Improve the signature of update().
                 $entity = $this->get('hateoas.entity.mutator')
                     ->update($entity, $data);
-            } catch (AccessDeniedException $e) {
-                throw new AccessDeniedHttpException($e->getMessage(), $e);
             } catch (EntityConflictExceptionInterface $e) {
                 throw new ConflictHttpException($e->getMessage(), $e);
             } catch (ValidationExceptionInterface $e) {
@@ -331,14 +364,14 @@ class MagicController extends SymfonyController
             }
         }
 
-        $resources = 1 < count($entities)
+        $resources = 1 < count($params->entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->addEntities($entities)
+                ->addEntities($params->entities)
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($entities))
+                ->setEntity(reset($params->entities))
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
@@ -346,87 +379,41 @@ class MagicController extends SymfonyController
             ->create()
             ->serialize();
 
-        return $this->createETagResponse($json);
+        return $this->createNoCacheResponse($json);
     }
 
     /**
-     * @param Params $params
-     * @return array
-     */
-    private function getEntitiesFromParams(Params $params)
-    {
-        if (Controller::DEFAULT_RESOURCE_LIMIT < count($params->primaryIds)) {
-            throw new DocumentTooLargeHttpException;
-        }
-
-        if (empty($params->primaryClass)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
-        $entities = $this->getDoctrine()
-            ->getManager()
-            ->getRepository($params->primaryClass)
-            ->findById($params->primaryIds);
-
-        if (
-            empty($entities)
-            || count($entities) !== count($params->primaryIds)
-        ) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
-        return $entities;
-    }
-
-    /**
-     * @param ResourceEntityInterface $entity
-     * @return $data
+     * @Route("/{primaryType}/{ids}", name="hateoas_magic_delete", methods="DELETE")
+     * @param string $primaryType
+     * @param string $ids
+     * @throws AccessDeniedHttpException
+     * @throws NotFoundHttpException
      * @throws BadRequestHttpException
-     * @todo Move to parser.
+     * @see http://jsonapi.org/format/#crud-deleting
+     * @todo Rollback everything if anything goes wrong.
      */
-    private function getDataForEntity(ResourceEntityInterface $entity)
+    public function deleteAction($primaryType, $ids)
     {
-        $rawBody = $this->getRequest()->getContent();
-        $data = $this->get('hateoas.json_coder')->decode($rawBody);
-        $params = $this->get('hateoas.request_parser')->parse();
-        $entityData = NULL;
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        }
 
-        if (isset($data[$params->primaryType]['id'])) {
-            if (
-                (string) $entity->getId()
-                    === $data[$params->primaryType]['id']
-            ) {
-                $entityData = $data;
-            } else {
-                $message = sprintf(self::ERROR_MISSING_DATA, $entity->getId());
-                throw new BadRequestHttpException($message);
-            }
-        } else {
-            foreach ($data[$params->primaryType] as $datum) {
-                if (!isset($datum['id'])) {
-                    throw new BadRequestHttpException(self::ERROR_MISSING_ID);
-                } elseif ((string) $entity->getId() === $datum['id']) {
-                    $entityData = $datum;
-                    break;
-                }
-            }
-
-            if (empty($entityData)) {
-                $message = sprintf(self::ERROR_MISSING_DATA, $entity->getId());
-                throw new BadRequestHttpException($message);
+        foreach ($params->entities as $entity) {
+            try {
+                $this->get('hateoas.entity.deleter')->delete($entity);
+            } catch (AccessDeniedException $e) {
+                throw new AccessDeniedHttpException($e->getMessage(), $e);
             }
         }
 
-        $raml = $this->get('hateoas.raml.finder')->find($params->primaryType);
-
-        if (!$this->get('hateoas.json_coder')->matchSchema(
-            $entityData, $raml
-        )) {
-            $message = $this->get('hateoas.json_coder')
-                ->getSchemaErrorMessage();
-            throw new BadRequestHttpException($message);
-        }
-
-        return $entityData;
+        return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
     }
 }

@@ -12,6 +12,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 // ORM.
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
+/**
+ * @todo Review this design. Might not be the best ever.
+ */
 class PaginatedCollection extends ArrayCollection implements Paginated
 {
     const ERROR_LIST_TYPE = "Can only be created from arrays and Doctrine paginators.";
@@ -63,5 +66,29 @@ class PaginatedCollection extends ArrayCollection implements Paginated
         return isset($this->paginator)
             ? count($this->paginator)
             : count($this);
+    }
+
+    /**
+     * @param \Closure $func
+     * @return self
+     */
+    public function map(\Closure $func)
+    {
+        $collection = new static(array_map($func, $this->toArray()));
+        $collection->setPaginator($this->paginator);
+
+        return $collection;
+    }
+
+    /**
+     * @param \Closure $func
+     * @return self
+     */
+    public function filter(\Closure $p)
+    {
+        $collection = new static(array_filter($this->toArray(), $p));
+        $collection->setPaginator($this->paginator);
+
+        return $collection;
     }
 }

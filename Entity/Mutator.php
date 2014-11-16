@@ -13,15 +13,16 @@ use Doctrine\Common\Util\Inflector;
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // ORM.
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManagerInterface,
+    Doctrine\ORM\ORMException;
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
-// Security.
-use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class Mutator
 {
+    const ERROR_COULD_NOT_UPDATE = "Could not update the resource.";
+
     /**
      * @var EntityManagerInterface
      */
@@ -31,29 +32,22 @@ class Mutator
      */
     private $validator;
     /**
-     * @var SecurityContextInterface
-     */
-    private $securityContext;
-    /**
      * @var Parser
      */
     private $parser;
 
     /**
      * @param EntityManagerInterface $em
-     * @param SecurityContextInterface $securityContext
      * @param ValidatorInterface $validator
      * @param Parser $parser
      */
     public function __construct(
         EntityManagerInterface $em,
-        SecurityContextInterface $securityContext,
         ValidatorInterface $validator,
         Parser $parser
     )
     {
         $this->em = $em;
-        $this->securityContext = $securityContext;
         $this->validator = $validator;
         $this->parser = $parser;
     }
@@ -64,14 +58,14 @@ class Mutator
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      * @todo No params, just the parser?
      * @todo Replace the HTTP bad request exception.
+     * @todo Entity conflict?
      */
     public function update(ResourceEntityInterface $entity, array $data)
     {
         $params = $this->parser->parse();
         $class = new \ReflectionClass($params->primaryClass);
 
-        // @todo Mover al parser.
-        foreach ($data[$params->primaryType] as $field => $value) {
+        foreach ($data as $field => $value) {
             if ('links' == $field) continue;
 
             $method = 'set' . Inflector::camelize($field);
@@ -85,8 +79,12 @@ class Mutator
             throw new ValidationException($errors);
         }
 
-        $this->em->persist($entity);
-        $this->em->flush();
+        try {
+            $this->em->persist($entity);
+            $this->em->flush();
+        } catch (ORMException $e) {
+            throw new PersistenceException(self::ERROR_COULD_NOT_UPDATE);
+        }
 
         return $entity;
     }
