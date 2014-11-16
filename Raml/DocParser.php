@@ -63,13 +63,4 @@ class DocParser extends Parser
 
         return $ramlDoc;
     }
-
-    /**
-     * @param RamlDoc $ramlDoc
-     * @return DocNavigator
-     */
-    public function createNavigator(RamlDoc $ramlDoc)
-    {
-        return new DocNavigator($ramlDoc, $this->jsonCoder);
-    }
 }

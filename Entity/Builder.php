@@ -12,16 +12,18 @@ use Doctrine\Common\Util\Inflector;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 // ORM.
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManagerInterface,
+    Doctrine\ORM\ORMException;
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
-    Symfony\Component\Validator\Exception\ValidatorException;
+    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class Builder
 {
-    const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner';
+    const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner',
+        ERROR_COULD_NOT_CREATE = "Could not create the resource.";
 
     /**
      * @var EntityManagerInterface
@@ -42,20 +44,20 @@ class Builder
 
     /**
      * @param EntityManagerInterface $em
-     * @param SecurityContextInterface $securityContext
      * @param ValidatorInterface $validator
+     * @param SecurityContextInterface $securityContext
      * @param Parser $parser
      */
     public function __construct(
         EntityManagerInterface $em,
-        SecurityContextInterface $securityContext,
         ValidatorInterface $validator,
+        SecurityContextInterface $securityContext,
         Parser $parser
     )
     {
         $this->em = $em;
-        $this->securityContext = $securityContext;
         $this->validator = $validator;
+        $this->securityContext = $securityContext;
         $this->parser = $parser;
     }
 
@@ -76,7 +78,7 @@ class Builder
         }
 
         // @todo Mover al parser.
-        foreach ($data[$params->primaryType] as $field => $value) {
+        foreach ($data as $field => $value) {
             if ('links' == $field) continue;
 
             $method = 'set' . Inflector::camelize($field);
@@ -87,11 +89,15 @@ class Builder
         $errors = $this->validator->validate($entity);
 
         if (0 < count($errors)) {
-            throw new ValidatorException($errors);
+            throw new ValidationException($errors);
         }
 
-        $this->em->persist($entity);
-        $this->em->flush();
+        try {
+            $this->em->persist($entity);
+            $this->em->flush();
+        } catch (ORMException $e) {
+            throw new PersistenceException(self::ERROR_COULD_NOT_CREATE);
+        }
 
         return $entity;
     }

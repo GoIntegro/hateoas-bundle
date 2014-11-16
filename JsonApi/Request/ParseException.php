@@ -5,10 +5,8 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle;
+namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-
-class GoIntegroHateoasBundle extends Bundle
+class ParseException extends \Exception
 {
 }

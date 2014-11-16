@@ -3,10 +3,46 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
     scope: request
     arguments:
-      - @hateoas.metadata_miner
       - @request
+      - @hateoas.request_parser.filter
+      - @hateoas.request_parser.pagination
+      - @hateoas.request_parser.body
+      - @hateoas.request_parser.action
+      - @hateoas.request_parser.entities
       - %api.url_path%
       - %go_integro_hateoas.json_api%
+
+  hateoas.request_parser.filter:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser
+    public: false
+    arguments:
+      - @hateoas.metadata_miner
+      - %go_integro_hateoas.json_api%
+
+  hateoas.request_parser.pagination:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser
+    public: false
+    arguments:
+      - @hateoas.metadata_miner
+      - %go_integro_hateoas.json_api%
+
+  hateoas.request_parser.body:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser
+    public: false
+    arguments:
+      - @hateoas.json_coder
+      - @hateoas.raml.finder
+
+  hateoas.request_parser.action:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
+    public: false
+
+  hateoas.request_parser.entities:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder
+    public: false
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @security.context
 
   hateoas.metadata_miner:
     class: GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMiner
@@ -58,17 +94,30 @@ services:
     scope: request
     arguments:
       - @doctrine.orm.entity_manager
-      - @security.context
       - @validator
+      - @security.context
       - @hateoas.request_parser
 
   hateoas.entity.mutator:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Mutator
+    scope: request
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @validator
+      - @hateoas.request_parser
+
+  hateoas.entity.deleter:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\Deleter
+    scope: request
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @hateoas.request_parser
 
   hateoas.raml.finder:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
     arguments:
       - @hateoas.raml.parser
+      - @hateoas.json_coder
       - %go_integro_hateoas.json_api%
 
   hateoas.raml.parser:

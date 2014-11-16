@@ -5,10 +5,8 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle;
+namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-
-class GoIntegroHateoasBundle extends Bundle
+interface PersistenceExceptionInterface
 {
 }

@@ -16,6 +16,8 @@ use GoIntegro\Bundle\HateoasBundle\Collections\Paginated;
 
 class Document implements IteratorAggregate, Countable
 {
+    const DEFAULT_RESOURCE_LIMIT = 50;
+
     /**
      * @var ResourceCollectionInterface
      * @todo La propiedad $primaryResources es muy similar a esta.

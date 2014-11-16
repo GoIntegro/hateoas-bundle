@@ -13,12 +13,26 @@ use Symfony\Component\HttpFoundation\Request;
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 // Inflector.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
+// JSON.
+use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
+// RAML.
+use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 
 /**
  * @see http://jsonapi.org/format/#fetching
  */
 class Parser
 {
+    const HTTP_OPTIONS = 'OPTIONS',
+        HTTP_HEAD = 'HEAD',
+        HTTP_GET = 'GET',
+        HTTP_POST = 'POST',
+        HTTP_PUT = 'PUT',
+        HTTP_DELETE = 'DELETE',
+        HTTP_PATCH = 'PATCH';
+
     const PRIMARY_RESOURCE_TYPE = 0,
         PRIMARY_RESOURCE_IDS = 1,
         PRIMARY_RESOURCE_FIELD = 2,
@@ -27,10 +41,6 @@ class Parser
             = "Se necesita definir el path base de la API",
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "No pueden pedirse múltiples Ids al pedir un recurso relacionado.";
 
-    /**
-     * @var MetadataMinerInterface
-     */
-    private $metadataMiner;
     /**
      * @var Request
      */
@@ -51,31 +61,51 @@ class Parser
      * @var FilterParser
      */
     private $filterParser;
+    /**
+     * @var BodyParser
+     */
+    private $bodyParser;
+    /**
+     * @var ActionParser
+     */
+    private $actionParser;
+    /**
+     * @var ParamEntityFinder
+     */
+    private $entityFinder;
 
     /**
-     * @param MetadataMinerInterface $metadataMiner
      * @param Request $request
+     * @param FilterParser $filterParser
+     * @param PaginationParser $paginationParser
+     * @param BodyParser $bodyParser
+     * @param ActionParser $actionParser
+     * @param ParamEntityFinder $entityFinder
      * @param string $apiUrlPath
      * @param array $config
      */
     public function __construct(
-        MetadataMinerInterface $metadataMiner,
         Request $request,
+        FilterParser $filterParser,
+        PaginationParser $paginationParser,
+        BodyParser $bodyParser,
+        ActionParser $actionParser,
+        ParamEntityFinder $entityFinder,
         $apiUrlPath = '',
         array $config = []
     )
     {
         $this->request = $request;
-        $this->metadataMiner = $metadataMiner;
         $this->apiUrlPath = $apiUrlPath;
         // @todo Esta verificación debería estar en el DI.
         $this->magicServices = isset($config['magic_services'])
             ? $config['magic_services']
             : [];
-        $this->paginationParser
-            = new PaginationParser($metadataMiner, $this->magicServices);
-        $this->filterParser
-            = new FilterParser($metadataMiner, $this->magicServices);
+        $this->paginationParser = $paginationParser;
+        $this->filterParser = $filterParser;
+        $this->bodyParser = $bodyParser;
+        $this->actionParser = $actionParser;
+        $this->entityFinder = $entityFinder;
     }
 
     /**
@@ -113,6 +143,18 @@ class Parser
 
         $params->filters = $this->filterParser->parse($request, $params);
 
+        if (!empty($request->getContent())) {
+            $params->resources = $this->bodyParser->parse($request, $params);
+        }
+
+        // Needs the params from the BodyParser.
+        $params->action = $this->actionParser->parse($request, $params);
+
+        if (!empty($params->primaryIds)) {
+            // Needs the params from the ActionParser.
+            $params->entities = $this->entityFinder->find($params);
+        }
+
         return $params;
     }
 
@@ -136,7 +178,13 @@ class Parser
         $ids = !empty($ids) ? explode(',', $ids) : [];
 
         if (1 < count($ids) && !empty($relationshipType)) {
-            throw new \Exception(self::ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP);
+            throw new ParseException(
+                self::ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP
+            );
+        }
+
+        if (Document::DEFAULT_RESOURCE_LIMIT < count($ids)) {
+            throw new DocumentTooLargeHttpException;
         }
 
         return $ids;

@@ -9,40 +9,44 @@ namespace JsonApi\Request;
 
 // Mocks.
 use Codeception\Util\Stub;
-// Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+// Request.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 
 class ParserTest extends TestCase
 {
-    const API_BASE_URL = '/api/v2';
+    const API_BASE_URL = '/api/v1';
 
     /**
-     * @var \Parser
+     * @var array
      */
-    protected $miner;
-
-    protected function setUp()
-    {
-        $this->miner = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface'
-        );
-    }
-
-    protected function tearDown()
-    {
-        unset($this->miner);
-    }
+    private static $config = [
+        'magic_services' => [
+            [
+                'resource_type' => 'users',
+                'entity_class' => 'Entity\User'
+            ]
+        ]
+    ];
 
     public function testParsingASimpleRequest()
     {
         // Given...
         $request = self::createRequest(
-            '/api/v2/posts/1/linked/likes',
+            '/api/v1/posts/1/linked/likes',
             ['has' => function() { return FALSE; }]
         );
-        $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
+        $parser = new Parser(
+            $request,
+            self::createFilterParser(),
+            self::createPaginationParser(),
+            self::createBodyParser(),
+            self::createActionParser(),
+            self::createParamEntityFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -57,8 +61,17 @@ class ParserTest extends TestCase
         $has = function($param) { return 'fields' == $param; };
         $get = function() { return 'name,surname,email'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v2/users', $queryOverrides);
-        $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
+        $request = self::createRequest('/api/v1/users', $queryOverrides);
+        $parser = new Parser(
+            $request,
+            self::createFilterParser(),
+            self::createPaginationParser(),
+            self::createBodyParser(),
+            self::createActionParser(),
+            self::createParamEntityFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -77,8 +90,17 @@ class ParserTest extends TestCase
         $has = function($param) { return 'include' == $param; };
         $get = function() { return 'platform.account,workspaces-joined'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v2/users', $queryOverrides);
-        $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
+        $request = self::createRequest('/api/v1/users', $queryOverrides);
+        $parser = new Parser(
+            $request,
+            self::createFilterParser(),
+            self::createPaginationParser(),
+            self::createBodyParser(),
+            self::createActionParser(),
+            self::createParamEntityFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -97,8 +119,17 @@ class ParserTest extends TestCase
         $has = function($param) { return 'sort' == $param; };
         $get = function() { return 'surname,name,-registered-date'; };
         $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v2/users', $queryOverrides);
-        $parser = new Parser($this->miner, $request, self::API_BASE_URL, []);
+        $request = self::createRequest('/api/v1/users', $queryOverrides);
+        $parser = new Parser(
+            $request,
+            self::createFilterParser(),
+            self::createPaginationParser(),
+            self::createBodyParser(),
+            self::createActionParser(),
+            self::createParamEntityFinder(),
+            self::API_BASE_URL,
+            self::$config
+        );
         // When...
         $params = $parser->parse();
         // Then...
@@ -115,46 +146,19 @@ class ParserTest extends TestCase
         );
     }
 
-    public function testParsingARequestWithPagination()
-    {
-        // Given...
-        $has = function($param) { return in_array($param, ['page', 'size']); };
-        $get = function($param) { return 'page' == $param ? 2 : 4; };
-        $queryOverrides = ['has' => $has, 'get' => $get];
-        $request = self::createRequest('/api/v2/users', $queryOverrides);
-        $config = [
-            'magic_services' => [
-                [
-                    'resource_type' => 'users',
-                    'entity_class' => 'Entity\User'
-                ]
-            ]
-        ];
-        $parser
-            = new Parser($this->miner, $request, self::API_BASE_URL, $config);
-        // When...
-        $params = $parser->parse();
-        // Then...
-        $this->assertEquals('users', $params->primaryType);
-        $this->assertEmpty($params->primaryIds);
-        $this->assertNull($params->relationshipType);
-        $this->assertNotNull($params->pagination);
-        $this->assertNull($params->pagination->total);
-        $this->assertEquals(2, $params->pagination->page);
-        $this->assertEquals(4, $params->pagination->size);
-        $this->assertEquals(4, $params->pagination->offset);
-        $this->assertInstanceOf(
-            'GoIntegro\Bundle\HateoasBundle\Http\Url',
-            $params->pagination->paginationlessUrl
-        );
-    }
-
     /**
      * @param string $pathInfo
      * @param array $queryOverrides
+     * @param string $method
+     * @param string $body
      * @return Request
      */
-    private static function createRequest($pathInfo, array $queryOverrides)
+    private static function createRequest(
+        $pathInfo,
+        array $queryOverrides,
+        $method = Parser::HTTP_GET,
+        $body = NULL
+    )
     {
         $defaultOverrides = [
             'getIterator' => function() { return new \ArrayIterator([]); }
@@ -166,9 +170,70 @@ class ParserTest extends TestCase
         );
         $request = Stub::makeEmpty(
             'Symfony\Component\HttpFoundation\Request',
-            ['query' => $query, 'getPathInfo' => $pathInfo]
+            [
+                'request' => new \stdClass,
+                'attributes' => new \stdClass,
+                'cookies' => new \stdClass,
+                'files' => new \stdClass,
+                'server' => new \stdClass,
+                'headers' => new \stdClass,
+                'query' => $query,
+                'getPathInfo' => $pathInfo,
+                'getMethod' => $method,
+                'getContent' => $body
+            ]
         );
 
         return $request;
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser
+     */
+    private static function createFilterParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser'
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser
+     */
+    private static function createPaginationParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser'
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser
+     */
+    private static function createBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser'
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
+     */
+    private static function createActionParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser'
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder
+     */
+    private static function createParamEntityFinder()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder'
+        );
     }
 }

@@ -4,23 +4,12 @@ This is a library and Symfony 2 bundle that allows you to magically expose your 
 
 Pagination and [faceted searches](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html) are supported as an extension to the JSON-API spec. (Although the extensions are not yet accompanied by the corresponding [profiles](http://jsonapi.org/extending/).)
 
+Support for creating, updating, and deleting resources according to JSON-API is in progress. Currently, creating, updating, and deleting one or many resources magically is supported - but the service that handles these operations cannot be overridden. Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
+
 Try it out
 ==========
 
-There's a small example app bundled with the bundle, so you can feel the magic in your finger tips without much ado.
-
-If you have SQLite and a couple of minutes, you can
-- clone the project,
-- open the `example/` dir,
-- install the [Composer](http://getcomposer.org/) deps there,
-- run `app/console doctrine:schema:create` to setup the db,
-- run `app/console server:run` to run the app at `127.0.0.1:8000`,
-
-and try out the HATEOAS API on `http://127.0.0.1:8000/api/v1`.
-
-The `/users`, `/posts`, and `/comments` resources are available.
-
-(You'll need to create some entities using the API or by running `app/console doctrine:fixtures:load --fixtures=src/HateoasInc/Bundle/ExampleBundle/DataFixtures/ORM`.)
+Check out [the example app project](https://github.com/skqr/hateoas-bundle-example), so you can feel the magic in your finger tips without much ado.
 
 Installation
 ============
@@ -235,6 +224,15 @@ class UserResource extends EntityResource implements ContainerAwareInterface
 ```
 
 Check out the unit tests for more details.
+
+Security
+--------
+
+Access control is handled by [Symfony's Security Component](http://symfony.com/doc/current/components/security/introduction.html), so either [security voters](http://symfony.com/doc/current/cookbook/security/voters_data_permission.html) or [ACL](http://symfony.com/doc/current/cookbook/security/acl.html) must be configured.
+
+If you don't want security at all, just configure a single voter accepting anything that implements `GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface`. Not the best advice ever, though.
+
+There is an unresolved [issue related to access control and pagination](https://github.com/GoIntegro/hateoas-bundle/issues/10).
 
 Ghosts
 ------
