@@ -73,7 +73,7 @@ class ParamEntityFinder
 
             $access = self::$actionToAccess[$params->action->name];
 
-            if ($this->securityContext->isGranted($access, $entity)) {
+            if (!$this->securityContext->isGranted($access, $entity)) {
                 throw new EntityAccessDeniedException(
                     self::ERROR_ACCESS_DENIED
                 );
