@@ -8,9 +8,7 @@
 namespace GoIntegro\Bundle\HateoasBundle\Metadata\Resource;
 
 // Reflexión.
-use ReflectionClass,
-    ReflectionMethod,
-    GoIntegro\Bundle\HateoasBundle\Util\Reflection;
+use GoIntegro\Bundle\HateoasBundle\Util\Reflection;
 // Inflexión.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 
@@ -29,7 +27,7 @@ class ResourceMetadata implements \Serializable
     public function __construct(
         $type,
         $subtype,
-        ReflectionClass $resourceClass,
+        \ReflectionClass $resourceClass,
         ResourceFields $fields,
         ResourceRelationships $relationships,
         $pageSize = NULL
@@ -69,11 +67,11 @@ class ResourceMetadata implements \Serializable
     }
 
     /**
-     * @param ReflectionMethod $method
+     * @param \ReflectionMethod $method
      * @return string
      * @todo ¿Quizás moverlo al Inflector?
      */
-    private static function fieldFromInjector(ReflectionMethod $method)
+    private static function fieldFromInjector(\ReflectionMethod $method)
     {
         $name = substr($method->getShortName(), strlen('inject'));
 
@@ -126,7 +124,7 @@ class ResourceMetadata implements \Serializable
         $export = [
             'type' => $this->type,
             'subtype' => $this->subtype,
-            'resourceClass' => $this->resourceClass,
+            'resourceClass' => $this->resourceClass->getName(),
             'fields' => $this->fields,
             'relationships' => $this->relationships
         ];
@@ -142,7 +140,7 @@ class ResourceMetadata implements \Serializable
         $import = unserialize($import);
         $this->type = $import['type'];
         $this->subtype = $import['subtype'];
-        $this->resourceClass = $import['resourceClass'];
+        $this->resourceClass = new \ReflectionClass($import['resourceClass']);
         $this->fields = $import['fields'];
         $this->relationships = $import['relationships'];
     }
