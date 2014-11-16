@@ -74,7 +74,7 @@ services:
       - %api.url_path%
 
   hateoas.metadata_cache:
-    class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\ArrayMetadataCache
+    class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\RedisMetadataCache
     arguments: [@doctrine.orm.entity_manager]
 
   hateoas.repo_helper:
