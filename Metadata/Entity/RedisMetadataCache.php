@@ -50,17 +50,7 @@ class RedisMetadataCache implements MetadataCache
      */
     public function getReflection($className)
     {
-        $reflection = NULL;
-        $key = $className . '-reflection';
-
-        if (!$this->redis->has($key)) {
-            $reflection = $this->arrayCache->getMapping($className);
-            $this->redis->set($className, serialize($metadata));
-        } else {
-            $reflection = unserialize($this->redis->get($key));
-        }
-
-        return $reflection;
+        return $this->arrayCache->getReflection($className);
     }
 
     /**
@@ -68,12 +58,22 @@ class RedisMetadataCache implements MetadataCache
      */
     public function getMapping($className)
     {
-        $mapping = NULL;
-        $key = $className . '-mapping';
+        return $this->getFromRedis($className, 'mapping', __FUNCTION__);
+    }
 
-        if (!$this->redis->has($key)) {
-            $mapping = $this->arrayCache->getMapping($className);
-            $this->redis->set($className, serialize($metadata));
+    /**
+     * @see MetadataCache::getMapping
+     */
+    private function getFromRedis($className, $suffix, $methodName)
+    {
+        if (is_object($className)) $className = get_class($className);
+
+        $mapping = NULL;
+        $key = $className . '-' . $suffix;
+
+        if (!$this->redis->exists($key)) {
+            $mapping = $this->arrayCache->$method($className);
+            $this->redis->set($key, serialize($mapping));
         } else {
             $mapping = unserialize($this->redis->get($key));
         }
