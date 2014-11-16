@@ -16,8 +16,9 @@ use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 
 /**
  * Los datos comunes a todos los recursos de un mismo tipo.
+ * @todo Implement the Serializable interface.
  */
-class ResourceMetadata
+class ResourceMetadata implements \Serializable
 {
     public $type;
     public $subtype;
@@ -115,5 +116,34 @@ class ResourceMetadata
         return !empty($this->relationships->toOne)
             || !empty($this->relationships->toMany)
             || !empty($this->relationships->linkOnly);
+    }
+
+    /**
+     * @see \Serializable::serialize
+     */
+    public function serialize()
+    {
+        $export = [
+            'type' => $this->type,
+            'subtype' => $this->subtype,
+            'resourceClass' => $this->resourceClass,
+            'fields' => $this->fields,
+            'relationships' => $this->relationships
+        ];
+
+        return serialize($export);
+    }
+
+    /**
+     * @see \Serializable::unserialize
+     */
+    public function unserialize($import)
+    {
+        $import = unserialize($import);
+        $this->type = $import['type'];
+        $this->subtype = $import['subtype'];
+        $this->resourceClass = $import['resourceClass'];
+        $this->fields = $import['fields'];
+        $this->relationships = $import['relationships'];
     }
 }

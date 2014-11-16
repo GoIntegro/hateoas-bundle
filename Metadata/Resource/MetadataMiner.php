@@ -20,11 +20,17 @@ class MetadataMiner implements MetadataMinerInterface
         DEFAULT_RESOURCE_CLASS = 'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\EntityResource';
 
     /**
+     * @var \Predis\Client
+     */
+    protected $redis;
+
+    /**
      * @param MinerProvider
      */
     public function __construct(MinerProvider $minerProvider)
     {
         $this->minerProvider = $minerProvider;
+        $this->redis = new \Predis\Client();
     }
 
     /**
@@ -33,7 +39,17 @@ class MetadataMiner implements MetadataMinerInterface
      */
     public function mine($ore)
     {
-        return $this->minerProvider->getMiner($ore)->mine($ore);
+        if (is_object($ore)) $ore = get_class($ore);
+
+        if ($this->redis->exists($ore)) {
+            $metadata = unserialize($this->redis->get($ore));
+        } else {
+            $metadata = $this->minerProvider->getMiner($ore)->mine($ore);
+            $this->redis->del($ore);
+            $this->redis->set($ore, serialize($metadata));
+        }
+
+        return $metadata;
     }
 
     /**
