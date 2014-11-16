@@ -4,7 +4,7 @@ This is a library and Symfony 2 bundle that allows you to magically expose your 
 
 Pagination and [faceted searches](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html) are supported as an extension to the JSON-API spec. (Although the extensions are not yet accompanied by the corresponding [profiles](http://jsonapi.org/extending/).)
 
-Support for creating, updating, and deleting resources according to JSON-API is in progress. Currently, creating single resources, and updating one or many resources magically is supported. Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
+Support for creating, updating, and deleting resources according to JSON-API is in progress. Currently, creating, updating, and deleting one or many resources magically is supported - but the service that handles these operations cannot be overridden. Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
 
 Try it out
 ==========
