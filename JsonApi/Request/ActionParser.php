@@ -44,7 +44,7 @@ class ActionParser
         $action = new RequestAction;
 
         $action->name = self::$methodToAction[$request->getMethod()];
-        $action->type = 1 < count($this->getCountable($params, $action))
+        $action->type = $this->isMultipleAction($params, $action)
             ? RequestAction::TYPE_MULTIPLE
             : RequestAction::TYPE_SINGLE;
         $action->target = !empty($params->relationshipType)
@@ -52,6 +52,29 @@ class ActionParser
             : RequestAction::TARGET_RESOURCE;
 
         return $action;
+    }
+
+    /**
+     * @param Params $params
+     * @param RequestAction $action
+     * @return boolean
+     * @throws ParseException
+     */
+    private function isMultipleAction(Params $params, RequestAction $action)
+    {
+        return $this->isFilteredFetch($params, $action)
+            || 1 < count($this->getCountable($params, $action));
+    }
+
+    /**
+     * @param Params $params
+     * @param RequestAction $action
+     * @return boolean
+     */
+    private function isFilteredFetch(Params $params, RequestAction $action)
+    {
+        return empty($params->primaryIds)
+            && RequestAction::ACTION_FETCH == $action->name;
     }
 
     /**
