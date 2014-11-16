@@ -15,6 +15,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
 /**
+ * A cache for the entity metadata - its reflection and ORM mapping.
+ *
+ * The ReflectionClass cannot be serialized, and thus, cannot be cached other
+ * than in runtime memory. The ORM mapping can be cached by Doctrine 2. Given
+ * this, it's unlikely an alternative implementation will be needed.
  * @pattern multiton
  */
 class ArrayMetadataCache implements MetadataCache

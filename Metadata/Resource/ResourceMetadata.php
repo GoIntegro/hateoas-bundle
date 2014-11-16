@@ -8,16 +8,15 @@
 namespace GoIntegro\Bundle\HateoasBundle\Metadata\Resource;
 
 // Reflexión.
-use ReflectionClass,
-    ReflectionMethod,
-    GoIntegro\Bundle\HateoasBundle\Util\Reflection;
+use GoIntegro\Bundle\HateoasBundle\Util\Reflection;
 // Inflexión.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 
 /**
  * Los datos comunes a todos los recursos de un mismo tipo.
+ * @todo Implement the Serializable interface.
  */
-class ResourceMetadata
+class ResourceMetadata implements \Serializable
 {
     public $type;
     public $subtype;
@@ -28,7 +27,7 @@ class ResourceMetadata
     public function __construct(
         $type,
         $subtype,
-        ReflectionClass $resourceClass,
+        \ReflectionClass $resourceClass,
         ResourceFields $fields,
         ResourceRelationships $relationships,
         $pageSize = NULL
@@ -68,11 +67,11 @@ class ResourceMetadata
     }
 
     /**
-     * @param ReflectionMethod $method
+     * @param \ReflectionMethod $method
      * @return string
      * @todo ¿Quizás moverlo al Inflector?
      */
-    private static function fieldFromInjector(ReflectionMethod $method)
+    private static function fieldFromInjector(\ReflectionMethod $method)
     {
         $name = substr($method->getShortName(), strlen('inject'));
 
@@ -115,5 +114,34 @@ class ResourceMetadata
         return !empty($this->relationships->toOne)
             || !empty($this->relationships->toMany)
             || !empty($this->relationships->linkOnly);
+    }
+
+    /**
+     * @see \Serializable::serialize
+     */
+    public function serialize()
+    {
+        $export = [
+            'type' => $this->type,
+            'subtype' => $this->subtype,
+            'resourceClass' => $this->resourceClass->getName(),
+            'fields' => $this->fields,
+            'relationships' => $this->relationships
+        ];
+
+        return serialize($export);
+    }
+
+    /**
+     * @see \Serializable::unserialize
+     */
+    public function unserialize($import)
+    {
+        $import = unserialize($import);
+        $this->type = $import['type'];
+        $this->subtype = $import['subtype'];
+        $this->resourceClass = new \ReflectionClass($import['resourceClass']);
+        $this->fields = $import['fields'];
+        $this->relationships = $import['relationships'];
     }
 }
