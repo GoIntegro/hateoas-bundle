@@ -4,7 +4,7 @@ This is a library and Symfony 2 bundle that allows you to magically expose your 
 
 Pagination and [faceted searches](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html) are supported as an extension to the JSON-API spec. (Although the extensions are not yet accompanied by the corresponding [profiles](http://jsonapi.org/extending/).)
 
-Support for creating, updating, and deleting resources according to JSON-API is in progress. Currently, creating, updating, and deleting one or many resources magically is supported - but the service that handles these operations cannot be overridden. Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
+Support for creating, updating, and deleting resources according to JSON-API is in progress. Currently, creating, updating, and deleting one or many resources magically is supported, and the services that handle these operations can be overridden - but resources can't be related when creating or updating. Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
 
 Try it out
 ==========
@@ -233,6 +233,13 @@ Access control is handled by [Symfony's Security Component](http://symfony.com/d
 If you don't want security at all, just configure a single voter accepting anything that implements `GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface`. Not the best advice ever, though.
 
 There is an unresolved [issue related to access control and pagination](https://github.com/GoIntegro/hateoas-bundle/issues/10).
+
+Transactions
+------------
+
+Creating, updating, or deleting multiple resources on a single request is supported by JSON-API - [but no partial updates are allowed](http://jsonapi.org/format/#crud).
+
+We use [explicit transaction demarcation](http://doctrine-orm.readthedocs.org/en/latest/reference/transactions-and-concurrency.html#approach-2-explicitly) on the controller that handles creating, updating, and deleting resources *magically* so that this rule is enforced.
 
 Ghosts
 ------
