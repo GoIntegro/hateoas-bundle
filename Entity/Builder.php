@@ -7,98 +7,37 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
-// Inflection.
-use Doctrine\Common\Util\Inflector;
-// JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
-// ORM.
-use Doctrine\ORM\EntityManagerInterface,
-    Doctrine\ORM\ORMException;
-// Validator.
-use Symfony\Component\Validator\Validator\ValidatorInterface,
-    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
-// Security.
-use Symfony\Component\Security\Core\SecurityContextInterface;
-
 class Builder
 {
-    const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner',
-        ERROR_COULD_NOT_CREATE = "Could not create the resource.";
+    const DUPLICATED_BUILDER = "A builder for the resource type \"%s\" is already registered.";
 
     /**
-     * @var EntityManagerInterface
+     * @var array
      */
-    private $em;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-    /**
-     * @var SecurityContextInterface
-     */
-    private $securityContext;
-    /**
-     * @var Parser
-     */
-    private $parser;
+    private $builders = [];
 
     /**
-     * @param EntityManagerInterface $em
-     * @param ValidatorInterface $validator
-     * @param SecurityContextInterface $securityContext
-     * @param Parser $parser
+     * @param string $resourceType
+     * @param array $data
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
-    public function __construct(
-        EntityManagerInterface $em,
-        ValidatorInterface $validator,
-        SecurityContextInterface $securityContext,
-        Parser $parser
-    )
+    public function create($resourceType, array $data)
     {
-        $this->em = $em;
-        $this->validator = $validator;
-        $this->securityContext = $securityContext;
-        $this->parser = $parser;
+        return isset($builders[$resourceType])
+            ? $this->builders[$resourceType]->create($data)
+            : $this->builders['default']->create($data);
     }
 
     /**
-     * @param array $data
-     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
-     * @todo No params, just the parser?
-     * @todo Replace the HTTP bad request exception.
+     * @param BuilderInterface
      */
-    public function create(array $data)
+    public function addBuilder(BuilderInterface $builder, $resourceType)
     {
-        $params = $this->parser->parse();
-        $class = new \ReflectionClass($params->primaryClass);
-        $entity = $class->newInstance();
-
-        if ($class->implementsInterface(self::AUTHOR_IS_OWNER)) {
-            $entity->setOwner($this->securityContext->getToken()->getUser());
+        if (isset($this->builders[$resourceType])) {
+            $message = sprintf(self::DUPLICATED_BUILDER, $resourceType);
+            throw new \ErrorException($message);
         }
 
-        // @todo Mover al parser.
-        foreach ($data as $field => $value) {
-            if ('links' == $field) continue;
-
-            $method = 'set' . Inflector::camelize($field);
-
-            if ($class->hasMethod($method)) $entity->$method($value);
-        }
-
-        $errors = $this->validator->validate($entity);
-
-        if (0 < count($errors)) {
-            throw new ValidationException($errors);
-        }
-
-        try {
-            $this->em->persist($entity);
-            $this->em->flush();
-        } catch (ORMException $e) {
-            throw new PersistenceException(self::ERROR_COULD_NOT_CREATE);
-        }
-
-        return $entity;
+        $this->builders[$resourceType] = $builder;
     }
 }

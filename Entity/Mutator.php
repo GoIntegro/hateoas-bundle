@@ -7,85 +7,43 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
-// Inflection.
-use Doctrine\Common\Util\Inflector;
 // JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
-// ORM.
-use Doctrine\ORM\EntityManagerInterface,
-    Doctrine\ORM\ORMException;
-// Validator.
-use Symfony\Component\Validator\Validator\ValidatorInterface,
-    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 
 class Mutator
 {
-    const ERROR_COULD_NOT_UPDATE = "Could not update the resource.";
+    const DUPLICATED_MUTATOR = "A mutator for the resource type \"%s\" is already registered.";
 
     /**
-     * @var EntityManagerInterface
+     * @var array
      */
-    private $em;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-    /**
-     * @var Parser
-     */
-    private $parser;
+    private $mutators = [];
 
     /**
-     * @param EntityManagerInterface $em
-     * @param ValidatorInterface $validator
-     * @param Parser $parser
-     */
-    public function __construct(
-        EntityManagerInterface $em,
-        ValidatorInterface $validator,
-        Parser $parser
-    )
-    {
-        $this->em = $em;
-        $this->validator = $validator;
-        $this->parser = $parser;
-    }
-
-    /**
+     * @param string $resourceType
      * @param ResourceEntityInterface $entity
      * @param array $data
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
-     * @todo No params, just the parser?
-     * @todo Replace the HTTP bad request exception.
-     * @todo Entity conflict?
      */
-    public function update(ResourceEntityInterface $entity, array $data)
+    public function update(
+        $resourceType, ResourceEntityInterface $entity, array $data
+    )
     {
-        $params = $this->parser->parse();
-        $class = new \ReflectionClass($params->primaryClass);
+        return isset($mutators[$resourceType])
+            ? $this->mutators[$resourceType]->update($entity, $data)
+            : $this->mutators['default']->update($entity, $data);
+    }
 
-        foreach ($data as $field => $value) {
-            if ('links' == $field) continue;
-
-            $method = 'set' . Inflector::camelize($field);
-
-            if ($class->hasMethod($method)) $entity->$method($value);
+    /**
+     * @param MutatorInterface
+     */
+    public function addMutator(MutatorInterface $mutator, $resourceType)
+    {
+        if (isset($this->mutators[$resourceType])) {
+            $message = sprintf(self::DUPLICATED_MUTATOR, $resourceType);
+            throw new \ErrorException($message);
         }
 
-        $errors = $this->validator->validate($entity);
-
-        if (0 < count($errors)) {
-            throw new ValidationException($errors);
-        }
-
-        try {
-            $this->em->persist($entity);
-            $this->em->flush();
-        } catch (ORMException $e) {
-            throw new PersistenceException(self::ERROR_COULD_NOT_UPDATE);
-        }
-
-        return $entity;
+        $this->mutators[$resourceType] = $mutator;
     }
 }

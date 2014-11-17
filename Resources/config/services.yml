@@ -96,26 +96,47 @@ services:
   hateoas.entity.builder:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Builder
     scope: request
+
+  hateoas.entity.default_builder:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultBuilder
+    scope: request
+    public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @validator
       - @security.context
       - @hateoas.request_parser
+    tags:
+      -  { name: hateoas.entity.builder, resource_type: default }
 
   hateoas.entity.mutator:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Mutator
     scope: request
+
+  hateoas.entity.default_mutator:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultMutator
+    scope: request
+    public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @validator
       - @hateoas.request_parser
+    tags:
+      -  { name: hateoas.entity.mutator, resource_type: default }
 
   hateoas.entity.deleter:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Deleter
     scope: request
+
+  hateoas.entity.default_deleter:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultDeleter
+    scope: request
+    public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @hateoas.request_parser
+    tags:
+      -  { name: hateoas.entity.deleter, resource_type: default }
 
   hateoas.raml.finder:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
