@@ -37,7 +37,8 @@
         "doctrine/orm": "*",
         "justinrainbow/json-schema": "*",
         "rhumsaa/uuid": "*",
-        "skqr/php-raml-parser": "dev-master"
+        "skqr/php-raml-parser": "dev-master",
+        "predis/predis": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "*",

@@ -302,15 +302,25 @@ class MagicController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        foreach ($params->resources as $data) {
-            try {
-                // @todo Improve the signature of create().
-                $entity = $this->get('hateoas.entity.builder')->create($data);
-            } catch (EntityConflictExceptionInterface $e) {
-                throw new ConflictHttpException($e->getMessage(), $e);
-            } catch (ValidationExceptionInterface $e) {
-                throw new BadRequestHttpException($e->getMessage(), $e);
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->beginTransaction();
+        try {
+            foreach ($params->resources as $data) {
+                try {
+                    // @todo Improve the signature of create().
+                    $entity = $this->get('hateoas.entity.builder')
+                        ->create($params->primaryType, $data);
+                } catch (EntityConflictExceptionInterface $e) {
+                    throw new ConflictHttpException($e->getMessage(), $e);
+                } catch (ValidationExceptionInterface $e) {
+                    throw new BadRequestHttpException($e->getMessage(), $e);
+                }
             }
+
+            $em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $em->getConnection()->rollback();
+            throw $e;
         }
 
         $resource = $this->get('hateoas.resource_manager')
@@ -350,18 +360,27 @@ class MagicController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        foreach ($params->entities as $entity) {
-            $data = $params->resources[$entity->getId()];
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->beginTransaction();
+        try {
+            foreach ($params->entities as $entity) {
+                $data = $params->resources[$entity->getId()];
 
-            try {
-                // @todo Improve the signature of update().
-                $entity = $this->get('hateoas.entity.mutator')
-                    ->update($entity, $data);
-            } catch (EntityConflictExceptionInterface $e) {
-                throw new ConflictHttpException($e->getMessage(), $e);
-            } catch (ValidationExceptionInterface $e) {
-                throw new BadRequestHttpException($e->getMessage(), $e);
+                try {
+                    // @todo Improve the signature of update().
+                    $entity = $this->get('hateoas.entity.mutator')
+                        ->update($params->primaryType, $entity, $data);
+                } catch (EntityConflictExceptionInterface $e) {
+                    throw new ConflictHttpException($e->getMessage(), $e);
+                } catch (ValidationExceptionInterface $e) {
+                    throw new BadRequestHttpException($e->getMessage(), $e);
+                }
             }
+
+            $em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $em->getConnection()->rollback();
+            throw $e;
         }
 
         $resources = 1 < count($params->entities)
@@ -406,12 +425,22 @@ class MagicController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        foreach ($params->entities as $entity) {
-            try {
-                $this->get('hateoas.entity.deleter')->delete($entity);
-            } catch (AccessDeniedException $e) {
-                throw new AccessDeniedHttpException($e->getMessage(), $e);
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->beginTransaction();
+        try {
+            foreach ($params->entities as $entity) {
+                try {
+                    $this->get('hateoas.entity.deleter')
+                        ->delete($params->primaryType, $entity);
+                } catch (AccessDeniedException $e) {
+                    throw new AccessDeniedHttpException($e->getMessage(), $e);
+                }
             }
+
+            $em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $em->getConnection()->rollback();
+            throw $e;
         }
 
         return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);

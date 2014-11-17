@@ -9,44 +9,37 @@ namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
-// ORM.
-use Doctrine\ORM\EntityManagerInterface,
-    Doctrine\ORM\ORMException;
 
-/**
- * I was going to name this class "Terminator", but my OCD got the best of me.
- */
 class Deleter
 {
-    const ERROR_COULD_NOT_DELETE = "Could not delete the resource.";
+    const DUPLICATED_DELETER = "A deleter for the resource type \"%s\" is already registered.";
 
     /**
-     * @var EntityManagerInterface
+     * @var array
      */
-    private $em;
+    private $deleters = [];
 
     /**
-     * @param EntityManagerInterface $em
+     * @param string $resourceType
+     * @param ResourceEntityInterface $entity
      */
-    public function __construct(EntityManagerInterface $em)
+    public function delete($resourceType, ResourceEntityInterface $entity)
     {
-        $this->em = $em;
+        return isset($deleters[$resourceType])
+            ? $this->deleters[$resourceType]->delete($entity)
+            : $this->deleters['default']->delete($entity);
     }
 
     /**
-     * @param ResourceEntityInterface $entity
-     * @param array $data
-     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
+     * @param DeleterInterface
      */
-    public function delete(ResourceEntityInterface $entity)
+    public function addDeleter(DeleterInterface $deleter, $resourceType)
     {
-        try {
-            $this->em->remove($entity);
-            $this->em->flush();
-        } catch (ORMException $e) {
-            throw new PersistenceException(self::ERROR_COULD_NOT_DELETE);
+        if (isset($this->deleters[$resourceType])) {
+            $message = sprintf(self::DUPLICATED_DELETER, $resourceType);
+            throw new \ErrorException($message);
         }
 
-        return $entity;
+        $this->deleters[$resourceType] = $deleter;
     }
 }

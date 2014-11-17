@@ -1,3 +1,7 @@
+parameters:
+  hateoas.resource_cache.class: GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache
+  hateoas.metadata_cache.class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\ArrayMetadataCache
+
 services:
   hateoas.request_parser:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
@@ -65,7 +69,7 @@ services:
       - %api.url_path%
 
   hateoas.resource_cache:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache
+    class: %hateoas.resource_cache.class%
     arguments:
       - @hateoas.metadata_cache
       - @hateoas.metadata_miner
@@ -74,7 +78,7 @@ services:
       - %api.url_path%
 
   hateoas.metadata_cache:
-    class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\ArrayMetadataCache
+    class: %hateoas.metadata_cache.class%
     arguments: [@doctrine.orm.entity_manager]
 
   hateoas.repo_helper:
@@ -92,26 +96,47 @@ services:
   hateoas.entity.builder:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Builder
     scope: request
+
+  hateoas.entity.default_builder:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultBuilder
+    scope: request
+    public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @validator
       - @security.context
       - @hateoas.request_parser
+    tags:
+      -  { name: hateoas.entity.builder, resource_type: default }
 
   hateoas.entity.mutator:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Mutator
     scope: request
+
+  hateoas.entity.default_mutator:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultMutator
+    scope: request
+    public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @validator
       - @hateoas.request_parser
+    tags:
+      -  { name: hateoas.entity.mutator, resource_type: default }
 
   hateoas.entity.deleter:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Deleter
     scope: request
+
+  hateoas.entity.default_deleter:
+    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultDeleter
+    scope: request
+    public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @hateoas.request_parser
+    tags:
+      -  { name: hateoas.entity.deleter, resource_type: default }
 
   hateoas.raml.finder:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
