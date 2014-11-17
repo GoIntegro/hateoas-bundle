@@ -19,7 +19,7 @@ use Doctrine\ORM\EntityManagerInterface,
 use Symfony\Component\Validator\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
 
-class Mutator
+class DefaultMutator implements MutatorInterface
 {
     const ERROR_COULD_NOT_UPDATE = "Could not update the resource.";
 

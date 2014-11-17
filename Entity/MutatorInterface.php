@@ -10,7 +10,7 @@ namespace GoIntegro\Bundle\HateoasBundle\Entity;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 
-interface BuilderInterface
+interface MutatorInterface
 {
     /**
      * @param ResourceEntityInterface $entity

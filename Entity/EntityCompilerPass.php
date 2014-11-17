@@ -37,7 +37,7 @@ class EntityCompilerPass implements CompilerPassInterface
             foreach ($taggedServices as $id => $tagAttributes) {
                 foreach ($tagAttributes as $attributes) {
                     $definition->addMethodCall(
-                        'add' . ucfirst($name),
+                        'add' . ucfirst($service),
                         [new Reference($id), $attributes[self::RESOURCE_TYPE]]
                     );
                 }

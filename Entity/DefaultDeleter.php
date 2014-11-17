@@ -13,10 +13,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 use Doctrine\ORM\EntityManagerInterface,
     Doctrine\ORM\ORMException;
 
-/**
- * I was going to name this class "Terminator", but my OCD got the best of me.
- */
-class Deleter
+class DefaultDeleter implements DeleterInterface
 {
     const ERROR_COULD_NOT_DELETE = "Could not delete the resource.";
 
