@@ -63,7 +63,9 @@ class DefaultMutator implements MutatorInterface
      * @throws ValidationExceptionInterface
      */
     public function update(
-        ResourceEntityInterface $entity, array $fields, array $relationships
+        ResourceEntityInterface $entity,
+        array $fields,
+        array $relationships = []
     )
     {
         $params = $this->parser->parse();

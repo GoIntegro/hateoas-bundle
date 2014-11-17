@@ -70,7 +70,7 @@ class DefaultBuilder implements BuilderInterface
      * @throws EntityConflictExceptionInterface
      * @throws ValidationExceptionInterface
      */
-    public function create(array $fields, array $relationships)
+    public function create(array $fields, array $relationships = [])
     {
         $params = $this->parser->parse();
         $class = new \ReflectionClass($params->primaryClass);
