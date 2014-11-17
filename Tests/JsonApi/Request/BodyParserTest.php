@@ -45,9 +45,11 @@ JSON;
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
             ['primaryType' => self::RESOURCE_TYPE]
         );
+        $hydrant = Stub::makeEmpty('GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\ResourceLinksHydrant');
         $parser = new BodyParser(
             self::createJsonCoder(),
-            self::createDocFinder()
+            self::createDocFinder(),
+            $hydrant
         );
         // When...
         $resources = $parser->parse($request, $params);

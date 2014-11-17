@@ -40,11 +40,17 @@ class UpdateBodyParser
     /**
      * @param JsonCoder $jsonCoder
      * @param DocFinder $docFinder
+     * @param ResourceLinksHydrant $hydrant
      */
-    public function __construct(JsonCoder $jsonCoder, DocFinder $docFinder)
+    public function __construct(
+        JsonCoder $jsonCoder,
+        DocFinder $docFinder,
+        ResourceLinksHydrant $hydrant
+    )
     {
         $this->jsonCoder = $jsonCoder;
         $this->docFinder = $docFinder;
+        $this->hydrant = $hydrant;
     }
 
     /**
@@ -88,11 +94,13 @@ class UpdateBodyParser
         $resourceObjectSchema
             = $jsonSchema->properties->{$params->primaryType};
 
-        foreach ($entityData as $data) {
+        foreach ($entityData as &$data) {
             if (!$this->jsonCoder->matchSchema($data, $resourceObjectSchema)) {
                 $message = $this->jsonCoder->getSchemaErrorMessage();
                 throw new ParseException($message);
             }
+
+            $this->hydrant->hydrate($params, $data);
         }
 
         return $entityData;

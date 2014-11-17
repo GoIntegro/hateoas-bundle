@@ -3,6 +3,9 @@ muggle:
     type: annotation
 
 # Tiene que ir abajo de todo - tiene un action catch-all
-magic:
-    resource: GoIntegro\Bundle\HateoasBundle\Controller\MagicController
+magic_fetch:
+    resource: GoIntegro\Bundle\HateoasBundle\Controller\MagicFetchController
+    type: annotation
+magic_alter:
+    resource: GoIntegro\Bundle\HateoasBundle\Controller\MagicAlterController
     type: annotation
