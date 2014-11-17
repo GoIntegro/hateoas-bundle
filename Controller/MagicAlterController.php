@@ -78,10 +78,12 @@ class MagicAlterController extends SymfonyController
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
         try {
+            $entities = [];
+
             foreach ($params->resources as $data) {
                 try {
                     // @todo Improve the signature of create().
-                    $entity = $this->get('hateoas.entity.builder')
+                    $entities[] = $this->get('hateoas.entity.builder')
                         ->create($params->primaryType, $data);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
@@ -96,13 +98,18 @@ class MagicAlterController extends SymfonyController
             throw $e;
         }
 
-        $resource = $this->get('hateoas.resource_manager')
-            ->createResourceFactory()
-            ->setEntity($entity)
-            ->create();
+        $resources = 1 < count($entities)
+            ? $this->get('hateoas.resource_manager')
+                ->createCollectionFactory()
+                ->addEntities($entities)
+                ->create()
+            : $this->get('hateoas.resource_manager')
+                ->createResourceFactory()
+                ->setEntity(reset($entities))
+                ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
-            ->setDocumentResources($resource)
+            ->setDocumentResources($resources)
             ->create()
             ->serialize();
 
@@ -136,7 +143,7 @@ class MagicAlterController extends SymfonyController
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
         try {
-            foreach ($params->entities as $entity) {
+            foreach ($params->entities as &$entity) {
                 $data = $params->resources[$entity->getId()];
 
                 try {
