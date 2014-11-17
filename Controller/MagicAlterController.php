@@ -82,9 +82,9 @@ class MagicAlterController extends SymfonyController
 
             foreach ($params->resources as $data) {
                 try {
-                    // @todo Improve the signature of create().
+                    $links = $this->extractLinks($data);
                     $entities[] = $this->get('hateoas.entity.builder')
-                        ->create($params->primaryType, $data);
+                        ->create($params->primaryType, $data, $links);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -145,11 +145,11 @@ class MagicAlterController extends SymfonyController
         try {
             foreach ($params->entities as &$entity) {
                 $data = $params->resources[$entity->getId()];
+                $links = $this->extractLinks($data);
 
                 try {
-                    // @todo Improve the signature of update().
                     $entity = $this->get('hateoas.entity.mutator')
-                        ->update($params->primaryType, $entity, $data);
+                        ->update($params->primaryType, $entity, $data, $links);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -209,12 +209,8 @@ class MagicAlterController extends SymfonyController
         $em->getConnection()->beginTransaction();
         try {
             foreach ($params->entities as $entity) {
-                try {
-                    $this->get('hateoas.entity.deleter')
-                        ->delete($params->primaryType, $entity);
-                } catch (AccessDeniedException $e) {
-                    throw new AccessDeniedHttpException($e->getMessage(), $e);
-                }
+                $this->get('hateoas.entity.deleter')
+                    ->delete($params->primaryType, $entity);
             }
 
             $em->getConnection()->commit();
@@ -224,5 +220,17 @@ class MagicAlterController extends SymfonyController
         }
 
         return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @param array &$data
+     * @return array
+     */
+    private function extractLinks(array &$data)
+    {
+        $links = isset($data['links']) ? $data['links'] : [];
+        unset($data['links']);
+
+        return $links;
     }
 }
