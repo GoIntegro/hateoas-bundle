@@ -24,11 +24,18 @@ class BodyParser
     /**
      * @param JsonCoder $jsonCoder
      * @param DocFinder $docFinder
+     * @param ResourceLinksHydrant $hydrant
      */
-    public function __construct(JsonCoder $jsonCoder, DocFinder $docFinder)
+    public function __construct(
+        JsonCoder $jsonCoder,
+        DocFinder $docFinder,
+        ResourceLinksHydrant $hydrant
+    )
     {
-        $this->createBodyParser = new CreateBodyParser($jsonCoder, $docFinder);
-        $this->updateBodyParser = new UpdateBodyParser($jsonCoder, $docFinder);
+        $this->createBodyParser
+            = new CreateBodyParser($jsonCoder, $docFinder, $hydrant);
+        $this->updateBodyParser
+            = new UpdateBodyParser($jsonCoder, $docFinder, $hydrant);
     }
 
     /**

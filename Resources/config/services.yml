@@ -36,7 +36,7 @@ services:
     arguments:
       - @hateoas.json_coder
       - @hateoas.raml.finder
-      - @doctrine.orm.entity_manager
+      - @hateoas.request_parser.hydrant
 
   hateoas.request_parser.action:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
@@ -48,6 +48,13 @@ services:
     arguments:
       - @doctrine.orm.entity_manager
       - @security.context
+
+  hateoas.request_parser.hydrant:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ResourceLinksHydrant
+    public: false
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @hateoas.metadata_miner
 
   hateoas.metadata_miner:
     class: GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMiner
