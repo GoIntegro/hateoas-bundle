@@ -16,8 +16,8 @@ use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 
 class DocFinder
 {
-    const ERROR_PARAM_TYPE = "A resource type or entity was expected.",
-        ERROR_UNKNOWN_TYPE = "The resource type is unknown.";
+    const ERROR_PARAM_TYPE = "Cannot find RAML with the given clue; a resource type or entity was expected.",
+        ERROR_UNKNOWN_TYPE = "The resource type is unknown or has no RAML configured.";
 
     /**
      * @var DocParser
