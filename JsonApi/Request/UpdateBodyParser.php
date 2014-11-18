@@ -9,16 +9,29 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // HTTP.
 use Symfony\Component\HttpFoundation\Request;
-// RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml;
+// JSON.
+use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 
 /**
  * @see http://jsonapi.org/format/#crud-updating
  */
-class UpdateBodyParser extends AbstractBodyParser
+class UpdateBodyParser
 {
     const ERROR_MISSING_ID = "A data set provided is missing the Id.",
         ERROR_DUPLICATED_ID = "The Id \"%s\" was sent twice.";
+
+    /**
+     * @var JsonCoder
+     */
+    protected $jsonCoder;
+
+    /**
+     * @param JsonCoder $jsonCoder
+     */
+    public function __construct(JsonCoder $jsonCoder)
+    {
+        $this->jsonCoder = $jsonCoder;
+    }
 
     /**
      * @param Request $request
@@ -51,8 +64,6 @@ class UpdateBodyParser extends AbstractBodyParser
                 }
             }
         }
-
-        $this->prepareData($params, Raml\RamlDoc::HTTP_PUT, $entityData);
 
         return $entityData;
     }

@@ -9,16 +9,29 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // HTTP.
 use Symfony\Component\HttpFoundation\Request;
-// RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml;
+// JSON.
+use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 
 /**
  * @see http://jsonapi.org/format/#crud-creating-resources
  */
-class CreateBodyParser extends AbstractBodyParser
+class CreateBodyParser
 {
     // @todo http://jsonapi.org/format/#crud-creating-client-ids
     const ERROR_ID_NOT_SUPPORTED = "Providing an Id on creation is not supported magically yet.";
+
+    /**
+     * @var JsonCoder
+     */
+    protected $jsonCoder;
+
+    /**
+     * @param JsonCoder $jsonCoder
+     */
+    public function __construct(JsonCoder $jsonCoder)
+    {
+        $this->jsonCoder = $jsonCoder;
+    }
 
     /**
      * @param Request $request
@@ -48,8 +61,6 @@ class CreateBodyParser extends AbstractBodyParser
                 }
             }
         }
-
-        $this->prepareData($params, Raml\RamlDoc::HTTP_POST, $entityData);
 
         return $entityData;
     }
