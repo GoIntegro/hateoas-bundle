@@ -8,6 +8,12 @@ schemas:
 /some-resources:
   displayName: Random resources
   get:
-    description: Retrieves one or more random resources.
+    description: Retrieves random resources.
     responses:
       200:
+  /{some-resource-ids}:
+    put:
+      description: Updates one or more random resources.
+      responses:
+        200:
+        404:
