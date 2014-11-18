@@ -123,7 +123,7 @@ JSON;
     {
         $schema = (object) [
             'properties' => (object) [
-                self::RESOURCE_TYPE => []
+                self::RESOURCE_TYPE => ['type' => 'object']
             ]
         ];
         $docNavigator = Stub::makeEmpty(
