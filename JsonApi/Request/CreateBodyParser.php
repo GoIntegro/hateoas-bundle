@@ -8,53 +8,17 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // HTTP.
-use Symfony\Component\HttpFoundation\Request,
-    GoIntegro\Bundle\HateoasBundle\Http\Url;
-// Recursos.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination;
-// JSON.
-use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
+use Symfony\Component\HttpFoundation\Request;
 // RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder,
-    GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc;
+use GoIntegro\Bundle\HateoasBundle\Raml;
 
 /**
  * @see http://jsonapi.org/format/#crud-creating-resources
  */
-class CreateBodyParser
+class CreateBodyParser extends AbstractBodyParser
 {
-    const ERROR_PRIMARY_TYPE_KEY = "The resource type key is missing from the body.",
-        // @todo http://jsonapi.org/format/#crud-creating-client-ids
-        ERROR_ID_NOT_SUPPORTED = "Providing an Id on creation is not supported magically yet.";
-
-    /**
-     * @var JsonCoder
-     */
-    private $jsonCoder;
-    /**
-     * @var DocFinder
-     */
-    private $docFinder;
-    /**
-     * @var ResourceLinksHydrant
-     */
-    private $hydrant;
-
-    /**
-     * @param JsonCoder $jsonCoder
-     * @param DocFinder $docFinder
-     * @param ResourceLinksHydrant $hydrant
-     */
-    public function __construct(
-        JsonCoder $jsonCoder,
-        DocFinder $docFinder,
-        ResourceLinksHydrant $hydrant
-    )
-    {
-        $this->jsonCoder = $jsonCoder;
-        $this->docFinder = $docFinder;
-        $this->hydrant = $hydrant;
-    }
+    // @todo http://jsonapi.org/format/#crud-creating-client-ids
+    const ERROR_ID_NOT_SUPPORTED = "Providing an Id on creation is not supported magically yet.";
 
     /**
      * @param Request $request
@@ -68,40 +32,24 @@ class CreateBodyParser
         $entityData = [];
 
         if (empty($data[$params->primaryType])) {
-            throw new ParseException(self::ERROR_PRIMARY_TYPE_KEY);
+            throw new ParseException(static::ERROR_PRIMARY_TYPE_KEY);
         } elseif ($this->isAssociative($data[$params->primaryType])) {
             if (isset($data[$params->primaryType]['id'])) {
-                throw new ParseException(self::ERROR_ID_NOT_SUPPORTED);
+                throw new ParseException(static::ERROR_ID_NOT_SUPPORTED);
             } else {
                 $entityData[] = $data[$params->primaryType];
             }
         } else {
             foreach ($data[$params->primaryType] as $datum) {
                 if (isset($datum['id'])) {
-                    throw new ParseException(self::ERROR_ID_NOT_SUPPORTED);
+                    throw new ParseException(static::ERROR_ID_NOT_SUPPORTED);
                 } else {
                     $entityData[] = $datum;
                 }
             }
         }
 
-        $ramlDoc = $this->docFinder->find($params->primaryType);
-        $jsonSchema = $this->docFinder
-            ->createNavigator($ramlDoc)
-            ->findRequestSchema(RamlDoc::HTTP_PUT, $params->primaryType);
-
-        // @todo Move. (To method? To DocNav?)
-        $resourceObjectSchema
-            = $jsonSchema->properties->{$params->primaryType};
-
-        foreach ($entityData as &$data) {
-            if (!$this->jsonCoder->matchSchema($data, $resourceObjectSchema)) {
-                $message = $this->jsonCoder->getSchemaErrorMessage();
-                throw new ParseException($message);
-            }
-
-            $this->hydrant->hydrate($params, $data);
-        }
+        $this->prepareData($params, Raml\RamlDoc::HTTP_POST, $entityData);
 
         return $entityData;
     }

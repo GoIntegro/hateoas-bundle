@@ -22,6 +22,8 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class DefaultBuilder implements BuilderInterface
 {
+    const GET = 'get', ADD = 'add', SET = 'set';
+
     const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner',
         ERROR_COULD_NOT_CREATE = "Could not create the resource.";
 
@@ -62,12 +64,13 @@ class DefaultBuilder implements BuilderInterface
     }
 
     /**
-     * @param array $data
-     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
-     * @todo No params, just the parser?
-     * @todo Replace the HTTP bad request exception.
+     * @param array $fields
+     * @param array $relationships
+     * @return ResourceEntityInterface
+     * @throws EntityConflictExceptionInterface
+     * @throws ValidationExceptionInterface
      */
-    public function create(array $data)
+    public function create(array $fields, array $relationships = [])
     {
         $params = $this->parser->parse();
         $class = new \ReflectionClass($params->primaryClass);
@@ -77,13 +80,25 @@ class DefaultBuilder implements BuilderInterface
             $entity->setOwner($this->securityContext->getToken()->getUser());
         }
 
-        // @todo Mover al parser.
-        foreach ($data as $field => $value) {
-            if ('links' == $field) continue;
-
-            $method = 'set' . Inflector::camelize($field);
+        foreach ($fields as $field => $value) {
+            $method = self::SET . Inflector::camelize($field);
 
             if ($class->hasMethod($method)) $entity->$method($value);
+        }
+
+        foreach ($relationships as $relationship => $value) {
+            $camelCased = Inflector::camelize($relationship);
+
+            if (is_array($value)) {
+                $getter = self::GET . $camelCased;
+                $adder = self::ADD . Inflector::singularize($camelCased);
+
+                foreach ($value as $item) $entity->$adder($item);
+            } else {
+                $method = self::SET . $camelCased;
+
+                if ($class->hasMethod($method)) $entity->$method($value);
+            }
         }
 
         $errors = $this->validator->validate($entity);

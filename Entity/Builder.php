@@ -18,14 +18,19 @@ class Builder
 
     /**
      * @param string $resourceType
-     * @param array $data
+     * @param array $fields
+     * @param array $relationships
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
-    public function create($resourceType, array $data)
+    public function create(
+        $resourceType,
+        array $fields,
+        array $relationships = []
+    )
     {
         return isset($builders[$resourceType])
-            ? $this->builders[$resourceType]->create($data)
-            : $this->builders['default']->create($data);
+            ? $this->builders[$resourceType]->create($fields, $relationships)
+            : $this->builders['default']->create($fields, $relationships);
     }
 
     /**
