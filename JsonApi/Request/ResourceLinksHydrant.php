@@ -12,6 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 
+/**
+ * @see http://jsonapi.org/format/#crud-updating-relationships
+ */
 class ResourceLinksHydrant
 {
     const LINKS = 'links',
