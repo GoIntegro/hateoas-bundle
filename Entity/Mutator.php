@@ -22,16 +22,22 @@ class Mutator
     /**
      * @param string $resourceType
      * @param ResourceEntityInterface $entity
-     * @param array $data
+     * @param array $fields
+     * @param array $relationships
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
     public function update(
-        $resourceType, ResourceEntityInterface $entity, array $data
+        $resourceType,
+        ResourceEntityInterface $entity,
+        array $fields,
+        array $relationships = []
     )
     {
         return isset($mutators[$resourceType])
-            ? $this->mutators[$resourceType]->update($entity, $data)
-            : $this->mutators['default']->update($entity, $data);
+            ? $this->mutators[$resourceType]
+                ->update($entity, $fields, $relationships)
+            : $this->mutators['default']
+                ->update($entity, $fields, $relationships);
     }
 
     /**
