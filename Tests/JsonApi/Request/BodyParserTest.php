@@ -18,8 +18,18 @@ use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 class BodyParserTest extends TestCase
 {
     const API_BASE_URL = '/api/v1',
-        RESOURCE_TYPE = 'users',
-        HTTP_PUT_BODY = <<<'JSON'
+        RESOURCE_TYPE = 'users';
+
+    const HTTP_POST_BODY = <<<'JSON'
+{
+    "users": {
+        "name": "John",
+        "surname": "Connor"
+    }
+}
+JSON;
+
+    const HTTP_PUT_BODY = <<<'JSON'
 {
     "users": {
         "id": "7",
@@ -29,11 +39,42 @@ class BodyParserTest extends TestCase
 }
 JSON;
 
+    public function testParsingARequestWithACreateBody()
+    {
+        // Given...
+        $queryOverrides = [
+            'getContent' => function() { return self::HTTP_POST_BODY; }
+        ];
+        $request = self::createRequest(
+            '/api/v1/users',
+            $queryOverrides,
+            Parser::HTTP_POST,
+            self::HTTP_POST_BODY
+        );
+        $params = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
+            ['primaryType' => self::RESOURCE_TYPE]
+        );
+        $hydrant = Stub::makeEmpty('GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\ResourceLinksHydrant');
+        $parser = new BodyParser(
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            $hydrant
+        );
+        // When...
+        $resources = $parser->parse($request, $params);
+        // Then...
+        $this->assertSame([[
+            'name' => 'John',
+            'surname' => 'Connor'
+        ]], $resources);
+    }
+
     public function testParsingARequestWithAnUpdateBody()
     {
         // Given...
         $queryOverrides = [
-            'getContent' => function() { return self::UPDATE_BODY; }
+            'getContent' => function() { return self::HTTP_PUT_BODY; }
         ];
         $request = self::createRequest(
             '/api/v1/users',
