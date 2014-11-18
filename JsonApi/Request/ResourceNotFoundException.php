@@ -7,6 +7,6 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-class ParseException extends \ErrorException
+class ResourceNotFoundException extends \ErrorException
 {
 }
