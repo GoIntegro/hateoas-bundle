@@ -103,7 +103,9 @@ abstract class AbstractBodyParser
         );
 
         foreach ($entityData as &$data) {
-            if (!$this->jsonCoder->matchSchema($data, $resourceObjectSchema)) {
+            $json = json_decode(json_encode($data), FALSE);
+
+            if (!$this->jsonCoder->matchSchema($json, $resourceObjectSchema)) {
                 $message = $this->jsonCoder->getSchemaErrorMessage();
                 throw new ParseException($message);
             }
