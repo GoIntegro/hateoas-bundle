@@ -36,8 +36,9 @@ class Parser
     const PRIMARY_RESOURCE_TYPE = 0,
         PRIMARY_RESOURCE_IDS = 1,
         PRIMARY_RESOURCE_FIELD = 2,
-        RELATIONSHIP_RESOURCE_TYPE = 3,
-        ERROR_NO_API_BASE_PATH
+        RELATIONSHIP_RESOURCE_TYPE = 3;
+
+    const ERROR_NO_API_BASE_PATH
             = "The API base path is not configured.",
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "Multiple Ids are not supported when requesting a resource field or link.",
         ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.";

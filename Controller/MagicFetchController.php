@@ -45,8 +45,9 @@ class MagicFetchController extends SymfonyController
 {
     use CommonResponseTrait;
 
-    const RESOURCE_LIMIT = 50,
-        ERROR_ACCESS_DENIED = "Access to the resource was denied.",
+    const RESOURCE_LIMIT = 50;
+
+    const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
         ERROR_RELATIONSHIP_NOT_FOUND = "No relationship by that name found.",
         ERROR_FIELD_NOT_FOUND = "No field by that name found.";
@@ -65,20 +66,14 @@ class MagicFetchController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ResourceNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
-        }
-
-        if (empty($params->primaryClass)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
-        $entity = $this->getDoctrine()
-            ->getManager()
-            ->find($params->primaryClass, $id);
-
-        if (empty($entity)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         }
 
         $metadata = $this->get('hateoas.metadata_miner')
@@ -88,6 +83,7 @@ class MagicFetchController extends SymfonyController
         $relatedResource = NULL;
 
         if ($metadata->isRelationship($relationship)) {
+            $entity = reset($params->entities);
             $primaryResource = $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
                 ->setEntity($entity)
@@ -159,20 +155,14 @@ class MagicFetchController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ResourceNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
-        }
-
-        if (empty($params->primaryClass)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
-        $entity = $this->getDoctrine()
-            ->getManager()
-            ->find($params->primaryClass, $id);
-
-        if (empty($entity)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (EntityNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         }
 
         $metadata = $this->get('hateoas.metadata_miner')
@@ -180,6 +170,7 @@ class MagicFetchController extends SymfonyController
         $json = NULL;
 
         if ($metadata->isField($field)) {
+            $entity = reset($params->entities);
             $resource = $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
                 ->setEntity($entity)
@@ -201,6 +192,8 @@ class MagicFetchController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ResourceNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (EntityNotFoundException $e) {
@@ -239,12 +232,10 @@ class MagicFetchController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ResourceNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
-        }
-
-        if (empty($params->primaryClass)) {
-            throw new NotFoundHttpException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
         $resources = NULL;
