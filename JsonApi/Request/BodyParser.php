@@ -52,8 +52,7 @@ class BodyParser
         $this->docFinder = $docFinder;
         $this->hydrant = $hydrant;
         $this->createBodyParser = new CreateBodyParser($jsonCoder);
-        $this->updateBodyParser
-            = new UpdateBodyParser($jsonCoder, $docFinder, $hydrant);
+        $this->updateBodyParser = new UpdateBodyParser($jsonCoder);
     }
 
     /**

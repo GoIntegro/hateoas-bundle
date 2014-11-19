@@ -113,6 +113,7 @@ class Parser
     /**
      * Parsea ciertos parámetros de un pedido de HTTP.
      * @param Request $request
+     * @throws ResourceNotFoundException
      */
     public function parse(Request $request = NULL)
     {
