@@ -170,4 +170,14 @@ class RamlDoc
     {
         return 0 === strpos($value, '/');
     }
+
+    /**
+     * @param string $value
+     * @return boolean
+     */
+    public static function isParameter($value)
+    {
+        return self::isResource($value)
+            && '{' === substr($value, 1, 1) && '}' === substr($value, -1);
+    }
 }
