@@ -14,8 +14,6 @@ use Symfony\Component\HttpFoundation\Request,
 use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination;
 // JSON.
 use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
-// RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
 
 /**
  * @see http://jsonapi.org/format/#introduction

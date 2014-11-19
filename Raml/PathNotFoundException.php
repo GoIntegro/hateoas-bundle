@@ -5,8 +5,8 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
+namespace GoIntegro\Bundle\HateoasBundle\Raml;
 
-class ParseException extends \ErrorException
+class PathNotFoundException extends \RuntimeException
 {
 }
