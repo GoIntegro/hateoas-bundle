@@ -145,8 +145,9 @@ class Parser
         }
 
         $params->filters = $this->filterParser->parse($request, $params);
+        $content = $request->getContent();
 
-        if (!empty($request->getContent())) {
+        if (!empty($content)) {
             $params->resources = $this->bodyParser->parse($request, $params);
         }
 
