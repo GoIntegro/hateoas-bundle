@@ -35,7 +35,8 @@ use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInte
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityNotFoundException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DocumentTooLargeException;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DocumentTooLargeException,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ResourceNotFoundException;
 
 /**
  * Permite probar la flexibilidad de la biblioteca.
@@ -65,6 +66,8 @@ class MagicAlterController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ResourceNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
@@ -130,6 +133,8 @@ class MagicAlterController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ResourceNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
@@ -195,6 +200,8 @@ class MagicAlterController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
+        } catch (ResourceNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {

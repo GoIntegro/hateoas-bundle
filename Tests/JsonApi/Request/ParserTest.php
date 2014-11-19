@@ -34,7 +34,7 @@ class ParserTest extends TestCase
     {
         // Given...
         $request = self::createRequest(
-            '/api/v1/posts/1/linked/likes',
+            '/api/v1/users/1/linked/groups',
             ['has' => function() { return FALSE; }]
         );
         $parser = new Parser(
@@ -50,9 +50,9 @@ class ParserTest extends TestCase
         // When...
         $params = $parser->parse();
         // Then...
-        $this->assertEquals('posts', $params->primaryType);
+        $this->assertEquals('users', $params->primaryType);
         $this->assertContains('1', $params->primaryIds);
-        $this->assertEquals('likes', $params->relationshipType);
+        $this->assertEquals('groups', $params->relationshipType);
     }
 
     public function testParsingARequestWithSparseFields()

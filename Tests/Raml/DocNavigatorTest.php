@@ -99,4 +99,35 @@ SCHEMA;
         /* Then... (Assertions) */
         $this->assertEquals(self::INLINE_BODY_SCHEMA, $schema);
     }
+
+    public function testNavigatingARaml()
+    {
+        /* Given... (Fixture) */
+        $jsonCoder = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\Util\JsonCoder',
+            ['decode' => function($filePath) {
+                if (!is_readable($filePath)) {
+                    throw new \ErrorException("The file is not readable.");
+                }
+
+                return self::TEST_SCHEMA;
+            }]
+        );
+        $parser = new DocParser($jsonCoder);
+        $ramlDoc = $parser->parse(__DIR__ . self::DEFAULT_SCHEMA_RAML);
+        $navigator = new DocNavigator($ramlDoc, $jsonCoder);
+        /* When... (Action) */
+        $filteredResponses = $navigator->navigate(
+            '/some-resources', RamlDoc::HTTP_GET, 'responses'
+        );
+        $byIdsResponses = $navigator->navigate(
+            '/some-resources/{some-resource-ids}', RamlDoc::HTTP_PUT
+        );
+        /* Then... (Assertions) */
+        $this->assertEquals([200 => NULL], $filteredResponses);
+        $this->assertEquals([
+            'description' => "Updates one or more random resources.",
+            'responses' => [200 => NULL, 404 => NULL]
+        ], $byIdsResponses);
+    }
 }

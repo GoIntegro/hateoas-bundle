@@ -16,7 +16,9 @@ class DocNavigator
 
     const ERROR_INVALID_METHOD = "The provided method \"%s\" is invalid.",
         ERROR_INVALID_MEDIA_TYPE = "The provided media type \"%s\" is invalid.",
-        ERROR_INVALID_SCHEMA = "The provided schema is not valid.";
+        ERROR_INVALID_SCHEMA = "The provided schema is not valid.",
+        ERROR_INVALID_KEY = "One of the keys provided to navigate the RAML is not valid.",
+        ERROR_KEY_NOT_FOUND = "One of the keys provided \"%s\" was not found.";
 
     /**
      * @var RamlDoc
@@ -57,13 +59,21 @@ class DocNavigator
             throw new \UnexpectedValueException($mediaType);
         }
 
-        if (isset(
-            $this->ramlDoc->rawRaml[$resourceUri][$method]
-            [RamlDoc::REQUEST_BODY][$mediaType][RamlDoc::BODY_SCHEMA]
-        )) {
-            $schema = $this->ramlDoc->rawRaml[$resourceUri][$method]
-                [RamlDoc::REQUEST_BODY][$mediaType][RamlDoc::BODY_SCHEMA];
+        try {
+            $schema = $this->navigate(
+                $resourceUri,
+                $method,
+                RamlDoc::REQUEST_BODY,
+                $mediaType,
+                RamlDoc::BODY_SCHEMA
+            );
+        } catch (PathNotFoundException $e) {
+            // In this case, this is OK. Return values are based on navigation,
+            // any value may be found and thus is valid, hence return values
+            // can't be used to express "not found".
+        }
 
+        if (isset($schema)) {
             if (RamlDoc::isInclude($schema)) {
                 $schema = $this->dereferenceInclude(
                     $schema, $this->ramlDoc->fileDir
@@ -71,12 +81,61 @@ class DocNavigator
             } elseif ($this->ramlDoc->hasNamedSchema($schema)) {
                 $schema = $this->ramlDoc->getNamedSchema($schema);
             } elseif (!$this->jsonCoder->assertJsonSchema($schema)) {
-                throw new \ErrorException(self::ERROR_INVALID_SCHEMA);
+                throw new MalformedSchemaException(self::ERROR_INVALID_SCHEMA);
             }
 
             return $schema;
         } else {
             return $this->ramlDoc->getNamedSchema('default');
         }
+    }
+
+    /**
+     * @param string $key Any number of "key" args can be passed.
+     * @return mixed
+     * @throws \ErrorException
+     */
+    public function navigate()
+    {
+        $args = array_merge([$this->ramlDoc->rawRaml], func_get_args());
+
+        return call_user_func_array('self::dig', $args);
+    }
+
+    /**
+     * @param mixed $raml
+     * @param string $key
+     * @return mixed
+     * @throws \ErrorException
+     */
+    private static function dig($raml, $key = NULL)
+    {
+        $args = array_slice(func_get_args(), 2);
+
+        if (!empty($key)) {
+            if (!is_scalar($key)) {
+                throw new \ErrorException(self::ERROR_INVALID_KEY);
+            } elseif ('/' === substr($key, 0, 1)) {
+                $parts = explode('/', substr($key, 1));
+
+                if (1 < count($parts)) {
+                    $callback = function($part) { return '/' . $part; };
+                    $parts = array_map($callback, $parts);
+                    $parts = array_merge([$raml], $parts);
+                    $raml = call_user_func_array(__METHOD__, $parts);
+                    $key = array_shift($args);
+                }
+            }
+
+            if (!isset($raml[$key])) {
+                $message = sprintf(self::ERROR_KEY_NOT_FOUND, $key);
+                throw new PathNotFoundException($message);
+            }
+
+            $args = array_merge([$raml[$key]], $args);
+            $raml = call_user_func_array(__METHOD__, $args);
+        }
+
+        return $raml;
     }
 }
