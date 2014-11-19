@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/skqr/hateoas-bundle.svg?branch=master)](https://travis-ci.org/skqr/hateoas-bundle)
+
 [GOintegro](http://www.gointegro.com/en/) / HATEOAS
 ===================================================
 This is a library and Symfony 2 bundle that allows you to magically expose your Doctrine 2 mapped entities as resources in a [HATEOAS](http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) API and supports the full spec of [JSON-API](http://jsonapi.org/) for serializing and fetching; sparse fields, includes, filtering, sorting, the works.
