@@ -120,8 +120,11 @@ SCHEMA;
         $filteredResponses = $navigator->navigate(
             '/some-resources', RamlDoc::HTTP_GET, 'responses'
         );
-        $byIdsResponses = $navigator->navigate(
+        $withParamResponses = $navigator->navigate(
             '/some-resources/{some-resource-ids}', RamlDoc::HTTP_PUT
+        );
+        $byIdsResponses = $navigator->navigate(
+            '/some-resources/1,2,3', RamlDoc::HTTP_PUT
         );
         /* Then... (Assertions) */
         $this->assertEquals([200 => NULL], $filteredResponses);
@@ -129,5 +132,9 @@ SCHEMA;
             'description' => "Updates one or more random resources.",
             'responses' => [200 => NULL, 404 => NULL]
         ], $byIdsResponses);
+        $this->assertEquals([
+            'description' => "Updates one or more random resources.",
+            'responses' => [200 => NULL, 404 => NULL]
+        ], $withParamResponses);
     }
 }
