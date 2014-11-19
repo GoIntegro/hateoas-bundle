@@ -39,6 +39,7 @@ class ParserTest extends TestCase
         );
         $parser = new Parser(
             $request,
+            self::createDocFinder(),
             self::createFilterParser(),
             self::createPaginationParser(),
             self::createBodyParser(),
@@ -64,6 +65,7 @@ class ParserTest extends TestCase
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
             $request,
+            self::createDocFinder(),
             self::createFilterParser(),
             self::createPaginationParser(),
             self::createBodyParser(),
@@ -93,6 +95,7 @@ class ParserTest extends TestCase
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
             $request,
+            self::createDocFinder(),
             self::createFilterParser(),
             self::createPaginationParser(),
             self::createBodyParser(),
@@ -122,6 +125,7 @@ class ParserTest extends TestCase
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
             $request,
+            self::createDocFinder(),
             self::createFilterParser(),
             self::createPaginationParser(),
             self::createBodyParser(),
@@ -234,6 +238,22 @@ class ParserTest extends TestCase
     {
         return Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder'
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
+     */
+    private static function createDocFinder()
+    {
+        $ramlDoc = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc',
+            ['isDefined' => TRUE]
+        );
+
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\Raml\DocFinder',
+            ['find' => $ramlDoc]
         );
     }
 }
