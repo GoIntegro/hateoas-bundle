@@ -21,6 +21,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface,
 
 class DefaultMutator implements MutatorInterface
 {
+    const GET = 'get', REMOVE = 'remove', ADD = 'add', SET = 'set';
+
     const ERROR_COULD_NOT_UPDATE = "Could not update the resource.";
 
     /**
@@ -54,23 +56,45 @@ class DefaultMutator implements MutatorInterface
 
     /**
      * @param ResourceEntityInterface $entity
-     * @param array $data
-     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
-     * @todo No params, just the parser?
-     * @todo Replace the HTTP bad request exception.
-     * @todo Entity conflict?
+     * @param array $fields
+     * @param array $relationships
+     * @return ResourceEntityInterface
+     * @throws EntityConflictExceptionInterface
+     * @throws ValidationExceptionInterface
      */
-    public function update(ResourceEntityInterface $entity, array $data)
+    public function update(
+        ResourceEntityInterface $entity,
+        array $fields,
+        array $relationships = []
+    )
     {
         $params = $this->parser->parse();
         $class = new \ReflectionClass($params->primaryClass);
 
-        foreach ($data as $field => $value) {
-            if ('links' == $field) continue;
-
-            $method = 'set' . Inflector::camelize($field);
+        foreach ($fields as $field => $value) {
+            $method = self::SET . Inflector::camelize($field);
 
             if ($class->hasMethod($method)) $entity->$method($value);
+        }
+
+        foreach ($relationships as $relationship => $value) {
+            $camelCased = Inflector::camelize($relationship);
+
+            if (is_array($value)) {
+                $getter = self::GET . $camelCased;
+                $singular = Inflector::singularize($camelCased);
+                $remover = self::REMOVE . $singular;
+                $adder = self::ADD . $singular;
+
+                // @todo Improve algorithm.
+                foreach ($entity->$getter() as $item) $entity->$remover($item);
+
+                foreach ($value as $item) $entity->$adder($item);
+            } else {
+                $method = self::SET . $camelCased;
+
+                if ($class->hasMethod($method)) $entity->$method($value);
+            }
         }
 
         $errors = $this->validator->validate($entity);

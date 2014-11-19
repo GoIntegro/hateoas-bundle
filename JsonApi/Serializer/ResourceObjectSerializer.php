@@ -113,6 +113,7 @@ class ResourceObjectSerializer implements SerializerInterface
                 return EntityResource::getStringId($entity);
             };
             $links[$relationship] = $collection->map($callback)->toArray();
+            $links[$relationship] = array_values($links[$relationship]);
         }
 
         return $links;

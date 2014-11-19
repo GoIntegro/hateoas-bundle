@@ -14,11 +14,13 @@ interface MutatorInterface
 {
     /**
      * @param ResourceEntityInterface $entity
-     * @param array $data
+     * @param array $fields
+     * @param array $relationships
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
-     * @todo No params, just the parser?
-     * @todo Replace the HTTP bad request exception.
-     * @todo Entity conflict?
+     * @throws \GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface
+     * @throws \GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface
      */
-    public function update(ResourceEntityInterface $entity, array $data);
+    public function update(
+        ResourceEntityInterface $entity, array $data, array $relationships = []
+    );
 }
