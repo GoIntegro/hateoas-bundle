@@ -18,7 +18,8 @@ class DocNavigator
         ERROR_INVALID_MEDIA_TYPE = "The provided media type \"%s\" is invalid.",
         ERROR_INVALID_SCHEMA = "The provided schema is not valid.",
         ERROR_INVALID_KEY = "One of the keys provided to navigate the RAML is not valid.",
-        ERROR_KEY_NOT_FOUND = "One of the keys provided \"%s\" was not found.";
+        ERROR_KEY_NOT_FOUND = "A path for one of the keys provided \"%s\" was not found.",
+        ERROR_PARAM_NOT_FOUND = "One of the keys provided \"%s\" was assumed to be an Id or list of Ids, but a matching path was not found.";
 
     /**
      * @var RamlDoc
@@ -107,6 +108,7 @@ class DocNavigator
      * @param string $key
      * @return mixed
      * @throws \ErrorException
+     * @throws PathNotFoundException
      */
     private static function dig($raml, $key = NULL)
     {
@@ -115,7 +117,7 @@ class DocNavigator
         if (!empty($key)) {
             if (!is_scalar($key)) {
                 throw new \ErrorException(self::ERROR_INVALID_KEY);
-            } elseif ('/' === substr($key, 0, 1)) {
+            } elseif (RamlDoc::isResource($key)) {
                 $parts = explode('/', substr($key, 1));
 
                 if (1 < count($parts)) {
@@ -124,6 +126,21 @@ class DocNavigator
                     $parts = array_merge([$raml], $parts);
                     $raml = call_user_func_array(__METHOD__, $parts);
                     $key = array_shift($args);
+                } elseif (self::isIdList($key)) {
+                    $found = FALSE;
+
+                    foreach (array_keys($raml) as $property) {
+                        if (RamlDoc::isParameter($property)) {
+                            $found = TRUE;
+                            $key = $property;
+                            break;
+                        }
+                    }
+
+                    if (!$found) {
+                        $message = sprintf(self::ERROR_PARAM_NOT_FOUND, $key);
+                        throw new PathNotFoundException($message);
+                    }
                 }
             }
 
@@ -137,5 +154,14 @@ class DocNavigator
         }
 
         return $raml;
+    }
+
+    /**
+     * @param string $value
+     * @return boolean
+     */
+    private static function isIdList($value)
+    {
+        return 1 === preg_match('/^\/[0-9]+[,0-9]*$/', $value);
     }
 }
