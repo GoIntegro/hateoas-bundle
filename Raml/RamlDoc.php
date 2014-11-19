@@ -180,4 +180,31 @@ class RamlDoc
         return self::isResource($value)
             && '{' === substr($value, 1, 1) && '}' === substr($value, -1);
     }
+
+    /**
+     * @param string $method
+     * @param string $path
+     * @param boolean
+     */
+    public function isDefined($method, $path)
+    {
+        $raml = $this->rawRaml;
+
+        foreach (explode('/', substr($path, 1)) as $part) {
+            $resource = '/' . $part;
+
+            if (isset($raml[$resource])) {
+                $raml = $raml[$resource];
+            } else {
+                foreach (array_keys($raml) as $key) {
+                    if (static::isParameter($key)) {
+                        $raml = $raml[$key];
+                        break;
+                    }
+                }
+            }
+        }
+
+        return isset($raml[$method]);
+    }
 }
