@@ -7,6 +7,9 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-class ActionNotAllowedException extends \RuntimeException
+// Symfony 2.
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+
+class ActionNotAllowedException extends MethodNotAllowedException
 {
 }
