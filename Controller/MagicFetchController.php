@@ -72,7 +72,9 @@ class MagicFetchController extends SymfonyController
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getMessage(), $e);
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
@@ -163,7 +165,9 @@ class MagicFetchController extends SymfonyController
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getMessage(), $e);
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
@@ -202,7 +206,9 @@ class MagicFetchController extends SymfonyController
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getMessage(), $e);
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (EntityNotFoundException $e) {
@@ -244,7 +250,9 @@ class MagicFetchController extends SymfonyController
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getMessage(), $e);
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         }

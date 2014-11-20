@@ -197,12 +197,18 @@ class RamlDoc
 
     /**
      * @param string $path
+     * @param integer $case
      * @return array
      */
-    public function getAllowedMethods($path)
+    public function getAllowedMethods($path, $case = CASE_LOWER)
     {
         $raml = $this->getPathDefinition($path);
         $methods = array_intersect(array_keys($raml), static::$methods);
+
+        if (CASE_UPPER === $case) {
+            $callback = function($method) { return strtoupper($method); };
+            $methods = array_map($callback, $methods);
+        }
 
         return array_values($methods);
     }

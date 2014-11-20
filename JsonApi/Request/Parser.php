@@ -37,7 +37,7 @@ class Parser
             = "The API base path is not configured.",
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "Multiple Ids are not supported when requesting a resource field or link.",
         ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.",
-        ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource.";
+        ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].";
 
     /**
      * @var Request
@@ -249,9 +249,11 @@ class Parser
         $method = strtolower($request->getMethod());
 
         if (!$ramlDoc->isDefined($method, $path)) {
-            throw new ActionNotAllowedException(
-                self::ERROR_ACTION_NOT_ALLOWED
+            $allowedMethods = $ramlDoc->getAllowedMethods($path, CASE_UPPER);
+            $message = sprintf(
+                self::ERROR_ACTION_NOT_ALLOWED, implode(', ', $allowedMethods)
             );
+            throw new ActionNotAllowedException($allowedMethods, $message);
         }
 
         return $path;

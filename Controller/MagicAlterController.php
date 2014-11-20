@@ -71,7 +71,9 @@ class MagicAlterController extends SymfonyController
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getMessage(), $e);
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
@@ -140,7 +142,9 @@ class MagicAlterController extends SymfonyController
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getMessage(), $e);
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
@@ -209,7 +213,9 @@ class MagicAlterController extends SymfonyController
         } catch (ResourceNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException($e->getMessage(), $e);
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
