@@ -14,20 +14,20 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 // Colecciones
 use GoIntegro\Bundle\HateoasBundle\Collections\PaginatedCollection;
 // Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-/**
- * An abstract controller that custom JSON-API controllers can extend.
- * @todo Make it a trait?
- */
 class RepositoryHelper
 {
-    use SimpleQueryExpressions;
+    const RESOURCE_ENTITY_INTERFACE = 'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\ResourceEntityInterface';
 
     /**
      * @var EntityManagerInterface
      */
     private $entityManager;
+    /**
+     * @var array
+     */
+    private $filters = [];
 
     /**
      * @param EntityManagerInterface
@@ -39,10 +39,10 @@ class RepositoryHelper
 
     /**
      * Helper method to paginate a query using the HATEOAS request parameters.
-     * @param Params $request
+     * @param Request\Params $request
      * @return PaginatedCollection
      */
-    public function findByRequestParams(Params $params)
+    public function findByRequestParams(Request\Params $params)
     {
         return $this->findPaginated(
             $params->primaryClass,
@@ -55,16 +55,16 @@ class RepositoryHelper
     /**
      * Helper method to paginate "find by" queries.
      * @param string $entityClass
-     * @param array $filters
+     * @param array $criteria
      * @param integer $offset
      * @param integer $limit
      * @return PaginatedCollection
      */
     public function findPaginated(
         $entityClass,
-        array $filters,
-        $offset = Params::DEFAULT_PAGE_OFFSET,
-        $limit = Params::DEFAULT_PAGE_SIZE
+        array $criteria,
+        $offset = Request\Params::DEFAULT_PAGE_OFFSET,
+        $limit = Request\Params::DEFAULT_PAGE_SIZE
     )
     {
         $qb = $this->entityManager
@@ -73,8 +73,12 @@ class RepositoryHelper
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
-        if ($expr = $this->filtersToExpression($qb, $filters, 'e')) {
-            $qb->where($expr);
+        foreach ($this->filters as $class => $filters) {
+            if (is_a($entityClass, $class, TRUE)) {
+                foreach ($filters as $filter) {
+                    $qb = $filter->filter($qb, $criteria, 'e');
+                }
+            }
         }
 
         $query = $qb->getQuery();
@@ -82,5 +86,17 @@ class RepositoryHelper
         $collection = new PaginatedCollection($paginator);
 
         return $collection;
+    }
+
+    /**
+     * @param Request\FilterInterface $filter
+     * @param string $class
+     */
+    public function addFilter(
+        Request\FilterInterface $filter,
+        $class = self::RESOURCE_ENTITY_INTERFACE
+    )
+    {
+        $this->filters[$class][] = $filter;
     }
 }

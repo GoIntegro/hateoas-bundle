@@ -95,6 +95,13 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\Util\RepositoryHelper
     arguments: [@doctrine.orm.entity_manager]
 
+  hateoas.repo_helper.default_filter:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DefaultFilter
+    public: false
+    tags:
+      - name: hateoas.repo_helper.filter
+        entity_class: GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
+
   hateoas.document_blender:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Merge\Blender
     arguments: [@hateoas.json_coder]

@@ -11,7 +11,8 @@ namespace GoIntegro\Bundle\HateoasBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle,
     Symfony\Component\DependencyInjection\ContainerBuilder;
 // HATEOAS.
-use GoIntegro\Bundle\HateoasBundle\Entity\EntityCompilerPass;
+use GoIntegro\Bundle\HateoasBundle\Entity\EntityCompilerPass,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterCompilerPass;
 
 class GoIntegroHateoasBundle extends Bundle
 {
@@ -19,5 +20,6 @@ class GoIntegroHateoasBundle extends Bundle
     {
         parent::build($container);
         $container->addCompilerPass(new EntityCompilerPass);
+        $container->addCompilerPass(new FilterCompilerPass);
     }
 }

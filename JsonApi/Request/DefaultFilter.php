@@ -5,20 +5,20 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle\Util;
+namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // ORM.
 use Doctrine\ORM\QueryBuilder;
 
-trait SimpleQueryExpressions
+class DefaultFilter implements FilterInterface
 {
     /**
      * @param QueryBuilder $qb
      * @param array $filters
      * @param string $alias
-     * @return \Doctrine\ORM\Query\Expr\Base
+     * @return QueryBuilder
      */
-    private function filtersToExpression(
+    public function filter(
         QueryBuilder $qb, array $filters, $alias = 'e'
     ) {
         $expressions = [];
@@ -33,7 +33,9 @@ trait SimpleQueryExpressions
                     $qb->join($namespace, $field);
                     $namespace = $field . '.id';
                 } elseif ('field' != $type) {
-                    throw new \Exception("Tipo de filtro desconocido.");
+                    throw new \Exception(
+                        "At least one of the given filters is unknown."
+                    );
                 }
 
                 $expressions[] = $qb->expr()->$expr($namespace, $holder);
@@ -41,8 +43,13 @@ trait SimpleQueryExpressions
             }
         }
 
-        return !empty($expressions)
-            ? call_user_func_array([$qb->expr(), 'andX'], $expressions)
-            : NULL;
+        if (!empty($expressions)) {
+            $criteria = call_user_func_array(
+                [$qb->expr(), 'andX'], $expressions
+            );
+            $qb->andWhere($criteria);
+        }
+
+        return $qb;
     }
 }
