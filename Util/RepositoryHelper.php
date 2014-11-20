@@ -14,7 +14,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 // Colecciones
 use GoIntegro\Bundle\HateoasBundle\Collections\PaginatedCollection;
 // Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 class RepositoryHelper
 {
@@ -41,10 +41,10 @@ class RepositoryHelper
 
     /**
      * Helper method to paginate a query using the HATEOAS request parameters.
-     * @param Params $request
+     * @param Request\Params $request
      * @return PaginatedCollection
      */
-    public function findByRequestParams(Params $params)
+    public function findByRequestParams(Request\Params $params)
     {
         return $this->findPaginated(
             $params->primaryClass,
@@ -65,8 +65,8 @@ class RepositoryHelper
     public function findPaginated(
         $entityClass,
         array $filters,
-        $offset = Params::DEFAULT_PAGE_OFFSET,
-        $limit = Params::DEFAULT_PAGE_SIZE
+        $offset = Request\Params::DEFAULT_PAGE_OFFSET,
+        $limit = Request\Params::DEFAULT_PAGE_SIZE
     )
     {
         $qb = $this->entityManager
@@ -87,9 +87,9 @@ class RepositoryHelper
     }
 
     /**
-     * @param FilterInterface
+     * @param Request\FilterInterface
      */
-    public function addFilter(FilterInterface $filter)
+    public function addFilter(Request\FilterInterface $filter)
     {
         $class = $filter->getClass();
         $name = $filter->getName();

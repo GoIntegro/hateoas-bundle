@@ -67,6 +67,8 @@ class FilterParser
                 $add($param, $value, 'field');
             } elseif ($metadata->isRelationship($param)) {
                 $add($param, $value, 'association'); // Doctrine 2 term.
+            } else {
+                $add($param, $value, 'custom');
             }
         }
 
