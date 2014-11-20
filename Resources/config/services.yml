@@ -86,6 +86,7 @@ services:
       - @service_container
       - %api.resource_class_path%
       - %api.url_path%
+      - %go_integro_hateoas.cache%
 
   hateoas.metadata_cache:
     class: %hateoas.metadata_cache.class%

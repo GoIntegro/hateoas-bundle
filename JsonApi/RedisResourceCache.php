@@ -45,18 +45,19 @@ class RedisResourceCache implements ResourceCache
      * @param MetadataCache $metadataCache
      * @param MetadataMinerInterface $metadataMiner
      * @param ContainerInterface $serviceContainer
+     * @param array $config
      */
     public function __construct(
         MetadataCache $metadataCache,
         MetadataMinerInterface $metadataMiner,
-        ContainerInterface $serviceContainer
+        ContainerInterface $serviceContainer,
+        array $config = []
     )
     {
         $this->metadataCache = $metadataCache;
         $this->metadataMiner = $metadataMiner;
         $this->serviceContainer = $serviceContainer;
-        // @todo Make the Redis parameters configurable.
-        $this->redis = new Client;
+        $this->redis = new Client($config['parameters'], $config['options']);
     }
 
     /**

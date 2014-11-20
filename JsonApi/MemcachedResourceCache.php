@@ -45,19 +45,28 @@ class MemcachedResourceCache implements ResourceCache
      * @param MetadataCache $metadataCache
      * @param MetadataMinerInterface $metadataMiner
      * @param ContainerInterface $serviceContainer
+     * @param array $config
      */
     public function __construct(
         MetadataCache $metadataCache,
         MetadataMinerInterface $metadataMiner,
-        ContainerInterface $serviceContainer
+        ContainerInterface $serviceContainer,
+        array $config = []
     )
     {
         $this->metadataCache = $metadataCache;
         $this->metadataMiner = $metadataMiner;
         $this->serviceContainer = $serviceContainer;
-        // @todo Make the Memcached parameters configurable.
-        $this->memcached = new Memcached;
-        $this->memcached->addServer('localhost', 11211);
+
+        if (isset($config['memcached'])) {
+            $this->memcached = new Memcached($config['memcached']['options']);
+
+            foreach ($config['memcached']['servers'] as $server) {
+                $this->memcached->addServer(
+                    $servers['host'], $servers['port']
+                );
+            }
+        }
     }
 
     /**
