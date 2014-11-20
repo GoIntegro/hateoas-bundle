@@ -33,7 +33,9 @@ trait SimpleQueryExpressions
                     $qb->join($namespace, $field);
                     $namespace = $field . '.id';
                 } elseif ('field' != $type) {
-                    throw new \Exception("Tipo de filtro desconocido.");
+                    throw new \Exception(
+                        "At least one of the given filters is unknown."
+                    );
                 }
 
                 $expressions[] = $qb->expr()->$expr($namespace, $holder);

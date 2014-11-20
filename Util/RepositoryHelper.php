@@ -16,18 +16,20 @@ use GoIntegro\Bundle\HateoasBundle\Collections\PaginatedCollection;
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 
-/**
- * An abstract controller that custom JSON-API controllers can extend.
- * @todo Make it a trait?
- */
 class RepositoryHelper
 {
     use SimpleQueryExpressions;
+
+    const ERROR_DUPLICATED_FILTER = "A filter called \"%s\" is already registered for the resource type \"%s\".";
 
     /**
      * @var EntityManagerInterface
      */
     private $entityManager;
+    /**
+     * @var array
+     */
+    private $filters = [];
 
     /**
      * @param EntityManagerInterface
@@ -82,5 +84,21 @@ class RepositoryHelper
         $collection = new PaginatedCollection($paginator);
 
         return $collection;
+    }
+
+    /**
+     * @param FilterInterface
+     */
+    public function addFilter(FilterInterface $filter)
+    {
+        $class = $filter->getClass();
+        $name = $filter->getName();
+
+        if (isset($this->filters[$class][$name])) {
+            $message = sprintf(self::ERROR_DUPLICATED_FILTER, $name, $class);
+            throw new \ErrorException($message);
+        }
+
+        $this->filters[$class][$name] = $filter;
     }
 }
