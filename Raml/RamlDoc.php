@@ -131,7 +131,7 @@ class RamlDoc
         if (is_callable($method)) {
             return call_user_func_array($method, $args);
         } else {
-            throw \BadMethodCallException("No such method here.");
+            throw new \BadMethodCallException("No such method here.");
         }
     }
 
@@ -179,5 +179,63 @@ class RamlDoc
     {
         return self::isResource($value)
             && '{' === substr($value, 1, 1) && '}' === substr($value, -1);
+    }
+
+    /**
+     * @param string $method
+     * @param string $path
+     * @return boolean
+     */
+    public function isDefined($method, $path)
+    {
+        $raml = $this->getPathDefinition($path);
+
+        return isset($raml[$method]);
+    }
+
+
+
+    /**
+     * @param string $path
+     * @param integer $case
+     * @return array
+     */
+    public function getAllowedMethods($path, $case = CASE_LOWER)
+    {
+        $raml = $this->getPathDefinition($path);
+        $methods = array_intersect(array_keys($raml), static::$methods);
+
+        if (CASE_UPPER === $case) {
+            $callback = function($method) { return strtoupper($method); };
+            $methods = array_map($callback, $methods);
+        }
+
+        return array_values($methods);
+    }
+
+    /**
+     * @param string $path
+     * @return array|NULL
+     */
+    public function getPathDefinition($path)
+    {
+        $raml = $this->rawRaml;
+
+        foreach (explode('/', substr($path, 1)) as $part) {
+            $resource = '/' . $part;
+
+            if (isset($raml[$resource])) {
+                $raml = $raml[$resource];
+            } else {
+                foreach (array_keys($raml) as $key) {
+                    if (static::isParameter($key)) {
+                        $raml = $raml[$key];
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $raml;
     }
 }

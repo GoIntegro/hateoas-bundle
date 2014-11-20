@@ -7,7 +7,9 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
     scope: request
     arguments:
+      # @todo Could we not just pass the request as a parameter?
       - @request
+      - @hateoas.raml.finder
       - @hateoas.request_parser.filter
       - @hateoas.request_parser.pagination
       - @hateoas.request_parser.body

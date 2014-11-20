@@ -6,14 +6,19 @@ mediaType: application/vnd.api+json
 schemas:
   - default: !include some-resources.schema.json
 /some-resources:
-  displayName: Random resources
+  displayName: Some silly resource
   get:
-    description: Retrieves random resources.
+    description: Retrieves resources.
     responses:
       200:
   /{some-resource-ids}:
+    get:
+      description: Retrieves one or more resources.
+      responses:
+        200:
     put:
-      description: Updates one or more random resources.
+      description: Updates one or more resources.
       responses:
         200:
         404:
+

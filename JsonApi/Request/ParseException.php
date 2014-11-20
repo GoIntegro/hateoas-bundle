@@ -7,6 +7,9 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-class ParseException extends \ErrorException
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\ErrorException;
+
+class ParseException extends ErrorException
 {
 }

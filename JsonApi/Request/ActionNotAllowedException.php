@@ -7,9 +7,9 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-// JSON-API
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\NotFoundException;
+// Symfony 2.
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
-class EntityNotFoundException extends NotFoundException
+class ActionNotAllowedException extends MethodNotAllowedException
 {
 }

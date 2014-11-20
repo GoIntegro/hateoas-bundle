@@ -7,6 +7,9 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-class ResourceNotFoundException extends \ErrorException
+// JSON-API
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\NotFoundException;
+
+class ResourceNotFoundException extends NotFoundException
 {
 }

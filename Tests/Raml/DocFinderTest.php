@@ -5,16 +5,12 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace JsonApi;
+namespace GoIntegro\Bundle\HateoasBundle\Raml;
 
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 // Mocks.
 use Codeception\Util\Stub;
-// RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml\DocParser,
-    GoIntegro\Bundle\HateoasBundle\Raml\DocFinder,
-    GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc;
 
 class DocFinderTest extends TestCase
 {

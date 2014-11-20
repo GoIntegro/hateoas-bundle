@@ -7,8 +7,11 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\ErrorException;
+
 class PersistenceException
-    extends \RuntimeException
+    extends ErrorException
     implements PersistenceExceptionInterface
 {
 }

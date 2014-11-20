@@ -5,16 +5,12 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace JsonApi;
+namespace GoIntegro\Bundle\HateoasBundle\Raml;
 
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 // Mocks.
 use Codeception\Util\Stub;
-// RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml\DocParser,
-    GoIntegro\Bundle\HateoasBundle\Raml\DocNavigator,
-    GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc;
 
 /**
  * @todo Depends on the DocParserTest.
@@ -129,11 +125,11 @@ SCHEMA;
         /* Then... (Assertions) */
         $this->assertEquals([200 => NULL], $filteredResponses);
         $this->assertEquals([
-            'description' => "Updates one or more random resources.",
+            'description' => "Updates one or more resources.",
             'responses' => [200 => NULL, 404 => NULL]
         ], $byIdsResponses);
         $this->assertEquals([
-            'description' => "Updates one or more random resources.",
+            'description' => "Updates one or more resources.",
             'responses' => [200 => NULL, 404 => NULL]
         ], $withParamResponses);
     }

@@ -5,7 +5,7 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Exception;
+namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 class DocumentTooLargeException extends \RuntimeException
 {

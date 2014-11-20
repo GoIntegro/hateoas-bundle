@@ -10,6 +10,9 @@ namespace GoIntegro\Bundle\HateoasBundle\Raml;
 // JSON.
 use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 
+/**
+ * Uses JSON-API assumptions to navigate a RAML.
+ */
 class DocNavigator
 {
     use DereferencesIncludes;
@@ -126,7 +129,7 @@ class DocNavigator
                     $parts = array_merge([$raml], $parts);
                     $raml = call_user_func_array(__METHOD__, $parts);
                     $key = array_shift($args);
-                } elseif (self::isIdList($key)) {
+                } elseif (self::isIdList($key)) { // @todo Support non-num Ids.
                     $found = FALSE;
 
                     foreach (array_keys($raml) as $property) {
@@ -163,5 +166,15 @@ class DocNavigator
     private static function isIdList($value)
     {
         return 1 === preg_match('/^\/[0-9]+[,0-9]*$/', $value);
+    }
+
+    /**
+     * @param string $method
+     * @param string $path
+     * @param boolean
+     */
+    public function isDefined($method, $path)
+    {
+        return FALSE;
     }
 }

@@ -23,6 +23,10 @@ class Params
         DEFAULT_PAGE_SIZE = 10;
 
     /**
+     * @var string The clean JSON-API request path.
+     */
+    public $path;
+    /**
      * @var string
      * @see http://jsonapi.org/format/#urls-reference-document
      */
@@ -41,6 +45,11 @@ class Params
      * @see http://jsonapi.org/format/#urls-relationships
      */
     public $relationshipType;
+    /**
+     * @var array
+     * @see http://jsonapi.org/format/#crud-updating-to-many-relationships
+     */
+    public $relationshipIds = [];
     /**
      * @var array
      * @see http://jsonapi.org/format/#fetching-includes

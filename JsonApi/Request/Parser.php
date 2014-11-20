@@ -9,12 +9,6 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // HTTP.
 use Symfony\Component\HttpFoundation\Request;
-// Metadata.
-use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
-// Inflector.
-use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
-// JSON.
-use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 // RAML.
 use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
 // JSON-API.
@@ -36,17 +30,23 @@ class Parser
     const PRIMARY_RESOURCE_TYPE = 0,
         PRIMARY_RESOURCE_IDS = 1,
         PRIMARY_RESOURCE_FIELD = 2,
-        RELATIONSHIP_RESOURCE_TYPE = 3;
+        RELATIONSHIP_RESOURCE_TYPE = 3,
+        RELATIONSHIP_RESOURCE_IDS = 4; // For multiple relationship deletes.
 
     const ERROR_NO_API_BASE_PATH
             = "The API base path is not configured.",
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "Multiple Ids are not supported when requesting a resource field or link.",
-        ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.";
+        ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.",
+        ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].";
 
     /**
      * @var Request
      */
     private $request;
+    /**
+     * @var DocFinder
+     */
+    private $docFinder;
     /**
      * @var string
      */
@@ -78,6 +78,7 @@ class Parser
 
     /**
      * @param Request $request
+     * @param DocFinder $docFinder
      * @param FilterParser $filterParser
      * @param PaginationParser $paginationParser
      * @param BodyParser $bodyParser
@@ -88,6 +89,7 @@ class Parser
      */
     public function __construct(
         Request $request,
+        DocFinder $docFinder,
         FilterParser $filterParser,
         PaginationParser $paginationParser,
         BodyParser $bodyParser,
@@ -98,6 +100,7 @@ class Parser
     )
     {
         $this->request = $request;
+        $this->docFinder = $docFinder;
         $this->apiUrlPath = $apiUrlPath;
         // @todo Esta verificación debería estar en el DI.
         $this->magicServices = isset($config['magic_services'])
@@ -114,11 +117,16 @@ class Parser
      * Parsea ciertos parámetros de un pedido de HTTP.
      * @param Request $request
      * @throws ResourceNotFoundException
+     * @throws ActionNotAllowedException
+     * @throws ParseException
+     * @throws EntityAccessDeniedException
+     * @throws EntityNotFoundException
      */
     public function parse(Request $request = NULL)
     {
         $request = $request ?: $this->request;
         $params = new Params;
+        $params->path = $this->parsePath($request);
         $params->primaryType = $this->parsePrimaryType($request);
         $params->primaryClass = $this->getEntityClass($params->primaryType);
         $params->relationshipType = $this->parseRelationshipType($request);
@@ -188,7 +196,7 @@ class Parser
         }
 
         if (Document::DEFAULT_RESOURCE_LIMIT < count($ids)) {
-            throw new DocumentTooLargeHttpException;
+            throw new DocumentTooLargeException;
         }
 
         return $ids;
@@ -204,7 +212,22 @@ class Parser
     }
 
     /**
-     * No se puede usar el servicio "router" de Symfony, lamentablemente.
+     * @param Request $request
+     * @return array
+     */
+    public function parseRelationshipIds(Request $request)
+    {
+        $ids = $this->parseUrlPart($request, self::RELATIONSHIP_RESOURCE_IDS);
+        $ids = !empty($ids) ? explode(',', $ids) : [];
+
+        if (Document::DEFAULT_RESOURCE_LIMIT < count($ids)) {
+            throw new DocumentTooLargeException;
+        }
+
+        return $ids;
+    }
+
+    /**
      * @param Request $request
      * @param integer $part
      * @return string
@@ -213,15 +236,49 @@ class Parser
         Request $request, $part = self::PRIMARY_RESOURCE_TYPE
     )
     {
+        $path = $this->parsePathParts($request);
+
+        return isset($path[$part]) ? $path[$part] : NULL;
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    private function parsePath(Request $request)
+    {
+        $parts = $this->parsePathParts($request);
+        $path = '/' . implode('/', $parts);
+        $ramlDoc = $this->docFinder->find($parts[self::PRIMARY_RESOURCE_TYPE]);
+        $method = strtolower($request->getMethod());
+
+        if (!$ramlDoc->isDefined($method, $path)) {
+            $allowedMethods = $ramlDoc->getAllowedMethods($path, CASE_UPPER);
+            $message = sprintf(
+                self::ERROR_ACTION_NOT_ALLOWED, implode(', ', $allowedMethods)
+            );
+            throw new ActionNotAllowedException($allowedMethods, $message);
+        }
+
+        return $path;
+    }
+
+    /**
+     * The "router" Symfony service cannot be used, regretably.
+     * @param Request $request
+     * @return array
+     */
+    private function parsePathParts(Request $request)
+    {
         if (empty($this->apiUrlPath)) {
             throw new \Exception(self::ERROR_NO_API_BASE_PATH);
         }
 
+        // Resolving not knowing whether the base contains a domain.
         $base = explode('/', $this->apiUrlPath);
         $path = explode('/', $request->getPathInfo());
-        $path = array_values(array_diff($path, $base));
 
-        return isset($path[$part]) ? $path[$part] : NULL;
+        return array_values(array_diff($path, $base));
     }
 
     /**
