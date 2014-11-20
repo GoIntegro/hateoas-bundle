@@ -20,6 +20,12 @@ Here's some of what you get.
     * Create, update, and delete out of the box;
     * Assing services to handle any of the above for specific resources.
 
+Here's what you'll need.
+
+* A Doctrine 2 entity map;
+* A RAML API definition;
+* At least one Symfony 2 security voter.
+
 Try it out
 ==========
 
