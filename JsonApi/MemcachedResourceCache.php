@@ -58,14 +58,14 @@ class MemcachedResourceCache implements ResourceCache
         $this->metadataMiner = $metadataMiner;
         $this->serviceContainer = $serviceContainer;
 
-        if (isset($config['memcached'])) {
-            $this->memcached = new Memcached($config['memcached']['options']);
+        // @todo Move and validate.
+        $config = $config['resource']['memcached'];
+        $this->memcached = !empty($config['persistent_id'])
+            ? new Memcached($config['persistent_id'])
+            : new Memcached();
 
-            foreach ($config['memcached']['servers'] as $server) {
-                $this->memcached->addServer(
-                    $servers['host'], $servers['port']
-                );
-            }
+        foreach ($config['servers'] as $server) {
+            $this->memcached->addServer($server['host'], $server['port']);
         }
     }
 

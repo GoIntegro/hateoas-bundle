@@ -51,13 +51,17 @@ class RedisResourceCache implements ResourceCache
         MetadataCache $metadataCache,
         MetadataMinerInterface $metadataMiner,
         ContainerInterface $serviceContainer,
-        array $config = []
+        $config = []
     )
     {
         $this->metadataCache = $metadataCache;
         $this->metadataMiner = $metadataMiner;
         $this->serviceContainer = $serviceContainer;
-        $this->redis = new Client($config['parameters'], $config['options']);
+
+        // @todo Move and validate.
+        $config = $config['resource']['redis'];
+        $options = isset($config['options']) ? $config['options'] : [];
+        $this->redis = new Client($config['parameters'], $options);
     }
 
     /**
