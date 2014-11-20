@@ -1,12 +1,24 @@
-[![Build Status](https://travis-ci.org/skqr/hateoas-bundle.svg?branch=master)](https://travis-ci.org/skqr/hateoas-bundle)
-
-[GOintegro](http://www.gointegro.com/en/) / HATEOAS
+[GOintegro](http://www.gointegro.com/en/) / HATEOAS [![Build Status](https://travis-ci.org/skqr/hateoas-bundle.svg?branch=master)](https://travis-ci.org/skqr/hateoas-bundle)
 ===================================================
-This is a library and Symfony 2 bundle that allows you to magically expose your Doctrine 2 mapped entities as resources in a [HATEOAS](http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) API and supports the full spec of [JSON-API](http://jsonapi.org/) for serializing and fetching; sparse fields, includes, filtering, sorting, the works.
+This is a library and Symfony 2 bundle that uses a Doctrine 2 entity map and a [RAML](http://raml.org/) API definition to conjure a [HATEOAS](http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) API, following the [JSON-API](http://jsonapi.org/) specification.
 
-Pagination and [faceted searches](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html) are supported as an extension to the JSON-API spec. (Although the extensions are not yet accompanied by the corresponding [profiles](http://jsonapi.org/extending/).)
+Here's some of what you get.
 
-Support for creating, updating, and deleting resources according to JSON-API is in progress. Currently, creating, updating, and deleting one or many resources magically is supported, and the services that handle these operations can be overridden - but resources can't be related when creating or updating. Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
+* Modeling, documenting, and creating are one step.
+* Flat, referenced serialization.
+  * Clear distinction between scalar fields and linked resources.
+* Magic controllers.
+  * Fetching resources, with support for:
+    * Sparse fields;
+    * Linked resource inclusion;
+    * Standarized filtering and sorting;
+    * Pagination;
+    * Resource metadata, such as facets in a search.
+  * Altering resources, with support for:
+    * Processing multiple actions in one request;
+    * Request validation using JSON schema;
+    * Create, update, and delete out of the box;
+    * Assing services to handle any of the above for specific resources.
 
 Try it out
 ==========
@@ -139,32 +151,75 @@ go_integro_hateoas:
     magic_services:
       - resource_type: users
         entity_class: GoIntegro\Bundle\ExampleBundle\Entity\User
+        raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/users.raml
       - resource_type: posts
         entity_class: GoIntegro\Bundle\ExampleBundle\Entity\Post
+        raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/posts.raml
       - resource_type: comments
         entity_class: GoIntegro\Bundle\ExampleBundle\Entity\Comment
+        raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/comments.raml
 ```
 
 And you get the following for free.
 
 ```
-/users
-/users/1
-/users/1,2,3
-/users/1/name
-/users/1/linked/posts
-/posts/1/linked/author
-/posts?author=1
-/posts?author=1,2,3
-/users?sort=name,-birth-date
-/users?include=posts,posts.comments
-/users?fields=name,email
-/users?include=posts,posts.comments&fields[users]=name&fields[posts]=content
-/users?page=1
-/users?page=1&size=10
+GET /users
+GET /users/1
+GET /users/1,2,3
+GET /users/1/name
+GET /users/1/linked/posts
+GET /posts/1/linked/author
+GET /posts?author=1
+GET /posts?author=1,2,3
+GET /users?sort=name,-birth-date
+GET /users?include=posts,posts.comments
+GET /users?fields=name,email
+GET /users?include=posts,posts.comments&fields[users]=name&fields[posts]=content
+GET /users?page=1
+GET /users?page=1&size=10
 ```
 
-And more. And any combination. Sweet.
+And any combination.
+
+You also get these.
+
+```
+POST /users
+
+PUT /users/1
+PUT /users/1,2,3
+
+DELETE /users/1
+DELETE /users/1,2,3
+```
+
+Sweet, right?
+
+API Definition
+==============
+
+But first - you need to define your API.
+
+The HATEOAS bundle needs to know which magic actions you want enabled for your resources. That's why each of them has a `raml_doc` key in the `config.yml`.
+
+```yaml
+# app/config/config.yml
+go_integro_hateoas:
+  json_api:
+    magic_services:
+      - resource_type: users
+        entity_class: GoIntegro\Bundle\ExampleBundle\Entity\User
+        raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/users.raml
+```
+
+Check out the [RAML docs](http://raml.org/docs.html) in order to learn more about what your API could look like. Nevertheless, the bundle will only pay attention to the [JSON-API URLs](http://jsonapi.org/format/#document-structure-resource-urls).
+
+JSON-SCHEMA
+-----------
+Support for creating, updating, and deleting resources according to JSON-API is in progress. Currently, creating, updating, and deleting one or many resources magically is supported, and the services that handle these operations can be overridden - but resources can't be related when creating or updating. Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
+
+Resources
+=========
 
 But you need to have some control over what you expose, right? Got you covered.
 
@@ -227,6 +282,11 @@ class UserResource extends EntityResource implements ContainerAwareInterface
 
 Check out the unit tests for more details.
 
+Entities
+========
+
+This bundle is pretty entity-centric. The way your entities look and the relationships between them, as mapped in Doctrine 2, are essential to the intelligence this bundle employs in determining what your API should look like.
+
 Security
 --------
 
@@ -236,6 +296,11 @@ If you don't want security at all, just configure a single voter accepting anyth
 
 There is an unresolved [issue related to access control and pagination](https://github.com/GoIntegro/hateoas-bundle/issues/10).
 
+Validation
+----------
+
+Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
+
 Transactions
 ------------
 
@@ -243,8 +308,40 @@ Creating, updating, or deleting multiple resources on a single request is suppor
 
 We use [explicit transaction demarcation](http://doctrine-orm.readthedocs.org/en/latest/reference/transactions-and-concurrency.html#approach-2-explicitly) on the controller that handles creating, updating, and deleting resources *magically* so that this rule is enforced.
 
+Creating, updating, and deleting
+--------------------------------
+
+As mentioned, services for creating, updating, and deleting resources are provided by default.
+
+But what about your business logic? That wouldn't fly far.
+
+You can register services that handle each of these operations for specific resources called *builders*, *mutators*, and *deleters* by tagging them.
+
+```yaml
+# src/Example/Bundle/AppBundle/Resources/config/services.yml
+
+example.your_resource.builder:
+    class: Example\Bundle\AppBundle\Entity\YourEntityBuilder
+    scope: request # Soon to not be needed.
+    public: false
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @validator
+      - @security.context
+    tags:
+      -  { name: hateoas.entity.builder, resource_type: your_resource }
+```
+
+This builder class should implement a certain interface. Here are the available tags and interfaces.
+
+Tag | Interface
+--- | ---------
+hateoas.entity.builder | `GoIntegro\Bundle\HateoasBundle\Entity\BuilderInterface`
+hateoas.entity.mutator | `GoIntegro\Bundle\HateoasBundle\Entity\MutatorInterface`
+hateoas.entity.deleter | `GoIntegro\Bundle\HateoasBundle\Entity\DeleterInterface`
+
 Ghosts
-------
+======
 
 I know what you're thinking - what if my resource does not have an entity? Am I left to fend for myself in the cold dark night?
 
@@ -368,7 +465,7 @@ class StarCluster implements GhostResourceEntity
 ```
 
 Testing
--------
+=======
 
 The bundle comes with a comfy PHPUnit test case designed to make HATEOAS API functional tests.
 
