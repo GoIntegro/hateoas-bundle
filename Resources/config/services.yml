@@ -96,17 +96,11 @@ services:
     arguments: [@doctrine.orm.entity_manager]
 
   hateoas.repo_helper.default_filter:
-  hateoas.entity.default_builder:
     class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultBuilder
-    scope: request
     public: false
-    arguments:
-      - @doctrine.orm.entity_manager
-      - @validator
-      - @security.context
-      - @hateoas.request_parser
     tags:
-      -  { name: hateoas.repo_helper.default_filter, resource_type: default }
+      - name: hateoas.repo_helper.default_filter
+        entity_class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DefaultFilter
 
   hateoas.document_blender:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Merge\Blender
