@@ -7,8 +7,8 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-// Security.
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\AccessDeniedException;
 
 class EntityAccessDeniedException extends AccessDeniedException
 {

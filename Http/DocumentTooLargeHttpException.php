@@ -5,7 +5,7 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Exception;
+namespace GoIntegro\Bundle\HateoasBundle\Http;
 
 // Exceptions.
 use GoIntegro\Bundle\HateoasBundle\Http\RequestEntityTooLargeHttpException;

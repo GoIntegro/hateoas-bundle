@@ -117,6 +117,10 @@ class Parser
      * Parsea ciertos parámetros de un pedido de HTTP.
      * @param Request $request
      * @throws ResourceNotFoundException
+     * @throws ActionNotAllowedException
+     * @throws ParseException
+     * @throws EntityAccessDeniedException
+     * @throws EntityNotFoundException
      */
     public function parse(Request $request = NULL)
     {

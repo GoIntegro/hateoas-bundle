@@ -19,7 +19,8 @@ use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpKernel\Exception\ConflictHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
-    Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+    Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException,
+    GoIntegro\Bundle\HateoasBundle\Http\DocumentTooLargeException;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
@@ -37,7 +38,6 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionNotAllowedException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityNotFoundException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DocumentTooLargeException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ResourceNotFoundException;
 
 /**

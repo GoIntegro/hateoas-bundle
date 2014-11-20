@@ -7,7 +7,10 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Merge;
 
-class UnmergeableResourcesException extends \Exception
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\BadRequestException;
+
+class UnmergeableResourcesException extends BadRequestException
 {
     const DEFAULT_MESSAGE = "The JSON-API documents cannot be merged. The most likely reason is that the parameters included an individual resource and a resource collection of the same type. E.g. /users and /users/1.";
 

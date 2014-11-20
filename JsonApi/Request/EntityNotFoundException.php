@@ -7,6 +7,9 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-class EntityNotFoundException extends \RuntimeException
+// JSON-API
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\NotFoundException;
+
+class EntityNotFoundException extends NotFoundException
 {
 }
