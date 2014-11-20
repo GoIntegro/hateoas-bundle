@@ -27,12 +27,13 @@ class GoIntegroHateoasExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        // @todo Añadir control.
+        // @todo Add validation - either here or in Configuration.
         foreach ($config as $key => $value) {
             $container->setParameter($this->getAlias() . '.' . $key, $value);
         }
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $locator = new FileLocator(__DIR__.'/../Resources/config');
+        $loader = new Loader\YamlFileLoader($container, $locator);
         $loader->load('services.yml');
     }
 }
