@@ -13,16 +13,6 @@ use Doctrine\ORM\QueryBuilder;
 interface FilterExpression
 {
     /**
-     * @return string The name of the entity class we're filtering queries for.
-     */
-    public function getClass();
-
-    /**
-     * @return string The name of the filter - should match the query string.
-     */
-    public function getName();
-
-    /**
      * @param QueryBuilder $qb
      * @param array $filters
      * @param string $alias

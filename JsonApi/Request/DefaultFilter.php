@@ -10,7 +10,7 @@ namespace GoIntegro\Bundle\HateoasBundle\Util;
 // ORM.
 use Doctrine\ORM\QueryBuilder;
 
-trait SimpleQueryExpressions
+class DefaultFilter implements FilterInterface
 {
     /**
      * @param QueryBuilder $qb
@@ -18,7 +18,7 @@ trait SimpleQueryExpressions
      * @param string $alias
      * @return \Doctrine\ORM\Query\Expr\Base
      */
-    private function filtersToExpression(
+    private function filter(
         QueryBuilder $qb, array $filters, $alias = 'e'
     ) {
         $expressions = [];
@@ -43,8 +43,13 @@ trait SimpleQueryExpressions
             }
         }
 
-        return !empty($expressions)
-            ? call_user_func_array([$qb->expr(), 'andX'], $expressions)
-            : NULL;
+        if (!empty($expressions)) {
+            $criteria = call_user_func_array(
+                [$qb->expr(), 'andX'], $expressions
+            );
+            $qb->andWhere($criteria);
+        }
+
+        return $qb;
     }
 }

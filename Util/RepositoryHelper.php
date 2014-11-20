@@ -18,7 +18,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 class RepositoryHelper
 {
-    use SimpleQueryExpressions;
+    const RESOURCE_ENTITY_INTERFACE = 'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\ResourceEntityInterface';
 
     const ERROR_DUPLICATED_FILTER = "A filter called \"%s\" is already registered for the resource type \"%s\".";
 
@@ -75,8 +75,19 @@ class RepositoryHelper
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
-        if ($expr = $this->filtersToExpression($qb, $filters, 'e')) {
-            $qb->where($expr);
+        // if ($expr = $this->filtersToExpression($qb, $filters, 'e')) {
+        //     $qb->where($expr);
+        // }
+
+        foreach ($this->filters as $filter) {
+            $class = $filter->getClass();
+
+            if (
+                $entityClass === $class
+                || is_subclass_of($entityClass, $class)
+            ) {
+                $qb = $filter->filter($qb);
+            }
         }
 
         $query = $qb->getQuery();
@@ -87,18 +98,19 @@ class RepositoryHelper
     }
 
     /**
-     * @param Request\FilterInterface
+     * @param Request\FilterInterface $filter
+     * @param string $class
      */
-    public function addFilter(Request\FilterInterface $filter)
+    public function addFilter(
+        Request\FilterInterface $filter,
+        $class = self::RESOURCE_ENTITY_INTERFACE
+    )
     {
-        $class = $filter->getClass();
-        $name = $filter->getName();
-
-        if (isset($this->filters[$class][$name])) {
-            $message = sprintf(self::ERROR_DUPLICATED_FILTER, $name, $class);
+        if (isset($this->filters[$class])) {
+            $message = sprintf(self::ERROR_DUPLICATED_FILTER, $class);
             throw new \ErrorException($message);
         }
 
-        $this->filters[$class][$name] = $filter;
+        $this->filters[$class] = $filter;
     }
 }
