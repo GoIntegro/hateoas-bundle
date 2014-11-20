@@ -131,7 +131,7 @@ class RamlDoc
         if (is_callable($method)) {
             return call_user_func_array($method, $args);
         } else {
-            throw \BadMethodCallException("No such method here.");
+            throw new \BadMethodCallException("No such method here.");
         }
     }
 
@@ -184,9 +184,34 @@ class RamlDoc
     /**
      * @param string $method
      * @param string $path
-     * @param boolean
+     * @return boolean
      */
     public function isDefined($method, $path)
+    {
+        $raml = $this->getPathDefinition($path);
+
+        return isset($raml[$method]);
+    }
+
+
+
+    /**
+     * @param string $path
+     * @return array
+     */
+    public function getAllowedMethods($path)
+    {
+        $raml = $this->getPathDefinition($path);
+        $methods = array_intersect(array_keys($raml), static::$methods);
+
+        return array_values($methods);
+    }
+
+    /**
+     * @param string $path
+     * @return array|NULL
+     */
+    public function getPathDefinition($path)
     {
         $raml = $this->rawRaml;
 
@@ -205,6 +230,6 @@ class RamlDoc
             }
         }
 
-        return isset($raml[$method]);
+        return $raml;
     }
 }

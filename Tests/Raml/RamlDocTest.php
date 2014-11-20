@@ -36,4 +36,23 @@ class RamlDocTest extends TestCase
         $this->assertTrue($yeah);
         $this->assertTrue($also);
     }
+
+    public function testGettingAllowedMethodsForPath()
+    {
+        /* Given... (Fixture) */
+        $apiDef = Stub::makeEmpty('Raml\ApiDefinition');
+        // Quite justifiable.
+        $rawRaml = Yaml::parse(__DIR__ . self::DEFAULT_SCHEMA_RAML);
+        $ramlDoc = new RamlDoc($apiDef, $rawRaml, self::DEFAULT_SCHEMA_RAML);
+        /* When... (Action) */
+        $allowedFiltered = $ramlDoc->getAllowedMethods('/some-resources');
+        $allowedById = $ramlDoc->getAllowedMethods('/some-resources/1');
+        /* Then... (Assertions) */
+        $this->assertEquals(
+            [RamlDoc::HTTP_GET], $allowedFiltered
+        );
+        $this->assertEquals(
+            [RamlDoc::HTTP_GET, RamlDoc::HTTP_PUT], $allowedById
+        );
+    }
 }

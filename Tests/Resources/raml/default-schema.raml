@@ -12,13 +12,13 @@ schemas:
     responses:
       200:
   /{some-resource-ids}:
+    get:
+      description: Retrieves one or more resources.
+      responses:
+        200:
     put:
       description: Updates one or more resources.
       responses:
         200:
         404:
-    get:
-      description: Retrieves one or more resources.
-      responses:
-        200:
 
