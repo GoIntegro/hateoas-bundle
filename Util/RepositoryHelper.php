@@ -20,8 +20,6 @@ class RepositoryHelper
 {
     const RESOURCE_ENTITY_INTERFACE = 'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\ResourceEntityInterface';
 
-    const ERROR_DUPLICATED_FILTER = "A filter called \"%s\" is already registered for the resource type \"%s\".";
-
     /**
      * @var EntityManagerInterface
      */
@@ -57,14 +55,14 @@ class RepositoryHelper
     /**
      * Helper method to paginate "find by" queries.
      * @param string $entityClass
-     * @param array $filters
+     * @param array $criteria
      * @param integer $offset
      * @param integer $limit
      * @return PaginatedCollection
      */
     public function findPaginated(
         $entityClass,
-        array $filters,
+        array $criteria,
         $offset = Request\Params::DEFAULT_PAGE_OFFSET,
         $limit = Request\Params::DEFAULT_PAGE_SIZE
     )
@@ -75,18 +73,11 @@ class RepositoryHelper
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
-        // if ($expr = $this->filtersToExpression($qb, $filters, 'e')) {
-        //     $qb->where($expr);
-        // }
-
-        foreach ($this->filters as $filter) {
-            $class = $filter->getClass();
-
-            if (
-                $entityClass === $class
-                || is_subclass_of($entityClass, $class)
-            ) {
-                $qb = $filter->filter($qb);
+        foreach ($this->filters as $class => $filters) {
+            if (is_a($entityClass, $class, TRUE)) {
+                foreach ($filters as $filter) {
+                    $qb = $filter->filter($qb, $criteria, 'e');
+                }
             }
         }
 
@@ -106,11 +97,6 @@ class RepositoryHelper
         $class = self::RESOURCE_ENTITY_INTERFACE
     )
     {
-        if (isset($this->filters[$class])) {
-            $message = sprintf(self::ERROR_DUPLICATED_FILTER, $class);
-            throw new \ErrorException($message);
-        }
-
-        $this->filters[$class] = $filter;
+        $this->filters[$class][] = $filter;
     }
 }

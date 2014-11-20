@@ -5,12 +5,12 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle\Util;
+namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // ORM.
 use Doctrine\ORM\QueryBuilder;
 
-interface FilterExpression
+interface FilterInterface
 {
     /**
      * @param QueryBuilder $qb

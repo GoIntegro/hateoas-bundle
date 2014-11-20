@@ -16,9 +16,9 @@ class DefaultFilter implements FilterInterface
      * @param QueryBuilder $qb
      * @param array $filters
      * @param string $alias
-     * @return \Doctrine\ORM\Query\Expr\Base
+     * @return QueryBuilder
      */
-    private function filter(
+    public function filter(
         QueryBuilder $qb, array $filters, $alias = 'e'
     ) {
         $expressions = [];
