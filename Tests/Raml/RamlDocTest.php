@@ -21,10 +21,9 @@ class RamlDocTest extends TestCase
     public function testCheckingWhetherRequestIsDefined()
     {
         /* Given... (Fixture) */
-        $apiDef = Stub::makeEmpty('Raml\ApiDefinition');
         // Quite justifiable.
         $rawRaml = Yaml::parse(__DIR__ . self::DEFAULT_SCHEMA_RAML);
-        $ramlDoc = new RamlDoc($apiDef, $rawRaml, self::DEFAULT_SCHEMA_RAML);
+        $ramlDoc = new RamlDoc($rawRaml, self::DEFAULT_SCHEMA_RAML);
         /* When... (Action) */
         $nay = $ramlDoc->isDefined(RamlDoc::HTTP_PUT, '/some-resources');
         $yeah = $ramlDoc->isDefined(RamlDoc::HTTP_PUT, '/some-resources/1');
@@ -40,10 +39,9 @@ class RamlDocTest extends TestCase
     public function testGettingAllowedMethodsForPath()
     {
         /* Given... (Fixture) */
-        $apiDef = Stub::makeEmpty('Raml\ApiDefinition');
         // Quite justifiable.
         $rawRaml = Yaml::parse(__DIR__ . self::DEFAULT_SCHEMA_RAML);
-        $ramlDoc = new RamlDoc($apiDef, $rawRaml, self::DEFAULT_SCHEMA_RAML);
+        $ramlDoc = new RamlDoc($rawRaml, self::DEFAULT_SCHEMA_RAML);
         /* When... (Action) */
         $allowedFiltered = $ramlDoc->getAllowedMethods('/some-resources');
         $allowedById = $ramlDoc->getAllowedMethods('/some-resources/1');

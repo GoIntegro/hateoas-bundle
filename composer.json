@@ -19,16 +19,6 @@
             "homepage": "http://www.gointegro.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/skqr/php-raml-parser.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/skqr/ReverseRegex.git"
-        }
-    ],
     "require": {
         "php": ">=5.4.0",
         "symfony/framework-bundle": "*",
@@ -37,14 +27,12 @@
         "doctrine/orm": "*",
         "justinrainbow/json-schema": "*",
         "rhumsaa/uuid": "*",
-        "skqr/php-raml-parser": "dev-master",
         "predis/predis": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "*",
         "phpdocumentor/phpdocumentor": "*",
-        "codeception/codeception": "*",
-        "skqr/reverse-regex": "dev-master"
+        "codeception/codeception": "*"
     },
     "autoload": {
         "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }

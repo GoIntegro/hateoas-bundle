@@ -7,9 +7,6 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Raml;
 
-// RAML.
-use Raml\ApiDefinition;
-
 class RamlDoc
 {
     const HTTP_OPTIONS = 'options',
@@ -46,10 +43,6 @@ class RamlDoc
         self::MEDIA_TYPE_XML
     ];
     /**
-     * @var ApiDefinition
-     */
-    public $apiDef;
-    /**
      * @var array Read-only.
      */
     public $rawRaml;
@@ -67,15 +60,11 @@ class RamlDoc
     private $schemaMaps = [];
 
     /**
-     * @param $apiDef
      * @param array $rawRaml
      * @param string $fileName
      */
-    public function __construct(
-        ApiDefinition $apiDef, array $rawRaml, $fileName
-    )
+    public function __construct(array $rawRaml, $fileName)
     {
-        $this->apiDef = $apiDef;
         $this->rawRaml = $rawRaml;
         $this->fileName = $fileName;
         $this->fileDir = dirname($fileName);
@@ -118,21 +107,6 @@ class RamlDoc
         }
 
         return NULL;
-    }
-
-    /**
-     * @param string $name
-     * @param array $args
-     */
-    public function __call($name, $args)
-    {
-        $method = [$this->apiDef, $name];
-
-        if (is_callable($method)) {
-            return call_user_func_array($method, $args);
-        } else {
-            throw new \BadMethodCallException("No such method here.");
-        }
     }
 
     /**
@@ -192,8 +166,6 @@ class RamlDoc
 
         return isset($raml[$method]);
     }
-
-
 
     /**
      * @param string $path

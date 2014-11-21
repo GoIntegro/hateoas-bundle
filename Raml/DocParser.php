@@ -7,14 +7,12 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Raml;
 
-// RAML.
-use Raml\Parser;
 // YAML.
 use Symfony\Component\Yaml\Yaml;
 // JSON.
 use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
 
-class DocParser extends Parser
+class DocParser
 {
     use DereferencesIncludes;
 
@@ -44,9 +42,8 @@ class DocParser extends Parser
      */
     public function parse($filePath)
     {
-        $apiDef = parent::parse($filePath);
         $rawRaml = Yaml::parse($filePath);
-        $ramlDoc = new RamlDoc($apiDef, $rawRaml, $filePath);
+        $ramlDoc = new RamlDoc($rawRaml, $filePath);
 
         if (isset($rawRaml['schemas'])) {
             foreach ($rawRaml['schemas'] as $map) {
