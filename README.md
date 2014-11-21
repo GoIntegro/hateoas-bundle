@@ -140,7 +140,7 @@ Seems like it could get awfully repetitive, doesn't it?
 
 That's why you don't have to.
 
-Just register your entity as a "magic service".
+Just register your entity as a *magic service*.
 
 ```yaml
 # app/config/config.yml
@@ -348,7 +348,7 @@ I know what you're thinking - what if my resource does not have an entity? Am I 
 
 Not a chance. Ghosts are there with you, in the dark. To help you out.
 
-"Ghosts" are what you create ghost-resources from instead of persisted entities. They are created within a custom HATEOAS controller, and can be fed to the resource factory in lieu of an entity. They define their relationships rather than the ORM knowing about them beforehand.
+*Ghosts* are what you create ghost-resources from instead of persisted entities. They are created within a custom HATEOAS controller, and can be fed to the resource factory in lieu of an entity. They define their relationships rather than the ORM knowing about them beforehand.
 
 What you use for an Id, and the extent to which you use them is entirely up to you.
 
