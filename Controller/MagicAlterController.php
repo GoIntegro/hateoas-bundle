@@ -244,8 +244,62 @@ class MagicAlterController extends SymfonyController
     }
 
     /**
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_link", methods="POST")
+     * @param string $primaryType
+     * @param string $id
+     * @param string $relationship
+     * @throws AccessDeniedHttpException
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     * @see http://jsonapi.org/format/#crud-updating-relationships
+     */
+    public function linkAction($primaryType, $id, $relationship)
+    {}
+
+    /**
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_update_link", methods="PUT")
+     * @param string $primaryType
+     * @param string $id
+     * @param string $relationship
+     * @throws AccessDeniedHttpException
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     * @see http://jsonapi.org/format/#crud-updating-relationships
+     */
+    public function updateLinkAction($primaryType, $id, $relationship)
+    {}
+
+    /**
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_unlink_one", methods="DELETE")
+     * @param string $primaryType
+     * @param string $id
+     * @param string $relationship
+     * @throws AccessDeniedHttpException
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     * @see http://jsonapi.org/format/#crud-updating-relationships
+     */
+    public function unlinkOneAction($primaryType, $id, $relationship)
+    {}
+
+    /**
+     * @Route("/{primaryType}/{id}/links/{relationship}/{ids}", name="hateoas_magic_unlink_many", methods="DELETE")
+     * @param string $primaryType
+     * @param string $id
+     * @param string $relationship
+     * @param string $ids
+     * @throws AccessDeniedHttpException
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     * @see http://jsonapi.org/format/#crud-updating-relationships
+     */
+    public function unlinkManyAction($primaryType, $id, $relationship, $ids)
+    {}
+
+    /**
      * @param array &$data
      * @return array
+     * @todo Move.
      */
     private function extractLinks(array &$data)
     {
