@@ -111,12 +111,14 @@ services:
 
   hateoas.entity.default_builder:
     class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultBuilder
+    scope: request
     public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @validator
       - @security.context
       - @hateoas.request_parser
+      - @request
     tags:
       -  { name: hateoas.entity.builder, resource_type: default }
 
@@ -125,11 +127,13 @@ services:
 
   hateoas.entity.default_mutator:
     class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultMutator
+    scope: request
     public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @validator
       - @hateoas.request_parser
+      - @request
     tags:
       -  { name: hateoas.entity.mutator, resource_type: default }
 

@@ -18,6 +18,8 @@ use Doctrine\ORM\EntityManagerInterface,
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
+// HTTP.
+use Symfony\Component\HttpFoundation\Request;
 
 class DefaultMutator implements MutatorInterface
 {
@@ -37,21 +39,28 @@ class DefaultMutator implements MutatorInterface
      * @var Parser
      */
     private $parser;
+    /**
+     * @var request
+     */
+    private $request;
 
     /**
      * @param EntityManagerInterface $em
      * @param ValidatorInterface $validator
      * @param Parser $parser
+     * @param Request $request
      */
     public function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
-        Parser $parser
+        Parser $parser,
+        Request $request
     )
     {
         $this->em = $em;
         $this->validator = $validator;
         $this->parser = $parser;
+        $this->request = $request;
     }
 
     /**
@@ -68,7 +77,7 @@ class DefaultMutator implements MutatorInterface
         array $relationships = []
     )
     {
-        $params = $this->parser->parse();
+        $params = $this->parser->parse($this->request);
         $class = new \ReflectionClass($params->primaryClass);
 
         foreach ($fields as $field => $value) {

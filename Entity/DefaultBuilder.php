@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
+// HTTP.
+use Symfony\Component\HttpFoundation\Request;
 
 class DefaultBuilder implements BuilderInterface
 {
@@ -43,24 +45,31 @@ class DefaultBuilder implements BuilderInterface
      * @var Parser
      */
     private $parser;
+    /**
+     * @var request
+     */
+    private $request;
 
     /**
      * @param EntityManagerInterface $em
      * @param ValidatorInterface $validator
      * @param SecurityContextInterface $securityContext
      * @param Parser $parser
+     * @param Request $request
      */
     public function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
         SecurityContextInterface $securityContext,
-        Parser $parser
+        Parser $parser,
+        Request $request
     )
     {
         $this->em = $em;
         $this->validator = $validator;
         $this->securityContext = $securityContext;
         $this->parser = $parser;
+        $this->request = $request;
     }
 
     /**
@@ -72,7 +81,7 @@ class DefaultBuilder implements BuilderInterface
      */
     public function create(array $fields, array $relationships = [])
     {
-        $params = $this->parser->parse();
+        $params = $this->parser->parse($this->request);
         $class = new \ReflectionClass($params->primaryClass);
         $entity = $class->newInstance();
 

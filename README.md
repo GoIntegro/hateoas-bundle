@@ -329,7 +329,6 @@ You can register services that handle each of these operations for specific reso
 
 example.your_resource.builder:
     class: Example\Bundle\AppBundle\Entity\YourEntityBuilder
-    scope: request # Soon to not be needed.
     public: false
     arguments:
       - @doctrine.orm.entity_manager
