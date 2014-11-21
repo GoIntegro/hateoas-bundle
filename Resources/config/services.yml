@@ -70,9 +70,7 @@ services:
   hateoas.resource_manager:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceManager
     arguments:
-      - @hateoas.resource_cache
       - @hateoas.metadata_miner
-      - @hateoas.request_parser
       - @service_container
       - %api.url_path%
 

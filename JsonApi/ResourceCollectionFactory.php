@@ -13,14 +13,12 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 // Colecciones.
 use GoIntegro\Bundle\HateoasBundle\Collections\ResourceEntityCollection;
-// Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser as RequestParser;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 // Paginación.
 use Doctrine\ORM\Tools\Pagination\Paginator;
 // Búsqueda.
 use GoIntegro\Bundle\HateoasBundle\Search\FacetedSearchResult as SearchResult;
-// HTTP.
-use Symfony\Component\HttpFoundation\Request;
 
 class ResourceCollectionFactory implements Factory
 {
@@ -32,10 +30,6 @@ class ResourceCollectionFactory implements Factory
      * @var MetadataMinerInterface
      */
     private $metadataMiner;
-    /**
-     * @var RequestParser
-     */
-    private $requestParser;
     /**
      * @var ArrayCollection
      */
@@ -49,24 +43,21 @@ class ResourceCollectionFactory implements Factory
      */
     private $searchResult;
     /**
-     * @var Request
+     * @var Params
      */
-    private $request;
+    private $params;
 
     /**
      * @param ResourceManager $resourceManager
      * @param EntityManagerInterface $metadataMiner
-     * @param RequestParser $requestParser
      */
     public function __construct(
         ResourceManager $resourceManager,
-        MetadataMinerInterface $metadataMiner,
-        RequestParser $requestParser
+        MetadataMinerInterface $metadataMiner
     )
     {
         $this->resourceManager = $resourceManager;
         $this->metadataMiner = $metadataMiner;
-        $this->requestParser = $requestParser;
         $this->entities = new ResourceEntityCollection;
     }
 
@@ -118,12 +109,12 @@ class ResourceCollectionFactory implements Factory
     }
 
     /**
-     * @param Request $request
+     * @param Params $params
      * @return self
      */
-    public function setRequest(Request $request)
+    public function setParams(Params $params)
     {
-        $this->request = $request;
+        $this->params = $params;
 
         return $this;
     }

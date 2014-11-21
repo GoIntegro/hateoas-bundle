@@ -102,7 +102,7 @@ class MagicAlterController extends SymfonyController
         $resources = 1 < count($entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->setRequest($this->getRequest())
+                ->setParams($params)
                 ->addEntities($entities)
                 ->create()
             : $this->get('hateoas.resource_manager')
@@ -111,6 +111,7 @@ class MagicAlterController extends SymfonyController
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
+            ->setParams($params)
             ->setDocumentResources($resources)
             ->create()
             ->serialize();
@@ -172,7 +173,7 @@ class MagicAlterController extends SymfonyController
         $resources = 1 < count($params->entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->setRequest($this->getRequest())
+                ->setParams($params)
                 ->addEntities($params->entities)
                 ->create()
             : $this->get('hateoas.resource_manager')
@@ -181,6 +182,7 @@ class MagicAlterController extends SymfonyController
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
+            ->setParams($params)
             ->setDocumentResources($resources)
             ->create()
             ->serialize();

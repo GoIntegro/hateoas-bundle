@@ -44,6 +44,7 @@ class ParserTest extends TestCase
             self::createBodyParser(),
             self::createActionParser(),
             self::createParamEntityFinder(),
+            self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
         );
@@ -69,6 +70,7 @@ class ParserTest extends TestCase
             self::createBodyParser(),
             self::createActionParser(),
             self::createParamEntityFinder(),
+            self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
         );
@@ -98,6 +100,7 @@ class ParserTest extends TestCase
             self::createBodyParser(),
             self::createActionParser(),
             self::createParamEntityFinder(),
+            self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
         );
@@ -127,6 +130,7 @@ class ParserTest extends TestCase
             self::createBodyParser(),
             self::createActionParser(),
             self::createParamEntityFinder(),
+            self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
         );
@@ -250,6 +254,22 @@ class ParserTest extends TestCase
         return Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\Raml\DocFinder',
             ['find' => $ramlDoc]
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface
+     */
+    private static function createMetadataMiner()
+    {
+        $metadata = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Metadata\\Resource\\ResourceMetadata',
+            ['isRelationship' => TRUE, 'isLinkOnlyRelationship' => FALSE]
+        );
+
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Metadata\\Resource\\MetadataMinerInterface',
+            ['mine' => $metadata]
         );
     }
 }

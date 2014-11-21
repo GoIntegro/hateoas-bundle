@@ -79,7 +79,7 @@ class MagicFetchController extends SymfonyController
             = RequestAction::TYPE_MULTIPLE == $params->action->type
                 ? $this->get('hateoas.resource_manager')
                     ->createCollectionFactory()
-                    ->setRequest($this->getRequest())
+                    ->setParams($params)
                     ->addEntities($params->entities)
                     ->create()
                 : empty($relation)
@@ -93,6 +93,7 @@ class MagicFetchController extends SymfonyController
             ? NULL
             : $this->get('hateoas.resource_manager')
                 ->createSerializerFactory()
+                ->setParams($params)
                 ->setDocumentResources($relatedResource)
                 ->create()
                 ->serialize();
@@ -167,7 +168,7 @@ class MagicFetchController extends SymfonyController
         $resources = 1 < count($params->entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->setRequest($this->getRequest())
+                ->setParams($params)
                 ->addEntities($params->entities)
                 ->create()
             : $this->get('hateoas.resource_manager')
@@ -177,6 +178,7 @@ class MagicFetchController extends SymfonyController
 
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
+            ->setParams($params)
             ->setDocumentResources($resources)
             ->create()
             ->serialize();
@@ -221,7 +223,7 @@ class MagicFetchController extends SymfonyController
         $resources = 0 === count($entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->setRequest($this->getRequest())
+                ->setParams($params)
                 ->addEntities($entities->toArray())
                 ->create()
             : $this->get('hateoas.resource_manager')
@@ -230,6 +232,7 @@ class MagicFetchController extends SymfonyController
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
+            ->setParams($params)
             ->setDocumentResources($resources)
             ->create()
             ->serialize();
