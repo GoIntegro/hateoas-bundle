@@ -113,6 +113,7 @@ class MagicFetchController extends SymfonyController
 
             $relatedResource = $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
+                ->setRequest($this->getRequest())
                 ->addEntities($relation)
                 ->create();
         } elseif ($metadata->isToOneRelationship($relationship)) {
@@ -206,6 +207,7 @@ class MagicFetchController extends SymfonyController
         $resources = 1 < count($params->entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
+                ->setRequest($this->getRequest())
                 ->addEntities($params->entities)
                 ->create()
             : $this->get('hateoas.resource_manager')
@@ -259,6 +261,7 @@ class MagicFetchController extends SymfonyController
         $resources = 0 === count($entities)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
+                ->setRequest($this->getRequest())
                 ->addEntities($entities->toArray())
                 ->create()
             : $this->get('hateoas.resource_manager')

@@ -19,8 +19,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser as RequestParser;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 // Búsqueda.
 use GoIntegro\Bundle\HateoasBundle\Search\FacetedSearchResult as SearchResult;
-// Excepciones.
-use Exception;
+// HTTP.
+use Symfony\Component\HttpFoundation\Request;
 
 class ResourceCollectionFactory implements Factory
 {
@@ -48,6 +48,10 @@ class ResourceCollectionFactory implements Factory
      * @var SearchResult
      */
     private $searchResult;
+    /**
+     * @var Request
+     */
+    private $request;
 
     /**
      * @param ResourceManager $resourceManager
@@ -109,6 +113,17 @@ class ResourceCollectionFactory implements Factory
     public function setSearchResult(SearchResult $searchResult)
     {
         $this->searchResult = $searchResult;
+
+        return $this;
+    }
+
+    /**
+     * @param Request $request
+     * @return self
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
 
         return $this;
     }
@@ -185,18 +200,40 @@ class ResourceCollectionFactory implements Factory
             $entity = reset($entities);
             $metadata = $this->metadataMiner->mine(reset($entities));
         } else {
-            throw new \ErrorException("Not implemented.");
-
-            // @todo Get the Request? (??)
-            $params = $this->requestParser->parse($request);
             $type = NULL;
 
-            if (!empty($params->relationship)) {
-                $metadata = $this->metadataMiner->mine($params->primaryType);
-                // @ todo Find the $type (?)
-                $type = NULL;
+            if (empty($this->params)) {
+                throw new FactoryRequisiteException(
+                    self::ERROR_PARAMS_REQUIRED
+                );
+            }
+
+            if (!empty($this->params->relationship)) {
+                $relation = NULL;
+                $metadata
+                    = $this->metadataMiner->mine($this->params->primaryType);
+
+                if ($metadata->relationships->isToOneRelationship(
+                    $this->params->relationship
+                )) {
+                    $relation = $metadata
+                        ->relationships
+                        ->toOne[$this->params->relationship];
+                } elseif ($metadata->relationships->isToManyRelationship(
+                    $this->params->relationship
+                )) {
+                    $relation = $metadata
+                        ->relationships
+                        ->toMany[$this->params->relationship];
+                } else {
+                    throw new FactoryErrorException(
+                        self::ERROR_PARAMS_INCOHERENT
+                    );
+                }
+
+                $type = $relation->type;
             } else {
-                $type = $params->primaryType;
+                $type = $this->params->primaryType;
             }
 
             $metadata = $this->metadataMiner->stub($type);
