@@ -158,6 +158,7 @@ go_integro_hateoas:
       - resource_type: comments
         entity_class: GoIntegro\Bundle\ExampleBundle\Entity\Comment
         raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/comments.raml
+  cache: ~
 ```
 
 And you get the following for free.
@@ -525,7 +526,7 @@ class SomeResourceTest extends ApiTestCase
 ```
 
 Error handling
---------------
+==============
 
 JSON-API covers [how to inform about errors](http://jsonapi.org/format/#errors) as well.
 
@@ -539,7 +540,7 @@ twig:
 ```
 
 Fetching multiple URLs
-----------------------
+======================
 
 Here's something useful but not RESTful.
 
@@ -553,7 +554,79 @@ The URLs just need to be encoded, but you can use the full set of JSON-API funct
 
 A *blender* service wil make sure to notify you if, by chance, the URLs provided are not mergeable.
 
+Caching
+=======
+
+Yeah. These processes are not cheap.
+
+You might want to hold on to that metadata you've mined or that resource you've serialized for a while.
+
+Resource Metadata
+-----------------
+
+The resource metadata describes a resource type. It describes its name, fields, its relationships to other resources, and other such things.
+
+It's akin to the Doctrine 2 entity mapping, `Doctrine\ORM\Mapping\ClassMetadata`.
+
+We obtain this class by inspecting an entity's mapping and its class, using the ORM and reflection.
+
+You can cache a resource type's metadata for as long as neither of these two things change.
+
+Here's how. Add this parameter.
+
+```yaml
+# app/config/parameters.yml
+
+parameters:
+    hateoas.resource_cache.class: GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache
+```
+
+Cache type | Parameter value
+---------- | ---------
+Array (none) | `GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache`
+Redis | `GoIntegro\Bundle\HateoasBundle\JsonApi\RedisResourceCache`
+Memcached | `GoIntegro\Bundle\HateoasBundle\JsonApi\MemcachedResourceCache`
+
+You can customize your Redis or Memcached configuration by using any of the following options. Below are the default values.
+
+```yaml
+# app/config/config.yml
+
+go_integro_hateoas:
+  cache: ~
+    # resource:
+    #   redis:
+    #     parameters:
+    #       scheme: tcp
+    #       host: 127.0.0.1
+    #       port: 6379
+    #     options: []
+    #   memcached: ~
+    #     persistent_id: null
+    #     servers:
+    #       - host: 127.0.0.1
+    #         port: 11211
+```
+
+HTTP Response
+-------------
+
+Fetch responses are all delivered with an [Etag](https://en.wikipedia.org/wiki/HTTP_ETag).
+
+The Etag is created from the full body of the response, so it accurately represents the JSON-API document you're fetching, along with its includes, sparse fields, meta, etc.
+
+Etags on requests are checked [using Symfony](http://symfony.com/doc/current/book/http_cache.html#validation-with-the-etag-header).
+
 Feedback
 ========
 
 Feel free to **open an issue** if you have valuable (or otherwise) feedback. Hoping to hear from you (either way).
+
+Disclaimer
+==========
+
+You might have [noticed something fishy](http://cdn.duitang.com/uploads/item/201203/12/20120312155233_AaA8J.jpeg) in the PHP snippets above.
+
+[Closing tags](http://php.net/manual/en/language.basic-syntax.phptags.php).
+
+I don't actually support using them, [my text editor](http://www.sublimetext.com/3) just [goes crazy](http://www.emlii.com/images/article/2014/02/52f7aceace997.gif) if I don't.
