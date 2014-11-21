@@ -13,6 +13,7 @@ services:
       - @hateoas.request_parser.body
       - @hateoas.request_parser.action
       - @hateoas.request_parser.entities
+      - @hateoas.metadata_miner
       - %api.url_path%
       - %go_integro_hateoas.json_api%
 

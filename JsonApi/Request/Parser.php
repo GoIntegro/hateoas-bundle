@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
+// Metadata.
+use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 
 /**
  * @see http://jsonapi.org/format/#fetching
@@ -37,7 +39,9 @@ class Parser
             = "The API base path is not configured.",
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "Multiple Ids are not supported when requesting a resource field or link.",
         ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.",
-        ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].";
+        ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].",
+        ERROR_RELATIONSHIP_UNDEFINED = "The requested relationship is undefined.",
+        ERROR_RELATIONSHIP_LINK_ONLY = "The relationship can only be accessed through its own URL, filtering by its relationship with the current resource.";
 
     /**
      * @var DocFinder
@@ -71,6 +75,10 @@ class Parser
      * @var ParamEntityFinder
      */
     private $entityFinder;
+    /**
+     * @var MetadataMinerInterface
+     */
+    private $mm;
 
     /**
      * @param DocFinder $docFinder
@@ -79,6 +87,7 @@ class Parser
      * @param BodyParser $bodyParser
      * @param ActionParser $actionParser
      * @param ParamEntityFinder $entityFinder
+     * @param MetadataMinerInterface $mm
      * @param string $apiUrlPath
      * @param array $config
      */
@@ -89,6 +98,7 @@ class Parser
         BodyParser $bodyParser,
         ActionParser $actionParser,
         ParamEntityFinder $entityFinder,
+        MetadataMinerInterface $mm,
         $apiUrlPath = '',
         array $config = []
     )
@@ -104,6 +114,7 @@ class Parser
         $this->bodyParser = $bodyParser;
         $this->actionParser = $actionParser;
         $this->entityFinder = $entityFinder;
+        $this->mm = $mm;
     }
 
     /**
@@ -121,7 +132,7 @@ class Parser
         $params->path = $this->parsePath($request);
         $params->primaryType = $this->parsePrimaryType($request);
         $params->primaryClass = $this->getEntityClass($params->primaryType);
-        $params->relationship = $this->parseRelationship($request);
+        $params->relationship = $this->parseRelationship($request, $params);
         $params->primaryIds
             = $this->parsePrimaryIds($request, $params->relationship);
 
@@ -196,13 +207,26 @@ class Parser
 
     /**
      * @param Request $request
+     * @param Params $params
      * @return string
      */
-    public function parseRelationship(Request $request)
+    public function parseRelationship(Request $request, Params $params)
     {
-        return $this->parseUrlPart(
+        $relationship = $this->parseUrlPart(
             $request, self::PRIMARY_RESOURCE_RELATIONSHIP
         );
+
+        if (!empty($relationship)) {
+            $metadata = $this->mm->mine($params->primaryType);
+
+            if (!$metadata->isRelationship($relationship)) {
+                throw new ParseException(self::ERROR_RELATIONSHIP_UNDEFINED);
+            } elseif ($metadata->isLinkOnlyRelationship($relationship)) {
+                throw new ParseException(self::ERROR_RELATIONSHIP_LINK_ONLY);
+            }
+        }
+
+        return $relationship;
     }
 
     /**

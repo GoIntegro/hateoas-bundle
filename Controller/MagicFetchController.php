@@ -37,7 +37,8 @@ use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInte
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionNotAllowedException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\RequestAction;
 
 class MagicFetchController extends SymfonyController
 {
@@ -74,60 +75,19 @@ class MagicFetchController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         }
 
-        $metadata = $this->get('hateoas.metadata_miner')
-            ->mine($params->primaryClass);
-        $relation = NULL;
-        $relatedResource = NULL;
-
-        if ($metadata->isRelationship($relationship)) {
-            $entity = reset($params->entities);
-            $primaryResource = $this->get('hateoas.resource_manager')
-                ->createResourceFactory()
-                ->setEntity($entity)
-                ->create();
-            $relation = $primaryResource->callGetter($relationship);
-        } else {
-            throw new NotFoundHttpException(
-                self::ERROR_RELATIONSHIP_NOT_FOUND
-            );
-        }
-
-        if ($metadata->isToManyRelationship($relationship)) {
-            if ($relation instanceof Collection) {
-                $relation = $relation->toArray();
-            } elseif (!is_array($relation)) {
-                throw new \LogicException(
-                    self::ERROR_INVALID_TO_MANY_RELATION
-                );
-            }
-
-            $filter = function(ResourceEntityInterface $entity) {
-                return $this->get('security.context')
-                    ->isGranted('view', $entity);
-            };
-            $relation = array_filter($relation, $filter);
-
-            if (Document::DEFAULT_RESOURCE_LIMIT < count($relation)) {
-                throw new DocumentTooLargeHttpException;
-            }
-
-            $relatedResource = $this->get('hateoas.resource_manager')
-                ->createCollectionFactory()
-                ->setRequest($this->getRequest())
-                ->addEntities($relation)
-                ->create();
-        } elseif ($metadata->isToOneRelationship($relationship)) {
-            $relatedResource = empty($relation)
-                ? NULL
-                : $this->get('hateoas.resource_manager')
-                    ->createResourceFactory()
-                    ->setEntity($relation)
-                    ->create();
-        } else {
-            throw new NotFoundHttpException(
-                self::ERROR_RELATIONSHIP_NOT_FOUND
-            );
-        }
+        $relatedResource
+            = RequestAction::TYPE_MULTIPLE == $params->action->type
+                ? $this->get('hateoas.resource_manager')
+                    ->createCollectionFactory()
+                    ->setRequest($this->getRequest())
+                    ->addEntities($params->entities)
+                    ->create()
+                : empty($relation)
+                    ? NULL
+                    : $this->get('hateoas.resource_manager')
+                        ->createResourceFactory()
+                        ->setEntity($params->entities)
+                        ->create();
 
         $json = empty($relatedResource)
             ? NULL
