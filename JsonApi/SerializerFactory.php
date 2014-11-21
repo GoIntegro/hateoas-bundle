@@ -17,9 +17,9 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 class SerializerFactory implements Factory
 {
     /**
-     * @var ResourceManager
+     * @var ResourceCache
      */
-    private $resourceManager;
+    private $resourceCache;
     /**
      * @var DocumentResource
      */
@@ -49,15 +49,15 @@ class SerializerFactory implements Factory
     private $params;
 
     /**
-     * @param ResourceManager $resourceManager
+     * @param ResourceCache $resourceCache
      * @param string $apiUrlPath
      */
     public function __construct(
-        ResourceManager $resourceManager,
+        ResourceCache $resourceCache,
         $apiUrlPath = ''
     )
     {
-        $this->resourceManager = $resourceManager;
+        $this->resourceCache = $resourceCache;
         $this->apiUrlPath = $apiUrlPath;
     }
 
@@ -136,7 +136,7 @@ class SerializerFactory implements Factory
 
         $document = new Document(
             $this->documentResource,
-            $this->resourceManager->resourceCache,
+            $this->resourceCache,
             $include,
             $fields,
             $this->params->pagination

@@ -19,6 +19,10 @@ class ResourceManager
      */
     private $metadataMiner;
     /**
+     * @var ResourceCache
+     */
+    private $resourceCache;
+    /**
      * @var ContainerInterface
      */
     private $serviceContainer;
@@ -29,16 +33,19 @@ class ResourceManager
 
     /**
      * @param MetadataMiner $metadataMiner
+     * @param ResourceCache $resourceCache
      * @param ContainerInterface $serviceContainer
      * @param string $apiUrlPath
      */
     public function __construct(
         MetadataMiner $metadataMiner,
+        ResourceCache $resourceCache,
         ContainerInterface $serviceContainer,
         $apiUrlPath = ''
     )
     {
         $this->metadataMiner = $metadataMiner;
+        $this->resourceCache = $resourceCache;
         $this->serviceContainer = $serviceContainer;
         $this->apiUrlPath = $apiUrlPath;
     }
@@ -66,6 +73,6 @@ class ResourceManager
      */
     public function createSerializerFactory()
     {
-        return new SerializerFactory($this, $this->apiUrlPath);
+        return new SerializerFactory($this->resourceCache, $this->apiUrlPath);
     }
 }
