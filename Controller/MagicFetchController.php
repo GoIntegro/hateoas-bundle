@@ -61,7 +61,7 @@ class MagicFetchController extends SymfonyController
     public function getRelationAction($primaryType, $id, $relationship)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse();
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
@@ -152,7 +152,7 @@ class MagicFetchController extends SymfonyController
     public function getFieldAction($primaryType, $id, $field)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse();
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
@@ -191,7 +191,7 @@ class MagicFetchController extends SymfonyController
     public function getByIdsAction($primaryType, $ids)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse();
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
@@ -234,7 +234,7 @@ class MagicFetchController extends SymfonyController
     public function getWithFiltersAction($primaryType)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse();
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
@@ -246,7 +246,7 @@ class MagicFetchController extends SymfonyController
         }
 
         $resources = NULL;
-        $params = $this->get('hateoas.request_parser')->parse();
+        $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         $filter = function(ResourceEntityInterface $entity) {
             return $this->get('security.context')->isGranted('view', $entity);
         };

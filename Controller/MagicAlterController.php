@@ -61,7 +61,7 @@ class MagicAlterController extends SymfonyController
     public function createAction($primaryType)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse();
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
@@ -131,7 +131,7 @@ class MagicAlterController extends SymfonyController
     public function updateAction($primaryType, $ids)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse();
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
@@ -201,7 +201,7 @@ class MagicAlterController extends SymfonyController
     public function deleteAction($primaryType, $ids)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse();
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
@@ -246,7 +246,7 @@ class MagicAlterController extends SymfonyController
     public function linkAction($primaryType, $id, $relationship)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse();
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
