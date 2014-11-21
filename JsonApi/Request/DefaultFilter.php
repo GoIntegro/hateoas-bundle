@@ -33,9 +33,7 @@ class DefaultFilter implements FilterInterface
                     $qb->join($namespace, $field);
                     $namespace = $field . '.id';
                 } elseif ('field' != $type) {
-                    throw new \Exception(
-                        "At least one of the given filters is unknown."
-                    );
+                    continue;
                 }
 
                 $expressions[] = $qb->expr()->$expr($namespace, $holder);
