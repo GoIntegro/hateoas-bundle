@@ -40,8 +40,7 @@ class Parser
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "Multiple Ids are not supported when requesting a resource field or link.",
         ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.",
         ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].",
-        ERROR_RELATIONSHIP_UNDEFINED = "The requested relationship is undefined.",
-        ERROR_RELATIONSHIP_LINK_ONLY = "The relationship can only be accessed through its own URL, filtering by its relationship with the current resource.";
+        ERROR_RELATIONSHIP_UNDEFINED = "The requested relationship is undefined or can only be accessed through its own URL, filtering by its relationship with the current resource.";
 
     /**
      * @var DocFinder
@@ -217,12 +216,15 @@ class Parser
         );
 
         if (!empty($relationship)) {
-            $metadata = $this->mm->mine($params->primaryType);
+            $metadata = $this->mm->mine($params->primaryClass);
 
-            if (!$metadata->isRelationship($relationship)) {
-                throw new ParseException(self::ERROR_RELATIONSHIP_UNDEFINED);
-            } elseif ($metadata->isLinkOnlyRelationship($relationship)) {
-                throw new ParseException(self::ERROR_RELATIONSHIP_LINK_ONLY);
+            if (
+                !$metadata->isRelationship($relationship)
+                || $metadata->isLinkOnlyRelationship($relationship)
+            ) {
+                throw new RelationshipNotFoundException(
+                    self::ERROR_RELATIONSHIP_UNDEFINED
+                );
             }
         }
 

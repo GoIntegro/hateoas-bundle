@@ -82,11 +82,11 @@ class MagicFetchController extends SymfonyController
                     ->setParams($params)
                     ->addEntities($params->entities)
                     ->create()
-                : empty($relation)
+                : empty($params->entities)
                     ? NULL
                     : $this->get('hateoas.resource_manager')
                         ->createResourceFactory()
-                        ->setEntity($params->entities)
+                        ->setEntity(reset($params->entities))
                         ->create();
 
         $json = empty($relatedResource)

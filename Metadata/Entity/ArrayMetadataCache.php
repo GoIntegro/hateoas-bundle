@@ -7,12 +7,8 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Metadata\Entity;
 
-// Reflexión.
-use ReflectionClass;
 // ORM.
 use Doctrine\ORM\EntityManagerInterface;
-// Excepciones.
-use Exception;
 
 /**
  * A cache for the entity metadata - its reflection and ORM mapping.
@@ -61,15 +57,18 @@ class ArrayMetadataCache implements MetadataCache
      */
     public function getReflection($className)
     {
-        if (!is_string($className) && !is_object($className)) {
-            throw new Exception(self::ERROR_REFLECTION_EXPECTED_VALUE);
+        if (
+            (!is_string($className) || !class_exists($className))
+            && !is_object($className)
+        ) {
+            throw new \Exception(self::ERROR_REFLECTION_EXPECTED_VALUE);
         }
 
         $this->stringify($className);
         $metadata = $this->getMetadata($className);
 
         if (empty($metadata->reflection)) {
-            $metadata->reflection = new ReflectionClass($className);
+            $metadata->reflection = new \ReflectionClass($className);
         }
 
         return $metadata->reflection;
@@ -81,7 +80,7 @@ class ArrayMetadataCache implements MetadataCache
     public function getMapping($className)
     {
         if (!is_string($className) && !is_object($className)) {
-            throw new Exception(self::ERROR_MAPPING_EXPECTED_VALUE);
+            throw new \Exception(self::ERROR_MAPPING_EXPECTED_VALUE);
         }
 
         $this->stringify($className);
@@ -98,7 +97,7 @@ class ArrayMetadataCache implements MetadataCache
     /**
      * @param &$value mixed
      * @return $string
-     * @throws Exception
+     * @throws \Exception
      */
     protected function stringify(&$value)
     {
@@ -107,7 +106,7 @@ class ArrayMetadataCache implements MetadataCache
             and !$value = get_class($value)
         ) {
             $message = "El parámetro no es una cadena de caracteres ni una instancia.";
-            throw new Exception($message);
+            throw new \Exception($message);
         }
 
         return $value;

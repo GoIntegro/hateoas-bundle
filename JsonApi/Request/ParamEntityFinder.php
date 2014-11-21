@@ -124,7 +124,7 @@ class ParamEntityFinder
 
         if ($entities instanceof Collection) {
             $entities = $entities->toArray();
-        } elseif (!is_array($relation)) {
+        } elseif (!is_array($entities)) {
             $entities = [$entities];
         }
 
