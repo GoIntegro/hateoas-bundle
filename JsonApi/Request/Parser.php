@@ -30,7 +30,7 @@ class Parser
     const PRIMARY_RESOURCE_TYPE = 0,
         PRIMARY_RESOURCE_IDS = 1,
         PRIMARY_RESOURCE_FIELD = 2,
-        RELATIONSHIP_RESOURCE_TYPE = 3,
+        PRIMARY_RESOURCE_RELATIONSHIP = 3,
         RELATIONSHIP_RESOURCE_IDS = 4; // For multiple relationship deletes.
 
     const ERROR_NO_API_BASE_PATH
@@ -39,10 +39,6 @@ class Parser
         ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.",
         ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].";
 
-    /**
-     * @var Request
-     */
-    private $request;
     /**
      * @var DocFinder
      */
@@ -77,7 +73,6 @@ class Parser
     private $entityFinder;
 
     /**
-     * @param Request $request
      * @param DocFinder $docFinder
      * @param FilterParser $filterParser
      * @param PaginationParser $paginationParser
@@ -88,7 +83,6 @@ class Parser
      * @param array $config
      */
     public function __construct(
-        Request $request,
         DocFinder $docFinder,
         FilterParser $filterParser,
         PaginationParser $paginationParser,
@@ -99,7 +93,6 @@ class Parser
         array $config = []
     )
     {
-        $this->request = $request;
         $this->docFinder = $docFinder;
         $this->apiUrlPath = $apiUrlPath;
         // @todo Esta verificación debería estar en el DI.
@@ -122,16 +115,15 @@ class Parser
      * @throws EntityAccessDeniedException
      * @throws EntityNotFoundException
      */
-    public function parse(Request $request = NULL)
+    public function parse(Request $request)
     {
-        $request = $request ?: $this->request;
         $params = new Params;
         $params->path = $this->parsePath($request);
         $params->primaryType = $this->parsePrimaryType($request);
         $params->primaryClass = $this->getEntityClass($params->primaryType);
-        $params->relationshipType = $this->parseRelationshipType($request);
+        $params->relationship = $this->parseRelationship($request);
         $params->primaryIds
-            = $this->parsePrimaryIds($request, $params->relationshipType);
+            = $this->parsePrimaryIds($request, $params->relationship);
 
         if ($request->query->has('include')) {
             $params->include = $this->parseInclude($request);
@@ -181,15 +173,15 @@ class Parser
 
     /**
      * @param Request $request
-     * @param string|NULL $relationshipType
+     * @param string|NULL $relationship
      * @return array
      */
-    public function parsePrimaryIds(Request $request, $relationshipType)
+    public function parsePrimaryIds(Request $request, $relationship)
     {
         $ids = $this->parseUrlPart($request, self::PRIMARY_RESOURCE_IDS);
         $ids = !empty($ids) ? explode(',', $ids) : [];
 
-        if (1 < count($ids) && !empty($relationshipType)) {
+        if (1 < count($ids) && !empty($relationship)) {
             throw new ParseException(
                 self::ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP
             );
@@ -206,9 +198,11 @@ class Parser
      * @param Request $request
      * @return string
      */
-    public function parseRelationshipType(Request $request)
+    public function parseRelationship(Request $request)
     {
-        return $this->parseUrlPart($request, self::RELATIONSHIP_RESOURCE_TYPE);
+        return $this->parseUrlPart(
+            $request, self::PRIMARY_RESOURCE_RELATIONSHIP
+        );
     }
 
     /**

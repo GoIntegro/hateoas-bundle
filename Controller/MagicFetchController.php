@@ -25,7 +25,8 @@ use Symfony\Component\HttpFoundation\Response,
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Document,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\NotFoundException;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Security.
@@ -36,19 +37,11 @@ use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInte
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionNotAllowedException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityNotFoundException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ResourceNotFoundException;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException;
 
-/**
- * Permite probar la flexibilidad de la biblioteca.
- * @todo Refactor.
- */
 class MagicFetchController extends SymfonyController
 {
     use CommonResponseTrait;
-
-    const RESOURCE_LIMIT = 50;
 
     const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
@@ -69,7 +62,7 @@ class MagicFetchController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
-        } catch (ResourceNotFoundException $e) {
+        } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
@@ -79,13 +72,10 @@ class MagicFetchController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
         }
 
         $metadata = $this->get('hateoas.metadata_miner')
             ->mine($params->primaryClass);
-        $json = NULL;
         $relation = NULL;
         $relatedResource = NULL;
 
@@ -162,7 +152,7 @@ class MagicFetchController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
-        } catch (ResourceNotFoundException $e) {
+        } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
@@ -172,8 +162,6 @@ class MagicFetchController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
         }
 
         $metadata = $this->get('hateoas.metadata_miner')
@@ -203,7 +191,7 @@ class MagicFetchController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
-        } catch (ResourceNotFoundException $e) {
+        } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
@@ -211,8 +199,6 @@ class MagicFetchController extends SymfonyController
             );
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
@@ -247,7 +233,7 @@ class MagicFetchController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
-        } catch (ResourceNotFoundException $e) {
+        } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(

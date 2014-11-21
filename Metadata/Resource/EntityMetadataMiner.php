@@ -9,7 +9,7 @@ namespace GoIntegro\Bundle\HateoasBundle\Metadata\Resource;
 
 // Metadata.
 use GoIntegro\Bundle\HateoasBundle\Metadata\Entity\MetadataCache;
-// Datos.
+// Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // ORM.
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -153,7 +153,7 @@ class EntityMetadataMiner implements MetadataMinerInterface
         $name
     )
     {
-        $getterName = 'get' . ucfirst($name);
+        $getterName = 'get' . Inflector::camelize($name);
 
         return !$class->hasMethod($getterName)
             || !Reflection::isMethodGetter($class->getMethod($getterName));

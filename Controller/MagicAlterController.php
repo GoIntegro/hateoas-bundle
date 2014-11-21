@@ -25,7 +25,8 @@ use Symfony\Component\HttpFoundation\Response,
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Document,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\NotFoundException;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Security.
@@ -36,20 +37,13 @@ use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInte
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionNotAllowedException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityNotFoundException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ResourceNotFoundException;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException;
 
-/**
- * Permite probar la flexibilidad de la biblioteca.
- * @todo Refactor.
- */
 class MagicAlterController extends SymfonyController
 {
     use CommonResponseTrait;
 
-    const RESOURCE_LIMIT = 50,
-        ERROR_ACCESS_DENIED = "Access to the resource was denied.",
+    const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
         ERROR_RELATIONSHIP_NOT_FOUND = "No relationship by that name found.",
         ERROR_FIELD_NOT_FOUND = "No field by that name found.";
@@ -68,7 +62,7 @@ class MagicAlterController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
-        } catch (ResourceNotFoundException $e) {
+        } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
@@ -78,8 +72,6 @@ class MagicAlterController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
@@ -139,7 +131,7 @@ class MagicAlterController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
-        } catch (ResourceNotFoundException $e) {
+        } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
@@ -149,8 +141,6 @@ class MagicAlterController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
@@ -210,7 +200,7 @@ class MagicAlterController extends SymfonyController
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse();
-        } catch (ResourceNotFoundException $e) {
+        } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
@@ -220,8 +210,6 @@ class MagicAlterController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
-        } catch (EntityNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
@@ -254,7 +242,26 @@ class MagicAlterController extends SymfonyController
      * @see http://jsonapi.org/format/#crud-updating-relationships
      */
     public function linkAction($primaryType, $id, $relationship)
-    {}
+    {
+        try {
+            $params = $this->get('hateoas.request_parser')->parse();
+        } catch (NotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (ActionNotAllowedException $e) {
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        }
+
+        $metadata = $this->get('hateoas.metadata_miner')
+            ->mine($params->primaryClass);
+        $relation = NULL;
+        $relatedResource = NULL;
+    }
 
     /**
      * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_update_link", methods="PUT")

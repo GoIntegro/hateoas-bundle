@@ -7,7 +7,7 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Util;
 
-// Datos.
+// Utils.
 use Doctrine\Common\Util\Inflector as DoctrineInflector;
 
 class Inflector

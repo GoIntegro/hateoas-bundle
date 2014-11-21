@@ -38,7 +38,6 @@ class ParserTest extends TestCase
             ['has' => function() { return FALSE; }]
         );
         $parser = new Parser(
-            $request,
             self::createDocFinder(),
             self::createFilterParser(),
             self::createPaginationParser(),
@@ -49,11 +48,11 @@ class ParserTest extends TestCase
             self::$config
         );
         // When...
-        $params = $parser->parse();
+        $params = $parser->parse($request);
         // Then...
         $this->assertEquals('users', $params->primaryType);
         $this->assertContains('1', $params->primaryIds);
-        $this->assertEquals('groups', $params->relationshipType);
+        $this->assertEquals('groups', $params->relationship);
     }
 
     public function testParsingARequestWithSparseFields()
@@ -64,7 +63,6 @@ class ParserTest extends TestCase
         $queryOverrides = ['has' => $has, 'get' => $get];
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
-            $request,
             self::createDocFinder(),
             self::createFilterParser(),
             self::createPaginationParser(),
@@ -75,11 +73,11 @@ class ParserTest extends TestCase
             self::$config
         );
         // When...
-        $params = $parser->parse();
+        $params = $parser->parse($request);
         // Then...
         $this->assertEquals('users', $params->primaryType);
         $this->assertEmpty($params->primaryIds);
-        $this->assertNull($params->relationshipType);
+        $this->assertNull($params->relationship);
         $this->assertEquals(
             ['users' => ['name', 'surname', 'email']],
             $params->sparseFields
@@ -94,7 +92,6 @@ class ParserTest extends TestCase
         $queryOverrides = ['has' => $has, 'get' => $get];
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
-            $request,
             self::createDocFinder(),
             self::createFilterParser(),
             self::createPaginationParser(),
@@ -105,11 +102,11 @@ class ParserTest extends TestCase
             self::$config
         );
         // When...
-        $params = $parser->parse();
+        $params = $parser->parse($request);
         // Then...
         $this->assertEquals('users', $params->primaryType);
         $this->assertEmpty($params->primaryIds);
-        $this->assertNull($params->relationshipType);
+        $this->assertNull($params->relationship);
         $this->assertEquals(
             [['platform', 'account'], ['workspaces-joined']],
             $params->include
@@ -124,7 +121,6 @@ class ParserTest extends TestCase
         $queryOverrides = ['has' => $has, 'get' => $get];
         $request = self::createRequest('/api/v1/users', $queryOverrides);
         $parser = new Parser(
-            $request,
             self::createDocFinder(),
             self::createFilterParser(),
             self::createPaginationParser(),
@@ -135,11 +131,11 @@ class ParserTest extends TestCase
             self::$config
         );
         // When...
-        $params = $parser->parse();
+        $params = $parser->parse($request);
         // Then...
         $this->assertEquals('users', $params->primaryType);
         $this->assertEmpty($params->primaryIds);
-        $this->assertNull($params->relationshipType);
+        $this->assertNull($params->relationship);
         $this->assertEquals(
             ['users' => [
                 'surname' => 'ASC',

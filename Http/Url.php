@@ -7,8 +7,8 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Http;
 
-// Excepciones.
-use BadMethodCallException, InvalidArgumentException;
+// Utils.
+use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 
 /**
  * Una URL HTTP.
@@ -39,7 +39,7 @@ class Url
         $instance = new static();
         $components = static::parseUrl($url);
         foreach ($components as $component => $value) {
-            $method = 'set' . ucfirst($component);
+            $method = 'set' . Inflector::camelize($component);
             call_user_func(array($instance, $method), $value);
         }
         $instance->setOriginal($url);
@@ -53,7 +53,7 @@ class Url
      * @param string $method
      * @param array $args
      * @return mixed La respuesta del método existente.
-     * @throws BadMethodCallException Si el método llamado no existe.
+     * @throws \BadMethodCallException Si el método llamado no existe.
      */
     public function __call($method, $args)
     {
@@ -71,11 +71,10 @@ class Url
                     $result = $this->$property;
                     break;
                 default:
-                    throw new BadMethodCallException();
-                    break; // (?)
+                    throw new \BadMethodCallException();
             }
         } else {
-            throw new BadMethodCallException();
+            throw new \BadMethodCallException();
         }
 
         return $result;
@@ -122,7 +121,7 @@ class Url
     {
         $root = $this->getRoot() ?: $root;
         if (!$root->isUrlAbsolute()) {
-            throw new InvalidArgumentException();
+            throw new \InvalidArgumentException();
         }
         if (!$this->isUrlAbsolute()) {
             $this->setScheme($root->getScheme());
@@ -164,7 +163,7 @@ class Url
         $components = parse_url($url);
 
         if (FALSE === $components) {
-            throw new InvalidArgumentException(static::INVALID_URL_ERROR);
+            throw new \InvalidArgumentException(static::INVALID_URL_ERROR);
         }
 
         static $pattern = '/^\\/\\/[^.]+\\.[^\\/]+/';

@@ -45,7 +45,7 @@ class ActionParser
         $action->type = $this->isMultipleAction($params, $action)
             ? RequestAction::TYPE_MULTIPLE
             : RequestAction::TYPE_SINGLE;
-        $action->target = !empty($params->relationshipType)
+        $action->target = !empty($params->relationship)
             ? RequestAction::TARGET_RELATIONSHIP
             : RequestAction::TARGET_RESOURCE;
 

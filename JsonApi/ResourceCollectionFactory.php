@@ -185,8 +185,20 @@ class ResourceCollectionFactory implements Factory
             $entity = reset($entities);
             $metadata = $this->metadataMiner->mine(reset($entities));
         } else {
-            $params = $this->requestParser->parse();
-            $type = $params->relationshipType ?: $params->primaryType;
+            throw new \ErrorException("Not implemented.");
+
+            // @todo Get the Request? (??)
+            $params = $this->requestParser->parse($request);
+            $type = NULL;
+
+            if (!empty($params->relationship)) {
+                $metadata = $this->metadataMiner->mine($params->primaryType);
+                // @ todo Find the $type (?)
+                $type = NULL;
+            } else {
+                $type = $params->primaryType;
+            }
+
             $metadata = $this->metadataMiner->stub($type);
         }
 
