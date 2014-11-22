@@ -127,6 +127,53 @@ JSON;
         ], $resources);
     }
 
+    public function testParsingARequestWithARelateBody()
+    {
+        // Given...
+        $queryOverrides = [
+            'getContent' => function() { return self::HTTP_PUT_BODY; }
+        ];
+        $request = self::createRequest(
+            '/api/v1/users',
+            $queryOverrides,
+            Parser::HTTP_PUT,
+            self::HTTP_PUT_BODY
+        );
+        $action = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RequestAction',
+            [
+                'name' => RequestAction::ACTION_UPDATE,
+                'target' => RequestAction::TARGET_RELATIONSHIP
+            ]
+        );
+        $params = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
+            [
+                'primaryType' => self::RESOURCE_TYPE,
+                'action' => $action
+            ]
+        );
+        $hydrant = Stub::makeEmpty('GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\ResourceLinksHydrant');
+        $parser = new BodyParser(
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            $hydrant,
+            self::createCreationBodyParser(),
+            self::createMutationBodyParser(),
+            self::createRelationBodyParser()
+        );
+        // When...
+        $resources = $parser->parse($request, $params);
+        // Then...
+        $this->assertSame([
+            '7' => [
+                'links' => [
+                    'user-groups' => []
+                ]
+            ]
+        ], $resources);
+    }
+
     /**
      * @param string $pathInfo
      * @param array $queryOverrides
@@ -249,7 +296,13 @@ JSON;
     {
         return Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RelateBodyParser',
-            ['parse' => []]
+            ['parse' => [
+                '7' => [
+                    'links' => [
+                        'user-groups' => []
+                    ]
+                ]
+            ]]
         );
     }
 }

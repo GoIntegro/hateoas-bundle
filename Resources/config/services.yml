@@ -59,8 +59,6 @@ services:
     public: false
     arguments:
       - @hateoas.json_coder
-      - @hateoas.metadata_miner
-      - @doctrine.orm.entity_manager
 
   hateoas.request_parser.action:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser

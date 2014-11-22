@@ -99,11 +99,17 @@ class BodyParser
                     );
                     break;
             }
-
-            return $this->prepareData($params, $schema, $data);
         } else {
-            return $this->relationBodyParser->parse($request, $params);
+            $data = $this->relationBodyParser->parse($request, $params);
+            $schema = [
+                'type' => 'object',
+                'properties' => [
+                    'links' => ['type' => 'object']
+                ]
+            ];
         }
+
+        return $this->prepareData($params, $schema, $data);
     }
 
     /**
