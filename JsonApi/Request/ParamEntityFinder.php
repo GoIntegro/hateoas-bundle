@@ -9,8 +9,6 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // ORM.
 use Doctrine\ORM\EntityManagerInterface;
-// Metadata.
-use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
 // JSON-API.

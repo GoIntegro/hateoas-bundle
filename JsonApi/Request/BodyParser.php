@@ -36,23 +36,42 @@ class BodyParser
      * @var ResourceLinksHydrant
      */
     protected $hydrant;
+    /**
+     * @var CreateBodyParser
+     */
+    protected $creationBodyParser;
+    /**
+     * @var UpdateBodyParser
+     */
+    protected $mutationBodyParser;
+    /**
+     * @var RelateBodyParser
+     */
+    protected $relationBodyParser;
 
     /**
      * @param Util\JsonCoder $jsonCoder
      * @param Raml\DocFinder $docFinder
      * @param ResourceLinksHydrant $hydrant
+     * @param CreateBodyParser $creationBodyParser
+     * @param UpdateBodyParser $mutationBodyParser
+     * @param relateBodyParser $relationBodyParser
      */
     public function __construct(
         Util\JsonCoder $jsonCoder,
         Raml\DocFinder $docFinder,
-        ResourceLinksHydrant $hydrant
+        ResourceLinksHydrant $hydrant,
+        CreateBodyParser $creationBodyParser,
+        UpdateBodyParser $mutationBodyParser,
+        RelateBodyParser $relationBodyParser
     )
     {
         $this->jsonCoder = $jsonCoder;
         $this->docFinder = $docFinder;
         $this->hydrant = $hydrant;
-        $this->creationBodyParser = new CreateBodyParser($jsonCoder);
-        $this->mutationBodyParser = new UpdateBodyParser($jsonCoder);
+        $this->creationBodyParser = $creationBodyParser;
+        $this->mutationBodyParser = $mutationBodyParser;
+        $this->relationBodyParser = $relationBodyParser;
     }
 
     /**
@@ -62,16 +81,23 @@ class BodyParser
      */
     public function parse(Request $request, Params $params)
     {
+        $data = NULL;
+        $schema = NULL;
+
         switch ($params->action->name) {
             case RequestAction::ACTION_CREATE:
                 $data = $this->creationBodyParser->parse($request, $params);
-                $this->prepareData($params, Raml\RamlDoc::HTTP_POST, $data);
-                return $data;
+                $schema = $this->findResourceObjectSchema(
+                    $params, Raml\RamlDoc::HTTP_POST
+                );
+                break;
 
             case RequestAction::ACTION_UPDATE:
                 $data = $this->mutationBodyParser->parse($request, $params);
-                $this->prepareData($params, Raml\RamlDoc::HTTP_PUT, $data);
-                return $data;
+                $schema = $this->findResourceObjectSchema(
+                    $params, Raml\RamlDoc::HTTP_PUT
+                );
+                break;
 
             default:
                 $message = sprintf(
@@ -80,12 +106,14 @@ class BodyParser
                 );
                 throw new \ErrorException($message);
         }
+
+        return $this->prepareData($params, $schema, $data);
     }
 
     /**
      * @param Params $params
      * @param string $method
-     * @return \stdClass
+     * @return array
      * @throws Raml\MissingSchemaException
      * @throws Raml\MalformedSchemaException
      */
@@ -114,23 +142,24 @@ class BodyParser
 
     /**
      * @param Params $params
-     * @param string $method
+     * @param array $schema
+     * @param array &$entityData
      */
-    protected function prepareData(Params $params, $method, array &$entityData)
+    protected function prepareData(
+        Params $params, array $schema, array &$entityData
+    )
     {
-        $resourceObjectSchema = $this->findResourceObjectSchema(
-            $params, $method
-        );
-
         foreach ($entityData as &$data) {
             $json = Util\ArrayHelper::toObject($data);
 
-            if (!$this->jsonCoder->matchSchema($json, $resourceObjectSchema)) {
+            if (!$this->jsonCoder->matchSchema($json, $schema)) {
                 $message = $this->jsonCoder->getSchemaErrorMessage();
                 throw new ParseException($message);
             }
 
             $this->hydrant->hydrate($params, $data);
         }
+
+        return $entityData;
     }
 }

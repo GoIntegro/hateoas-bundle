@@ -9,9 +9,6 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // Mocks.
 use Codeception\Util\Stub;
-// Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
@@ -66,7 +63,10 @@ JSON;
         $parser = new BodyParser(
             self::createJsonCoder(),
             self::createDocFinder(),
-            $hydrant
+            $hydrant,
+            self::createCreationBodyParser(),
+            self::createMutationBodyParser(),
+            self::createRelationBodyParser()
         );
         // When...
         $resources = $parser->parse($request, $params);
@@ -104,7 +104,10 @@ JSON;
         $parser = new BodyParser(
             self::createJsonCoder(),
             self::createDocFinder(),
-            $hydrant
+            $hydrant,
+            self::createCreationBodyParser(),
+            self::createMutationBodyParser(),
+            self::createRelationBodyParser()
         );
         // When...
         $resources = $parser->parse($request, $params);
@@ -144,6 +147,12 @@ JSON;
             'Symfony\Component\HttpFoundation\Request',
             [
                 'query' => $query,
+                'request' => new \stdClass,
+                'attributes' => new \stdClass,
+                'cookies' => new \stdClass,
+                'files' => new \stdClass,
+                'server' => new \stdClass,
+                'headers' => new \stdClass,
                 'getPathInfo' => $pathInfo,
                 'getMethod' => $method,
                 'getContent' => $body
@@ -194,5 +203,47 @@ JSON;
         );
 
         return $docFinder;
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\CreateBodyParser
+     */
+    private static function createCreationBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\CreateBodyParser',
+            ['parse' => [[
+                'name' => 'John',
+                'surname' => 'Connor'
+            ]]]
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\UpdateBodyParser
+     */
+    private static function createMutationBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\UpdateBodyParser',
+            ['parse' => [
+                '7' => [
+                    'id' => '7',
+                    'name' => 'John',
+                    'surname' => 'Connor'
+                ]
+            ]]
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\RelateBodyParser
+     */
+    private static function createRelationBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RelateBodyParser',
+            ['parse' => []]
+        );
     }
 }
