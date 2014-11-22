@@ -221,18 +221,9 @@ class MagicAlterController extends SymfonyController
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
         try {
-            foreach ($params->entities as &$entity) {
-                $data = $params->resources[$entity->getId()];
-                $links = $this->extractLinks($data);
-
-                try {
-                    $entity = $this->get('hateoas.entity.mutator')
-                        ->update($params->primaryType, $entity, $data, $links);
-                } catch (EntityConflictExceptionInterface $e) {
-                    throw new ConflictHttpException($e->getMessage(), $e);
-                } catch (ValidationExceptionInterface $e) {
-                    throw new BadRequestHttpException($e->getMessage(), $e);
-                }
+            foreach ($params->entities as $entity) {
+                $this->get('hateoas.entity.deleter')
+                    ->delete($params->primaryType, $entity);
             }
 
             $em->getConnection()->commit();
@@ -273,19 +264,26 @@ class MagicAlterController extends SymfonyController
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
         try {
-            $this->get('hateoas.entity.relater')
-                ->relate(
-                    $params->primaryType,
-                    $params->relationship,
-                    reset($params->entities),
-                    $params->resources
-                );
+            foreach ($params->entities as &$entity) {
+                $data = $params->resources[$entity->getId()];
+                $links = $this->extractLinks($data);
+
+                try {
+                    $entity = $this->get('hateoas.entity.mutator')
+                        ->update($params->primaryType, $entity, $data, $links);
+                } catch (EntityConflictExceptionInterface $e) {
+                    throw new ConflictHttpException($e->getMessage(), $e);
+                } catch (ValidationExceptionInterface $e) {
+                    throw new BadRequestHttpException($e->getMessage(), $e);
+                }
+            }
 
             $em->getConnection()->commit();
         } catch (\Exception $e) {
             $em->getConnection()->rollback();
             throw $e;
         }
+
 
         return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
     }

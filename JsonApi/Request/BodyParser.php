@@ -101,10 +101,10 @@ class BodyParser
             }
         } else {
             $data = $this->relationBodyParser->parse($request, $params);
-            $schema = [
+            $schema = (object) [
                 'type' => 'object',
-                'properties' => [
-                    'links' => ['type' => 'object']
+                'properties' => (object) [
+                    'links' => (object) ['type' => 'object']
                 ]
             ];
         }
@@ -115,7 +115,7 @@ class BodyParser
     /**
      * @param Params $params
      * @param string $method
-     * @return array
+     * @return \stdClass
      * @throws Raml\MissingSchemaException
      * @throws Raml\MalformedSchemaException
      */
@@ -144,11 +144,11 @@ class BodyParser
 
     /**
      * @param Params $params
-     * @param array $schema
+     * @param \stdClass $schema
      * @param array &$entityData
      */
     protected function prepareData(
-        Params $params, array $schema, array &$entityData
+        Params $params, \stdClass $schema, array &$entityData
     )
     {
         foreach ($entityData as &$data) {
