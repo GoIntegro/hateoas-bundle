@@ -45,7 +45,7 @@ class CreateBodyParser
         $entityData = [];
 
         if (empty($data[$params->primaryType])) {
-            throw new ParseException(static::ERROR_PRIMARY_TYPE_KEY);
+            throw new ParseException(BodyParser::ERROR_PRIMARY_TYPE_KEY);
         } elseif (
             Util\ArrayHelper::isAssociative($data[$params->primaryType])
         ) {

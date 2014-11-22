@@ -10,7 +10,7 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 // HTTP.
 use Symfony\Component\HttpFoundation\Request;
 // JSON.
-use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
+use GoIntegro\Bundle\HateoasBundle\Util;
 // RAML.
 use GoIntegro\Bundle\HateoasBundle\Raml;
 
@@ -25,7 +25,7 @@ class BodyParser
         ERROR_MALFORMED_SCHEMA = "The RAML schema for the current action is missing the primary type key, \"%s\".";
 
     /**
-     * @var JsonCoder
+     * @var Util\JsonCoder
      */
     protected $jsonCoder;
     /**
@@ -38,12 +38,12 @@ class BodyParser
     protected $hydrant;
 
     /**
-     * @param JsonCoder $jsonCoder
+     * @param Util\JsonCoder $jsonCoder
      * @param Raml\DocFinder $docFinder
      * @param ResourceLinksHydrant $hydrant
      */
     public function __construct(
-        JsonCoder $jsonCoder,
+        Util\JsonCoder $jsonCoder,
         Raml\DocFinder $docFinder,
         ResourceLinksHydrant $hydrant
     )
@@ -51,8 +51,8 @@ class BodyParser
         $this->jsonCoder = $jsonCoder;
         $this->docFinder = $docFinder;
         $this->hydrant = $hydrant;
-        $this->createBodyParser = new CreateBodyParser($jsonCoder);
-        $this->updateBodyParser = new UpdateBodyParser($jsonCoder);
+        $this->creationBodyParser = new CreateBodyParser($jsonCoder);
+        $this->mutationBodyParser = new UpdateBodyParser($jsonCoder);
     }
 
     /**
@@ -62,15 +62,14 @@ class BodyParser
      */
     public function parse(Request $request, Params $params)
     {
-        // @todo Use $params->action!!
-        switch ($request->getMethod()) {
-            case Parser::HTTP_POST:
-                $data = $this->createBodyParser->parse($request, $params);
+        switch ($params->action->name) {
+            case RequestAction::ACTION_CREATE:
+                $data = $this->creationBodyParser->parse($request, $params);
                 $this->prepareData($params, Raml\RamlDoc::HTTP_POST, $data);
                 return $data;
 
-            case Parser::HTTP_PUT:
-                $data = $this->updateBodyParser->parse($request, $params);
+            case RequestAction::ACTION_UPDATE:
+                $data = $this->mutationBodyParser->parse($request, $params);
                 $this->prepareData($params, Raml\RamlDoc::HTTP_PUT, $data);
                 return $data;
 
@@ -124,7 +123,7 @@ class BodyParser
         );
 
         foreach ($entityData as &$data) {
-            $json = json_decode(json_encode($data), FALSE);
+            $json = Util\ArrayHelper::toObject($data);
 
             if (!$this->jsonCoder->matchSchema($json, $resourceObjectSchema)) {
                 $message = $this->jsonCoder->getSchemaErrorMessage();

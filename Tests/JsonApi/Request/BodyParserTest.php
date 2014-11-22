@@ -5,7 +5,7 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace JsonApi\Request;
+namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // Mocks.
 use Codeception\Util\Stub;
@@ -51,9 +51,16 @@ JSON;
             Parser::HTTP_POST,
             self::HTTP_POST_BODY
         );
+        $action = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RequestAction',
+            ['name' => RequestAction::ACTION_CREATE]
+        );
         $params = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
-            ['primaryType' => self::RESOURCE_TYPE]
+            [
+                'primaryType' => self::RESOURCE_TYPE,
+                'action' => $action
+            ]
         );
         $hydrant = Stub::makeEmpty('GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\ResourceLinksHydrant');
         $parser = new BodyParser(
@@ -82,9 +89,16 @@ JSON;
             Parser::HTTP_PUT,
             self::HTTP_PUT_BODY
         );
+        $action = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RequestAction',
+            ['name' => RequestAction::ACTION_UPDATE]
+        );
         $params = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
-            ['primaryType' => self::RESOURCE_TYPE]
+            [
+                'primaryType' => self::RESOURCE_TYPE,
+                'action' => $action
+            ]
         );
         $hydrant = Stub::makeEmpty('GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\ResourceLinksHydrant');
         $parser = new BodyParser(

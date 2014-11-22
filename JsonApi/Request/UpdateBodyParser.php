@@ -45,7 +45,7 @@ class UpdateBodyParser
         $entityData = [];
 
         if (empty($data[$params->primaryType])) {
-            throw new ParseException(static::ERROR_PRIMARY_TYPE_KEY);
+            throw new ParseException(BodyParser::ERROR_PRIMARY_TYPE_KEY);
         } elseif (isset($data[$params->primaryType]['id'])) {
             $id = $data[$params->primaryType]['id'];
 

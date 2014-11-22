@@ -19,4 +19,14 @@ class ArrayHelper
     {
         return array_keys($array) !== range(0, count($array) - 1);
     }
+
+    /**
+     * Something like recursive casting, only cheaper.
+     * @param array $array
+     * @return \stdClass
+     */
+    public static function toObject(array $array)
+    {
+        return json_decode(json_encode($array), FALSE);
+    }
 }
