@@ -60,22 +60,18 @@ class ResourceManagerTest extends TestCase
      */
     private function createResourceManager()
     {
-        $resourceCache = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceCache'
-        );
         $metadataMiner = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface'
+            'GoIntegro\\Bundle\\HateoasBundle\\Metadata\\Resource\\MetadataMinerInterface'
         );
-        $requestParser = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser'
+        $resourceCache = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\ResourceCache'
         );
         $serviceContainer = Stub::makeEmpty(
-            'Symfony\Component\DependencyInjection\ContainerInterface'
+            'Symfony\\Component\\DependencyInjection\\ContainerInterface'
         );
         $resourceManager = new ResourceManager(
-            $resourceCache,
             $metadataMiner,
-            $requestParser,
+            $resourceCache,
             $serviceContainer
         );
 

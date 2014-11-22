@@ -9,8 +9,8 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // HTTP.
 use Symfony\Component\HttpFoundation\Request;
-// JSON.
-use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
+// Utils.
+use GoIntegro\Bundle\HateoasBundle\Util;
 
 /**
  * @see http://jsonapi.org/format/#crud-creating-resources
@@ -21,14 +21,14 @@ class CreateBodyParser
     const ERROR_ID_NOT_SUPPORTED = "Providing an Id on creation is not supported magically yet.";
 
     /**
-     * @var JsonCoder
+     * @var Util\JsonCoder
      */
     protected $jsonCoder;
 
     /**
-     * @param JsonCoder $jsonCoder
+     * @param Util\JsonCoder $jsonCoder
      */
-    public function __construct(JsonCoder $jsonCoder)
+    public function __construct(Util\JsonCoder $jsonCoder)
     {
         $this->jsonCoder = $jsonCoder;
     }
@@ -46,7 +46,9 @@ class CreateBodyParser
 
         if (empty($data[$params->primaryType])) {
             throw new ParseException(static::ERROR_PRIMARY_TYPE_KEY);
-        } elseif ($this->isAssociative($data[$params->primaryType])) {
+        } elseif (
+            Util\ArrayHelper::isAssociative($data[$params->primaryType])
+        ) {
             if (isset($data[$params->primaryType]['id'])) {
                 throw new ParseException(static::ERROR_ID_NOT_SUPPORTED);
             } else {
@@ -63,16 +65,5 @@ class CreateBodyParser
         }
 
         return $entityData;
-    }
-
-    /**
-     * @param array $array
-     * @return boolean
-     * @todo Move to helper in utils.
-     * @see http://stackoverflow.com/a/173479
-     */
-    private function isAssociative(array $array)
-    {
-        return array_keys($array) !== range(0, count($array) - 1);
     }
 }

@@ -44,7 +44,7 @@ class Params
      * @var string
      * @see http://jsonapi.org/format/#urls-relationships
      */
-    public $relationshipType;
+    public $relationship;
     /**
      * @var array
      * @see http://jsonapi.org/format/#crud-updating-to-many-relationships

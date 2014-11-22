@@ -5,16 +5,15 @@ parameters:
 services:
   hateoas.request_parser:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
-    scope: request
     arguments:
       # @todo Could we not just pass the request as a parameter?
-      - @request
       - @hateoas.raml.finder
       - @hateoas.request_parser.filter
       - @hateoas.request_parser.pagination
       - @hateoas.request_parser.body
       - @hateoas.request_parser.action
       - @hateoas.request_parser.entities
+      - @hateoas.metadata_miner
       - %api.url_path%
       - %go_integro_hateoas.json_api%
 
@@ -43,6 +42,8 @@ services:
   hateoas.request_parser.action:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
     public: false
+    arguments:
+      - @hateoas.json_coder
 
   hateoas.request_parser.entities:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder
@@ -70,11 +71,9 @@ services:
 
   hateoas.resource_manager:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceManager
-    scope: request
     arguments:
-      - @hateoas.resource_cache
       - @hateoas.metadata_miner
-      - @hateoas.request_parser
+      - @hateoas.resource_cache
       - @service_container
       - %api.url_path%
 
@@ -122,6 +121,7 @@ services:
       - @validator
       - @security.context
       - @hateoas.request_parser
+      - @request
     tags:
       -  { name: hateoas.entity.builder, resource_type: default }
 
@@ -137,16 +137,15 @@ services:
       - @doctrine.orm.entity_manager
       - @validator
       - @hateoas.request_parser
+      - @request
     tags:
       -  { name: hateoas.entity.mutator, resource_type: default }
 
   hateoas.entity.deleter:
     class: GoIntegro\Bundle\HateoasBundle\Entity\Deleter
-    scope: request
 
   hateoas.entity.default_deleter:
     class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultDeleter
-    scope: request
     public: false
     arguments:
       - @doctrine.orm.entity_manager

@@ -62,6 +62,7 @@ class BodyParser
      */
     public function parse(Request $request, Params $params)
     {
+        // @todo Use $params->action!!
         switch ($request->getMethod()) {
             case Parser::HTTP_POST:
                 $data = $this->createBodyParser->parse($request, $params);

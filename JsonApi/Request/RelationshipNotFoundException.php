@@ -10,6 +10,6 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 // JSON-API
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\NotFoundException;
 
-class ResourceNotFoundException extends NotFoundException
+class RelationshipNotFoundException extends NotFoundException
 {
 }

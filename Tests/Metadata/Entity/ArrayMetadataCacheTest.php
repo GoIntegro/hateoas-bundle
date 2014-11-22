@@ -24,10 +24,8 @@ class ArrayMetadataCacheTest extends TestCase
         );
         $metadataCache = new ArrayMetadataCache($entityManager);
         /* When... (Action) */
-        $classReflection
-            = $metadataCache->getReflection('GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface');
-        $sameReflection
-            = $metadataCache->getReflection('GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface');
+        $classReflection = $metadataCache->getReflection('ReflectionClass');
+        $sameReflection = $metadataCache->getReflection('ReflectionClass');
         /* Then... (Assertions) */
         $this->assertInstanceOf('ReflectionClass', $classReflection);
         $this->assertSame($classReflection, $sameReflection);

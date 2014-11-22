@@ -9,25 +9,19 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
 // Metadata.
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface as MetadataMiner;
-// Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser as RequestParser;
 // Servicios.
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ResourceManager
 {
     /**
-     * @var ResourceCache
-     */
-    public $resourceCache;
-    /**
      * @var MetadataMiner
      */
     private $metadataMiner;
     /**
-     * @var RequestParser
+     * @var ResourceCache
      */
-    private $requestParser;
+    private $resourceCache;
     /**
      * @var ContainerInterface
      */
@@ -38,23 +32,20 @@ class ResourceManager
     private $apiUrlPath;
 
     /**
-     * @param ResourceCache $resourceCache
      * @param MetadataMiner $metadataMiner
-     * @param RequestParser $requestParser
+     * @param ResourceCache $resourceCache
      * @param ContainerInterface $serviceContainer
      * @param string $apiUrlPath
      */
     public function __construct(
-        ResourceCache $resourceCache,
         MetadataMiner $metadataMiner,
-        RequestParser $requestParser,
+        ResourceCache $resourceCache,
         ContainerInterface $serviceContainer,
         $apiUrlPath = ''
     )
     {
-        $this->resourceCache = $resourceCache;
         $this->metadataMiner = $metadataMiner;
-        $this->requestParser = $requestParser;
+        $this->resourceCache = $resourceCache;
         $this->serviceContainer = $serviceContainer;
         $this->apiUrlPath = $apiUrlPath;
     }
@@ -65,8 +56,7 @@ class ResourceManager
     public function createResourceFactory()
     {
         return new EntityResourceFactory(
-            $this->metadataMiner,
-            $this->serviceContainer
+            $this->metadataMiner, $this->serviceContainer
         );
     }
 
@@ -75,11 +65,7 @@ class ResourceManager
      */
     public function createCollectionFactory()
     {
-        return new ResourceCollectionFactory(
-            $this,
-            $this->metadataMiner,
-            $this->requestParser
-        );
+        return new ResourceCollectionFactory($this, $this->metadataMiner);
     }
 
     /**
@@ -87,8 +73,6 @@ class ResourceManager
      */
     public function createSerializerFactory()
     {
-        return new SerializerFactory(
-            $this, $this->requestParser, $this->apiUrlPath
-        );
+        return new SerializerFactory($this->resourceCache, $this->apiUrlPath);
     }
 }

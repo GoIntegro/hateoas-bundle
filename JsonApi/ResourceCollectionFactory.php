@@ -13,14 +13,12 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 // Colecciones.
 use GoIntegro\Bundle\HateoasBundle\Collections\ResourceEntityCollection;
-// Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser as RequestParser;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 // Paginación.
 use Doctrine\ORM\Tools\Pagination\Paginator;
 // Búsqueda.
 use GoIntegro\Bundle\HateoasBundle\Search\FacetedSearchResult as SearchResult;
-// Excepciones.
-use Exception;
 
 class ResourceCollectionFactory implements Factory
 {
@@ -33,10 +31,6 @@ class ResourceCollectionFactory implements Factory
      */
     private $metadataMiner;
     /**
-     * @var RequestParser
-     */
-    private $requestParser;
-    /**
      * @var ArrayCollection
      */
     private $entities;
@@ -48,21 +42,22 @@ class ResourceCollectionFactory implements Factory
      * @var SearchResult
      */
     private $searchResult;
+    /**
+     * @var Params
+     */
+    private $params;
 
     /**
      * @param ResourceManager $resourceManager
      * @param EntityManagerInterface $metadataMiner
-     * @param RequestParser $requestParser
      */
     public function __construct(
         ResourceManager $resourceManager,
-        MetadataMinerInterface $metadataMiner,
-        RequestParser $requestParser
+        MetadataMinerInterface $metadataMiner
     )
     {
         $this->resourceManager = $resourceManager;
         $this->metadataMiner = $metadataMiner;
-        $this->requestParser = $requestParser;
         $this->entities = new ResourceEntityCollection;
     }
 
@@ -109,6 +104,17 @@ class ResourceCollectionFactory implements Factory
     public function setSearchResult(SearchResult $searchResult)
     {
         $this->searchResult = $searchResult;
+
+        return $this;
+    }
+
+    /**
+     * @param Params $params
+     * @return self
+     */
+    public function setParams(Params $params)
+    {
+        $this->params = $params;
 
         return $this;
     }
@@ -185,8 +191,42 @@ class ResourceCollectionFactory implements Factory
             $entity = reset($entities);
             $metadata = $this->metadataMiner->mine(reset($entities));
         } else {
-            $params = $this->requestParser->parse();
-            $type = $params->relationshipType ?: $params->primaryType;
+            $type = NULL;
+
+            if (empty($this->params)) {
+                throw new FactoryRequisiteException(
+                    self::ERROR_PARAMS_REQUIRED
+                );
+            }
+
+            if (!empty($this->params->relationship)) {
+                $relation = NULL;
+                $metadata
+                    = $this->metadataMiner->mine($this->params->primaryType);
+
+                if ($metadata->relationships->isToOneRelationship(
+                    $this->params->relationship
+                )) {
+                    $relation = $metadata
+                        ->relationships
+                        ->toOne[$this->params->relationship];
+                } elseif ($metadata->relationships->isToManyRelationship(
+                    $this->params->relationship
+                )) {
+                    $relation = $metadata
+                        ->relationships
+                        ->toMany[$this->params->relationship];
+                } else {
+                    throw new FactoryErrorException(
+                        self::ERROR_PARAMS_INCOHERENT
+                    );
+                }
+
+                $type = $relation->type;
+            } else {
+                $type = $this->params->primaryType;
+            }
+
             $metadata = $this->metadataMiner->stub($type);
         }
 

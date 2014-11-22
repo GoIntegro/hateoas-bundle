@@ -12,6 +12,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
     GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource;
 // Colecciones.
 use Doctrine\Common\Collections\Collection as CollectionInterface;
+// Utils.
+use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // JSON-API
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Document,
     GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination;
@@ -45,7 +47,7 @@ class TopLevelPaginationLinksSerializer implements SerializerInterface
 
         if (!empty($pagination)) {
             foreach (self::$relationships as $relationship) {
-                $method = 'get' . ucfirst($relationship);
+                $method = 'get' . Inflector::camelize($relationship);
                 $page = $this->$method();
 
                 if (is_null($page)) continue;

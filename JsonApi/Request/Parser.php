@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
+// Metadata.
+use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 
 /**
  * @see http://jsonapi.org/format/#fetching
@@ -30,19 +32,16 @@ class Parser
     const PRIMARY_RESOURCE_TYPE = 0,
         PRIMARY_RESOURCE_IDS = 1,
         PRIMARY_RESOURCE_FIELD = 2,
-        RELATIONSHIP_RESOURCE_TYPE = 3,
+        PRIMARY_RESOURCE_RELATIONSHIP = 3,
         RELATIONSHIP_RESOURCE_IDS = 4; // For multiple relationship deletes.
 
     const ERROR_NO_API_BASE_PATH
             = "The API base path is not configured.",
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "Multiple Ids are not supported when requesting a resource field or link.",
         ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.",
-        ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].";
+        ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].",
+        ERROR_RELATIONSHIP_UNDEFINED = "The requested relationship is undefined or can only be accessed through its own URL, filtering by its relationship with the current resource.";
 
-    /**
-     * @var Request
-     */
-    private $request;
     /**
      * @var DocFinder
      */
@@ -75,31 +74,34 @@ class Parser
      * @var ParamEntityFinder
      */
     private $entityFinder;
+    /**
+     * @var MetadataMinerInterface
+     */
+    private $mm;
 
     /**
-     * @param Request $request
      * @param DocFinder $docFinder
      * @param FilterParser $filterParser
      * @param PaginationParser $paginationParser
      * @param BodyParser $bodyParser
      * @param ActionParser $actionParser
      * @param ParamEntityFinder $entityFinder
+     * @param MetadataMinerInterface $mm
      * @param string $apiUrlPath
      * @param array $config
      */
     public function __construct(
-        Request $request,
         DocFinder $docFinder,
         FilterParser $filterParser,
         PaginationParser $paginationParser,
         BodyParser $bodyParser,
         ActionParser $actionParser,
         ParamEntityFinder $entityFinder,
+        MetadataMinerInterface $mm,
         $apiUrlPath = '',
         array $config = []
     )
     {
-        $this->request = $request;
         $this->docFinder = $docFinder;
         $this->apiUrlPath = $apiUrlPath;
         // @todo Esta verificación debería estar en el DI.
@@ -111,6 +113,7 @@ class Parser
         $this->bodyParser = $bodyParser;
         $this->actionParser = $actionParser;
         $this->entityFinder = $entityFinder;
+        $this->mm = $mm;
     }
 
     /**
@@ -122,16 +125,15 @@ class Parser
      * @throws EntityAccessDeniedException
      * @throws EntityNotFoundException
      */
-    public function parse(Request $request = NULL)
+    public function parse(Request $request)
     {
-        $request = $request ?: $this->request;
         $params = new Params;
         $params->path = $this->parsePath($request);
         $params->primaryType = $this->parsePrimaryType($request);
         $params->primaryClass = $this->getEntityClass($params->primaryType);
-        $params->relationshipType = $this->parseRelationshipType($request);
+        $params->relationship = $this->parseRelationship($request, $params);
         $params->primaryIds
-            = $this->parsePrimaryIds($request, $params->relationshipType);
+            = $this->parsePrimaryIds($request, $params->relationship);
 
         if ($request->query->has('include')) {
             $params->include = $this->parseInclude($request);
@@ -153,14 +155,13 @@ class Parser
         }
 
         $params->filters = $this->filterParser->parse($request, $params);
+        $params->action = $this->actionParser->parse($request, $params);
         $content = $request->getContent();
 
         if (!empty($content)) {
+            // Needs the params from the ActionParser.
             $params->resources = $this->bodyParser->parse($request, $params);
         }
-
-        // Needs the params from the BodyParser.
-        $params->action = $this->actionParser->parse($request, $params);
 
         if (!empty($params->primaryIds)) {
             // Needs the params from the ActionParser.
@@ -181,15 +182,15 @@ class Parser
 
     /**
      * @param Request $request
-     * @param string|NULL $relationshipType
+     * @param string|NULL $relationship
      * @return array
      */
-    public function parsePrimaryIds(Request $request, $relationshipType)
+    public function parsePrimaryIds(Request $request, $relationship)
     {
         $ids = $this->parseUrlPart($request, self::PRIMARY_RESOURCE_IDS);
         $ids = !empty($ids) ? explode(',', $ids) : [];
 
-        if (1 < count($ids) && !empty($relationshipType)) {
+        if (1 < count($ids) && !empty($relationship)) {
             throw new ParseException(
                 self::ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP
             );
@@ -204,11 +205,29 @@ class Parser
 
     /**
      * @param Request $request
+     * @param Params $params
      * @return string
      */
-    public function parseRelationshipType(Request $request)
+    public function parseRelationship(Request $request, Params $params)
     {
-        return $this->parseUrlPart($request, self::RELATIONSHIP_RESOURCE_TYPE);
+        $relationship = $this->parseUrlPart(
+            $request, self::PRIMARY_RESOURCE_RELATIONSHIP
+        );
+
+        if (!empty($relationship)) {
+            $metadata = $this->mm->mine($params->primaryClass);
+
+            if (
+                !$metadata->isRelationship($relationship)
+                || $metadata->isLinkOnlyRelationship($relationship)
+            ) {
+                throw new RelationshipNotFoundException(
+                    self::ERROR_RELATIONSHIP_UNDEFINED
+                );
+            }
+        }
+
+        return $relationship;
     }
 
     /**

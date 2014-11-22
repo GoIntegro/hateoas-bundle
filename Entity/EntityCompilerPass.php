@@ -7,9 +7,12 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
+// DI.
 use Symfony\Component\DependencyInjection\ContainerBuilder,
     Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface,
     Symfony\Component\DependencyInjection\Reference;
+// Utils.
+use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 
 class EntityCompilerPass implements CompilerPassInterface
 {
@@ -37,7 +40,7 @@ class EntityCompilerPass implements CompilerPassInterface
             foreach ($taggedServices as $id => $tagAttributes) {
                 foreach ($tagAttributes as $attributes) {
                     $definition->addMethodCall(
-                        'add' . ucfirst($service),
+                        'add' . Inflector::camelize($service),
                         [new Reference($id), $attributes[self::RESOURCE_TYPE]]
                     );
                 }

@@ -11,17 +11,15 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // HTTP.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser as RequestParser;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 
 class SerializerFactory implements Factory
 {
     /**
-     * @var ResourceManager
+     * @var ResourceCache
      */
-    private $resourceManager;
-    /**
-     * @var RequestParser
-     */
-    private $requestParser;
+    private $resourceCache;
     /**
      * @var DocumentResource
      */
@@ -45,20 +43,21 @@ class SerializerFactory implements Factory
      * @var array
      */
     private $apiUrlPath;
+    /**
+     * @var Params
+     */
+    private $params;
 
     /**
-     * @param ResourceManager $resourceManager
-     * @param RequestParser $requestParser
+     * @param ResourceCache $resourceCache
      * @param string $apiUrlPath
      */
     public function __construct(
-        ResourceManager $resourceManager,
-        RequestParser $requestParser,
+        ResourceCache $resourceCache,
         $apiUrlPath = ''
     )
     {
-        $this->resourceManager = $resourceManager;
-        $this->requestParser = $requestParser;
+        $this->resourceCache = $resourceCache;
         $this->apiUrlPath = $apiUrlPath;
     }
 
@@ -96,6 +95,17 @@ class SerializerFactory implements Factory
     }
 
     /**
+     * @param Params $params
+     * @return self
+     */
+    public function setParams(Params $params)
+    {
+        $this->params = $params;
+
+        return $this;
+    }
+
+    /**
      * @param array $meta
      * @return self
      */
@@ -115,23 +125,21 @@ class SerializerFactory implements Factory
         $fields = NULL;
 
         if (empty($this->fields) || empty($this->include)) {
-            $params = $this->requestParser->parse();
-
             if (empty($this->include)) {
-                $include = $params->include;
+                $include = $this->params->include;
             }
 
             if (empty($this->fields)) {
-                $fields = $params->sparseFields;
+                $fields = $this->params->sparseFields;
             }
         }
 
         $document = new Document(
             $this->documentResource,
-            $this->resourceManager->resourceCache,
+            $this->resourceCache,
             $include,
             $fields,
-            $params->pagination
+            $this->params->pagination
         );
 
         foreach ($this->meta as $meta) {
