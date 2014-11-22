@@ -155,14 +155,13 @@ class Parser
         }
 
         $params->filters = $this->filterParser->parse($request, $params);
+        $params->action = $this->actionParser->parse($request, $params);
         $content = $request->getContent();
 
         if (!empty($content)) {
+            // Needs the params from the ActionParser.
             $params->resources = $this->bodyParser->parse($request, $params);
         }
-
-        // Needs the params from the BodyParser.
-        $params->action = $this->actionParser->parse($request, $params);
 
         if (!empty($params->primaryIds)) {
             // Needs the params from the ActionParser.

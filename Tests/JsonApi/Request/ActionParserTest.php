@@ -36,8 +36,9 @@ JSON;
         $queryOverrides = [
             'getContent' => function() { return self::UPDATE_BODY; }
         ];
-        $entity = Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\ResourceEntityInterface'
+        $jsonCoder = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Util\\JsonCoder',
+            ['decode' => json_decode(self::HTTP_PUT_BODY, TRUE)]
         );
         $request = self::createRequest(
             '/api/v1/users',
@@ -49,10 +50,10 @@ JSON;
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
             [
                 'primaryIds' => ['27'],
-                'entities' => [$entity]
+                'primaryType' => 'users'
             ]
         );
-        $parser = new ActionParser;
+        $parser = new ActionParser($jsonCoder);
         // When...
         $action = $parser->parse($request, $params);
         // Then...

@@ -42,6 +42,8 @@ services:
   hateoas.request_parser.action:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
     public: false
+    arguments:
+      - @hateoas.json_coder
 
   hateoas.request_parser.entities:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder
