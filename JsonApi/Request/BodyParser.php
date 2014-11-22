@@ -23,6 +23,13 @@ class BodyParser
         ERROR_MISSING_SCHEMA = "A RAML schema was expected for the current action upon the resource \"%s\".",
         ERROR_MALFORMED_SCHEMA = "The RAML schema for the current action is missing the primary type key, \"%s\".";
 
+    const LINK_SCHEMA = <<<'JSON'
+        "type": "object",
+        "properties": {
+            "links": { "type": "object" }
+        }
+JSON;
+
     /**
      * @var Util\JsonCoder
      */
@@ -101,12 +108,7 @@ class BodyParser
             }
         } else {
             $data = $this->relationBodyParser->parse($request, $params);
-            $schema = (object) [
-                'type' => 'object',
-                'properties' => (object) [
-                    'links' => (object) ['type' => 'object']
-                ]
-            ];
+            $schema = static::LINK_SCHEMA;
         }
 
         return $this->prepareData($params, $schema, $data);
@@ -144,11 +146,11 @@ class BodyParser
 
     /**
      * @param Params $params
-     * @param \stdClass $schema
+     * @param \stdClass|string $schema
      * @param array &$entityData
      */
     protected function prepareData(
-        Params $params, \stdClass $schema, array &$entityData
+        Params $params, $schema, array &$entityData
     )
     {
         foreach ($entityData as &$data) {
