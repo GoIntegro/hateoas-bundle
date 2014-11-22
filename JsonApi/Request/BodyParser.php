@@ -19,8 +19,7 @@ use GoIntegro\Bundle\HateoasBundle\Raml;
  */
 class BodyParser
 {
-    const ERROR_UNSUPPORTED_HTTP_METHOD = "The HTTP method \"%s\" is not supported.",
-        ERROR_PRIMARY_TYPE_KEY = "The resource type key is missing from the body.",
+    const ERROR_PRIMARY_TYPE_KEY = "The resource type key is missing from the body.",
         ERROR_MISSING_SCHEMA = "A RAML schema was expected for the current action upon the resource \"%s\".",
         ERROR_MALFORMED_SCHEMA = "The RAML schema for the current action is missing the primary type key, \"%s\".";
 
@@ -84,30 +83,27 @@ class BodyParser
         $data = NULL;
         $schema = NULL;
 
-        switch ($params->action->name) {
-            case RequestAction::ACTION_CREATE:
-                $data = $this->creationBodyParser->parse($request, $params);
-                $schema = $this->findResourceObjectSchema(
-                    $params, Raml\RamlDoc::HTTP_POST
-                );
-                break;
+        if (RequestAction::TARGET_RESOURCE == $params->action->target) {
+            switch ($params->action->name) {
+                case RequestAction::ACTION_CREATE:
+                    $data = $this->creationBodyParser->parse($request, $params);
+                    $schema = $this->findResourceObjectSchema(
+                        $params, Raml\RamlDoc::HTTP_POST
+                    );
+                    break;
 
-            case RequestAction::ACTION_UPDATE:
-                $data = $this->mutationBodyParser->parse($request, $params);
-                $schema = $this->findResourceObjectSchema(
-                    $params, Raml\RamlDoc::HTTP_PUT
-                );
-                break;
+                case RequestAction::ACTION_UPDATE:
+                    $data = $this->mutationBodyParser->parse($request, $params);
+                    $schema = $this->findResourceObjectSchema(
+                        $params, Raml\RamlDoc::HTTP_PUT
+                    );
+                    break;
+            }
 
-            default:
-                $message = sprintf(
-                    self::ERROR_UNSUPPORTED_HTTP_METHOD,
-                    $request->getMethod()
-                );
-                throw new \ErrorException($message);
+            return $this->prepareData($params, $schema, $data);
+        } else {
+            return $this->relationBodyParser->parse($request, $params);
         }
-
-        return $this->prepareData($params, $schema, $data);
     }
 
     /**

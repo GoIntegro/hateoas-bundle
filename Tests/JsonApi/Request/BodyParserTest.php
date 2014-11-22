@@ -50,7 +50,10 @@ JSON;
         );
         $action = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RequestAction',
-            ['name' => RequestAction::ACTION_CREATE]
+            [
+                'name' => RequestAction::ACTION_CREATE,
+                'target' => RequestAction::TARGET_RESOURCE
+            ]
         );
         $params = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
@@ -91,7 +94,10 @@ JSON;
         );
         $action = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RequestAction',
-            ['name' => RequestAction::ACTION_UPDATE]
+            [
+                'name' => RequestAction::ACTION_UPDATE,
+                'target' => RequestAction::TARGET_RESOURCE
+            ]
         );
         $params = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
