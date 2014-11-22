@@ -2,15 +2,22 @@
 ===================================================
 This is a library and Symfony 2 bundle that uses a Doctrine 2 entity map and a [RAML](http://raml.org/) API definition to conjure a [HATEOAS](http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) API, following the [JSON-API](http://jsonapi.org/) specification.
 
-Here's some of what you get.
+You don't get scaffolds. You get a working API.
 
-* Modeling, documenting, and creating are one step.
-* Flat, referenced serialization.
+You get a working API with features sweeter than [a Bobcat's self-esteem](http://s3.amazonaws.com/theoatmeal-img/comics/bobcats_thursday/mirror.png).
+
+Features
+--------
+
+Here's what I mean.
+
+* Modeling, documenting, and creating your API are one step.
+* Flat, referenced JSON serialization.
   * Clear distinction between scalar fields and linked resources.
 * Magic controllers.
   * Fetching resources, with support for:
     * Sparse fields;
-    * Linked resource inclusion;
+    * Linked resources expansion;
     * Standarized filtering and sorting;
     * Pagination;
     * Resource metadata, such as facets in a search.
@@ -19,6 +26,9 @@ Here's some of what you get.
     * Request validation using JSON schema;
     * Create, update, and delete out of the box;
     * Assing services to handle any of the above for specific resources.
+* Metadata caching, similar to that of Doctrine 2;
+  * Redis,
+  * Or Memcached.
 
 Here's what you'll need.
 
@@ -30,6 +40,8 @@ Try it out
 ==========
 
 Check out [the example app project](https://github.com/skqr/hateoas-bundle-example), so you can feel the magic in your finger tips without much ado.
+
+___
 
 Installation
 ============
@@ -100,6 +112,8 @@ go_integro_hateoas:
     resource: "@GoIntegroHateoasBundle/Resources/config/routing.yml"
     prefix: /api/v2
 ```
+
+___
 
 Usage
 =====
@@ -621,6 +635,8 @@ Fetch responses are all delivered with an [Etag](https://en.wikipedia.org/wiki/H
 The Etag is created from the full body of the response, so it accurately represents the JSON-API document you're fetching, along with its includes, sparse fields, meta, etc.
 
 Etags on requests are checked [using Symfony](http://symfony.com/doc/current/book/http_cache.html#validation-with-the-etag-header).
+
+___
 
 Feedback
 ========
