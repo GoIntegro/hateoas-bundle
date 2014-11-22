@@ -15,7 +15,7 @@ class ArrayHelper
      * @todo Move to helper in utils.
      * @see http://stackoverflow.com/a/173479
      */
-    public function isAssociative(array $array)
+    public static function isAssociative(array $array)
     {
         return array_keys($array) !== range(0, count($array) - 1);
     }
