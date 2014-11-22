@@ -20,6 +20,10 @@ use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 class FilterParser
 {
     /**
+     * @var array
+     */
+    private static $reserved = ['include', 'fields', 'sort', 'page', 'size'];
+    /**
      * @var MetadataMinerInterface
      */
     private $metadataMiner;
@@ -58,8 +62,8 @@ class FilterParser
         $metadata = $this->metadataMiner->mine($params->primaryClass);
         $add = function($param, $value, $type) use (&$filters) {
             $property = Inflector::camelize($param);
-            $values = explode(',', $value);
-            $filters[$type][$property] = $values;
+            if (is_string($value)) $value = explode(',', $value);
+            $filters[$type][$property] = $value;
         };
 
         foreach ($request->query as $param => $value) {
@@ -67,7 +71,7 @@ class FilterParser
                 $add($param, $value, 'field');
             } elseif ($metadata->isRelationship($param)) {
                 $add($param, $value, 'association'); // Doctrine 2 term.
-            } else {
+            } elseif (!in_array($param, self::$reserved)) {
                 $add($param, $value, 'custom');
             }
         }
