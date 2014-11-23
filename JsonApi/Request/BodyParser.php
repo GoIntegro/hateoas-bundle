@@ -24,9 +24,11 @@ class BodyParser
         ERROR_MALFORMED_SCHEMA = "The RAML schema for the current action is missing the primary type key, \"%s\".";
 
     const LINK_SCHEMA = <<<'JSON'
-        "type": "object",
-        "properties": {
-            "links": { "type": "object" }
+        {
+            "type": "object",
+            "properties": {
+                "links": { "type": "object" }
+            }
         }
 JSON;
 
