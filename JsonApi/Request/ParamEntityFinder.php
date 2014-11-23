@@ -67,10 +67,6 @@ class ParamEntityFinder
      */
     public function find(Params $params)
     {
-        if (empty($params->primaryClass)) {
-            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
         $entities = (object) [
             'primary' => $this->findPrimaryEntities($params)
         ];
@@ -98,6 +94,10 @@ class ParamEntityFinder
      */
     protected function findPrimaryEntities(Params $params)
     {
+        if (empty($params->primaryClass)) {
+            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
+        }
+
         $entities = $this->em
             ->getRepository($params->primaryClass)
             ->findById($params->primaryIds);
