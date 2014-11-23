@@ -80,13 +80,13 @@ class MagicFetchController extends SymfonyController
                 ? $this->get('hateoas.resource_manager')
                     ->createCollectionFactory()
                     ->setParams($params)
-                    ->addEntities($params->entities)
+                    ->addEntities($params->entities->relationship)
                     ->create()
-                : empty($params->entities)
+                : empty($params->entities->relationship)
                     ? NULL
                     : $this->get('hateoas.resource_manager')
                         ->createResourceFactory()
-                        ->setEntity(reset($params->entities))
+                        ->setEntity(reset($params->entities->relationship))
                         ->create();
 
         $json = empty($relatedResource)
@@ -131,7 +131,7 @@ class MagicFetchController extends SymfonyController
         $json = NULL;
 
         if ($metadata->isField($field)) {
-            $entity = reset($params->entities);
+            $entity = reset($params->entities->primary);
             $resource = $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
                 ->setEntity($entity)
@@ -165,15 +165,15 @@ class MagicFetchController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        $resources = 1 < count($params->entities)
+        $resources = 1 < count($params->entities->primary)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)
-                ->addEntities($params->entities)
+                ->addEntities($params->entities->primary)
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($params->entities))
+                ->setEntity(reset($params->entities->primary))
                 ->create();
 
         $json = $this->get('hateoas.resource_manager')

@@ -9,9 +9,6 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // Mocks.
 use Codeception\Util\Stub;
-// Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
@@ -53,7 +50,10 @@ JSON;
         );
         $action = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RequestAction',
-            ['name' => RequestAction::ACTION_CREATE]
+            [
+                'name' => RequestAction::ACTION_CREATE,
+                'target' => RequestAction::TARGET_RESOURCE
+            ]
         );
         $params = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
@@ -66,7 +66,10 @@ JSON;
         $parser = new BodyParser(
             self::createJsonCoder(),
             self::createDocFinder(),
-            $hydrant
+            $hydrant,
+            self::createCreationBodyParser(),
+            self::createMutationBodyParser(),
+            self::createRelationBodyParser()
         );
         // When...
         $resources = $parser->parse($request, $params);
@@ -91,7 +94,10 @@ JSON;
         );
         $action = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RequestAction',
-            ['name' => RequestAction::ACTION_UPDATE]
+            [
+                'name' => RequestAction::ACTION_UPDATE,
+                'target' => RequestAction::TARGET_RESOURCE
+            ]
         );
         $params = Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
@@ -104,7 +110,10 @@ JSON;
         $parser = new BodyParser(
             self::createJsonCoder(),
             self::createDocFinder(),
-            $hydrant
+            $hydrant,
+            self::createCreationBodyParser(),
+            self::createMutationBodyParser(),
+            self::createRelationBodyParser()
         );
         // When...
         $resources = $parser->parse($request, $params);
@@ -114,6 +123,53 @@ JSON;
                 'id' => '7',
                 'name' => 'John',
                 'surname' => 'Connor'
+            ]
+        ], $resources);
+    }
+
+    public function testParsingARequestWithARelateBody()
+    {
+        // Given...
+        $queryOverrides = [
+            'getContent' => function() { return self::HTTP_PUT_BODY; }
+        ];
+        $request = self::createRequest(
+            '/api/v1/users',
+            $queryOverrides,
+            Parser::HTTP_PUT,
+            self::HTTP_PUT_BODY
+        );
+        $action = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RequestAction',
+            [
+                'name' => RequestAction::ACTION_UPDATE,
+                'target' => RequestAction::TARGET_RELATIONSHIP
+            ]
+        );
+        $params = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\Params',
+            [
+                'primaryType' => self::RESOURCE_TYPE,
+                'action' => $action
+            ]
+        );
+        $hydrant = Stub::makeEmpty('GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\ResourceLinksHydrant');
+        $parser = new BodyParser(
+            self::createJsonCoder(),
+            self::createDocFinder(),
+            $hydrant,
+            self::createCreationBodyParser(),
+            self::createMutationBodyParser(),
+            self::createRelationBodyParser()
+        );
+        // When...
+        $resources = $parser->parse($request, $params);
+        // Then...
+        $this->assertSame([
+            '7' => [
+                'links' => [
+                    'user-groups' => []
+                ]
             ]
         ], $resources);
     }
@@ -144,6 +200,12 @@ JSON;
             'Symfony\Component\HttpFoundation\Request',
             [
                 'query' => $query,
+                'request' => new \stdClass,
+                'attributes' => new \stdClass,
+                'cookies' => new \stdClass,
+                'files' => new \stdClass,
+                'server' => new \stdClass,
+                'headers' => new \stdClass,
                 'getPathInfo' => $pathInfo,
                 'getMethod' => $method,
                 'getContent' => $body
@@ -178,7 +240,7 @@ JSON;
     {
         $schema = (object) [
             'properties' => (object) [
-                self::RESOURCE_TYPE => ['type' => 'object']
+                self::RESOURCE_TYPE => (object) ['type' => 'object']
             ]
         ];
         $docNavigator = Stub::makeEmpty(
@@ -194,5 +256,53 @@ JSON;
         );
 
         return $docFinder;
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\CreateBodyParser
+     */
+    private static function createCreationBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\CreateBodyParser',
+            ['parse' => [[
+                'name' => 'John',
+                'surname' => 'Connor'
+            ]]]
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\UpdateBodyParser
+     */
+    private static function createMutationBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\UpdateBodyParser',
+            ['parse' => [
+                '7' => [
+                    'id' => '7',
+                    'name' => 'John',
+                    'surname' => 'Connor'
+                ]
+            ]]
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\RelateBodyParser
+     */
+    private static function createRelationBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RelateBodyParser',
+            ['parse' => [
+                '7' => [
+                    'links' => [
+                        'user-groups' => []
+                    ]
+                ]
+            ]]
+        );
     }
 }

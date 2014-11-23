@@ -38,6 +38,27 @@ services:
       - @hateoas.json_coder
       - @hateoas.raml.finder
       - @hateoas.request_parser.hydrant
+      - @hateoas.request_parser.body.create
+      - @hateoas.request_parser.body.update
+      - @hateoas.request_parser.body.relate
+
+  hateoas.request_parser.body.create:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\CreateBodyParser
+    public: false
+    arguments:
+      - @hateoas.json_coder
+
+  hateoas.request_parser.body.update:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\UpdateBodyParser
+    public: false
+    arguments:
+      - @hateoas.json_coder
+
+  hateoas.request_parser.body.relate:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\RelateBodyParser
+    public: false
+    arguments:
+      - @hateoas.json_coder
 
   hateoas.request_parser.action:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
@@ -51,6 +72,7 @@ services:
     arguments:
       - @doctrine.orm.entity_manager
       - @security.context
+      - @hateoas.json_coder
 
   hateoas.request_parser.hydrant:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ResourceLinksHydrant

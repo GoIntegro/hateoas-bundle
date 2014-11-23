@@ -9,8 +9,6 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // ORM.
 use Doctrine\ORM\EntityManagerInterface;
-// Metadata.
-use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
 // JSON-API.
@@ -69,11 +67,9 @@ class ParamEntityFinder
      */
     public function find(Params $params)
     {
-        if (empty($params->primaryClass)) {
-            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
-        $entities = $this->findPrimaryEntities($params);
+        $entities = (object) [
+            'primary' => $this->findPrimaryEntities($params)
+        ];
 
         if (
             empty($entities)
@@ -83,8 +79,9 @@ class ParamEntityFinder
         }
 
         if (!empty($params->relationship)) {
-            $entity = reset($entities);
-            $entities = $this->findRelationshipEntities($params, $entity);
+            $entity = reset($entities->primary);
+            $entities->relationship
+                = $this->findRelationshipEntities($params, $entity);
         }
 
         return $entities;
@@ -97,6 +94,10 @@ class ParamEntityFinder
      */
     protected function findPrimaryEntities(Params $params)
     {
+        if (empty($params->primaryClass)) {
+            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
+        }
+
         $entities = $this->em
             ->getRepository($params->primaryClass)
             ->findById($params->primaryIds);
@@ -113,6 +114,8 @@ class ParamEntityFinder
      * @param ResourceEntityInterface $entity
      * @return array
      * @throws EntityAccessDeniedException
+     * @todo Find by relationship Ids when deleting.
+     * @todo Refactor.
      */
     protected function findRelationshipEntities(
         Params $params,
@@ -128,8 +131,26 @@ class ParamEntityFinder
             $entities = [$entities];
         }
 
-        if (!$this->canAccessEntities($params, $entities)) {
-            throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
+        if (!empty($params->relationshipIds)) {
+            foreach ($entities as $entity) {
+                if (!$this->securityContext->isGranted(
+                    self::ACCESS_VIEW, $entity
+                )) {
+                    throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
+                }
+            }
+        } else {
+            $visible = [];
+
+            foreach ($entities as $entity) {
+                if ($this->securityContext->isGranted(
+                    self::ACCESS_VIEW, $entity
+                )) {
+                    $visible[] = $entity;
+                }
+            }
+
+            $entities = $visible;
         }
 
         return $entities;
@@ -142,11 +163,15 @@ class ParamEntityFinder
      */
     private function canAccessEntities(Params $params, array $entities)
     {
-        if (empty(self::$actionToAccess[$params->action->name])) {
+        $access = NULL;
+
+        if (RequestAction::TARGET_RELATIONSHIP === $params->action->target) {
+            $access = self::ACCESS_EDIT;
+        } elseif (!empty(self::$actionToAccess[$params->action->name])) {
+            $access = self::$actionToAccess[$params->action->name];
+        } else {
             throw new ParseException(self::ERROR_CANNOT_CHOOSE_ACCESS);
         }
-
-        $access = self::$actionToAccess[$params->action->name];
 
         foreach ($entities as $entity) {
             if (!$this->securityContext->isGranted($access, $entity)) {

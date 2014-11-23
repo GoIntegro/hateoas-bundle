@@ -49,6 +49,64 @@ class MagicAlterController extends SymfonyController
         ERROR_FIELD_NOT_FOUND = "No field by that name found.";
 
     /**
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_link", methods="POST")
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_update_link", methods="PUT")
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_unlink_one", methods="DELETE")
+     * @Route("/{primaryType}/{id}/links/{relationship}/{ids}", name="hateoas_magic_unlink_many", methods="DELETE")
+     * @param string $primaryType
+     * @param string $id
+     * @param string $relationship
+     * @param string $ids
+     * @throws AccessDeniedHttpException
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     * @see http://jsonapi.org/format/#crud-updating-relationships
+     * @todo The 409 response should happend during parsing.
+     */
+    public function linkAction($primaryType, $id, $relationship, $ids = NULL)
+    {
+        try {
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
+        } catch (NotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (ActionNotAllowedException $e) {
+            throw new MethodNotAllowedHttpException(
+                $e->getAllowedMethods(), $e->getMessage(), $e
+            );
+        } catch (ParseException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (EntityAccessDeniedException $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->beginTransaction();
+
+        try {
+            foreach ($params->entities->primary as &$entity) {
+                $data = $params->resources[$entity->getId()];
+                $links = $this->extractLinks($data);
+
+                try {
+                    $entity = $this->get('hateoas.entity.mutator')
+                        ->update($params->primaryType, $entity, $data, $links);
+                } catch (EntityConflictExceptionInterface $e) {
+                    throw new ConflictHttpException($e->getMessage(), $e);
+                } catch (ValidationExceptionInterface $e) {
+                    throw new BadRequestHttpException($e->getMessage(), $e);
+                }
+            }
+
+            $em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $em->getConnection()->rollback();
+            throw $e;
+        }
+
+        return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
      * @Route("/{primaryType}", name="hateoas_magic_create", methods="POST")
      * @param string $primaryType
      * @throws AccessDeniedHttpException
@@ -78,6 +136,7 @@ class MagicAlterController extends SymfonyController
 
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
+
         try {
             $entities = [];
 
@@ -149,8 +208,9 @@ class MagicAlterController extends SymfonyController
 
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
+
         try {
-            foreach ($params->entities as &$entity) {
+            foreach ($params->entities->primary as &$entity) {
                 $data = $params->resources[$entity->getId()];
                 $links = $this->extractLinks($data);
 
@@ -170,15 +230,15 @@ class MagicAlterController extends SymfonyController
             throw $e;
         }
 
-        $resources = 1 < count($params->entities)
+        $resources = 1 < count($params->entities->primary)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)
-                ->addEntities($params->entities)
+                ->addEntities($params->entities->primary)
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($params->entities))
+                ->setEntity(reset($params->entities->primary))
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
@@ -220,8 +280,9 @@ class MagicAlterController extends SymfonyController
 
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
+
         try {
-            foreach ($params->entities as $entity) {
+            foreach ($params->entities->primary as $entity) {
                 $this->get('hateoas.entity.deleter')
                     ->delete($params->primaryType, $entity);
             }
@@ -234,78 +295,6 @@ class MagicAlterController extends SymfonyController
 
         return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
     }
-
-    /**
-     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_link", methods="POST")
-     * @param string $primaryType
-     * @param string $id
-     * @param string $relationship
-     * @throws AccessDeniedHttpException
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
-     * @see http://jsonapi.org/format/#crud-updating-relationships
-     */
-    public function linkAction($primaryType, $id, $relationship)
-    {
-        try {
-            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
-        } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
-        } catch (ActionNotAllowedException $e) {
-            throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $e->getMessage(), $e
-            );
-        } catch (ParseException $e) {
-            throw new BadRequestHttpException($e->getMessage(), $e);
-        } catch (EntityAccessDeniedException $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e);
-        }
-
-        $metadata = $this->get('hateoas.metadata_miner')
-            ->mine($params->primaryClass);
-        $relation = NULL;
-        $relatedResource = NULL;
-    }
-
-    /**
-     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_update_link", methods="PUT")
-     * @param string $primaryType
-     * @param string $id
-     * @param string $relationship
-     * @throws AccessDeniedHttpException
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
-     * @see http://jsonapi.org/format/#crud-updating-relationships
-     */
-    public function updateLinkAction($primaryType, $id, $relationship)
-    {}
-
-    /**
-     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_unlink_one", methods="DELETE")
-     * @param string $primaryType
-     * @param string $id
-     * @param string $relationship
-     * @throws AccessDeniedHttpException
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
-     * @see http://jsonapi.org/format/#crud-updating-relationships
-     */
-    public function unlinkOneAction($primaryType, $id, $relationship)
-    {}
-
-    /**
-     * @Route("/{primaryType}/{id}/links/{relationship}/{ids}", name="hateoas_magic_unlink_many", methods="DELETE")
-     * @param string $primaryType
-     * @param string $id
-     * @param string $relationship
-     * @param string $ids
-     * @throws AccessDeniedHttpException
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
-     * @see http://jsonapi.org/format/#crud-updating-relationships
-     */
-    public function unlinkManyAction($primaryType, $id, $relationship, $ids)
-    {}
 
     /**
      * @param array &$data

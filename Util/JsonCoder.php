@@ -23,7 +23,8 @@ class JsonCoder
     const FAIL_JSON_SCHEMA_MESSAGE = "Failed asserting that the JSON matches the given schema. Violations:\n",
         JSON_API_SCHEMA_PATH = '@GoIntegroHateoasBundle/Resources/json-schemas/json-api.schema.json',
         JSON_SCHEMA_SCHEMA_PATH = '@GoIntegroHateoasBundle/Resources/json-schemas/json-schema.schema.json',
-        ERROR_CANNOT_READ_FILE = "Could not open the JSON file.";
+        ERROR_CANNOT_READ_FILE = "Could not open the JSON file.",
+        ERROR_PARSE = "An error occurred while parsing JSON: %s";
 
     /**
      * @var array
@@ -103,6 +104,7 @@ class JsonCoder
         $message = isset(self::$errorMessages[$code])
             ? self::$errorMessages[$code]
             : "Unknown error.";
+        $message = sprintf(self::ERROR_PARSE, $message);
 
         throw new \ErrorException($message);
     }
