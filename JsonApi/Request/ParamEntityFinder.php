@@ -64,6 +64,8 @@ class ParamEntityFinder
      * @throws ParseException
      * @throws EntityNotFoundException
      * @throws EntityAccessDeniedException
+     * @todo Return an object with both the primary and related entities.
+     * @todo Check the accesses of the primary and related entities separately.
      */
     public function find(Params $params)
     {
@@ -140,11 +142,15 @@ class ParamEntityFinder
      */
     private function canAccessEntities(Params $params, array $entities)
     {
-        if (empty(self::$actionToAccess[$params->action->name])) {
+        $access = NULL;
+
+        if (RequestAction::TARGET_RELATIONSHIP === $params->action->target) {
+            $access = self::ACCESS_EDIT;
+        } elseif (!empty(self::$actionToAccess[$params->action->name])) {
+            $access = self::$actionToAccess[$params->action->name];
+        } else {
             throw new ParseException(self::ERROR_CANNOT_CHOOSE_ACCESS);
         }
-
-        $access = self::$actionToAccess[$params->action->name];
 
         foreach ($entities as $entity) {
             if (!$this->securityContext->isGranted($access, $entity)) {

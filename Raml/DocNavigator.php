@@ -167,14 +167,4 @@ class DocNavigator
     {
         return 1 === preg_match('/^\/[0-9]+[,0-9]*$/', $value);
     }
-
-    /**
-     * @param string $method
-     * @param string $path
-     * @param boolean
-     */
-    public function isDefined($method, $path)
-    {
-        return FALSE;
-    }
 }

@@ -44,7 +44,7 @@ class RelateBodyParser
         $rawBody = $request->getContent();
         $data = $this->jsonCoder->decode($rawBody);
 
-        if (!is_array($data) || !isset($data[$params->primaryType])) {
+        if (!is_array($data) || !isset($data[$params->relationship])) {
             throw new ParseException(self::ERROR_EMPTY_BODY);
         }
 
@@ -52,7 +52,7 @@ class RelateBodyParser
         $entityData = [
             (string) $entity->getId() => [
                 self::LINKS => [
-                    $params->relationship => $data[$params->primaryType]
+                    $params->relationship => $data[$params->relationship]
                 ]
             ]
         ];

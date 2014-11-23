@@ -123,9 +123,12 @@ class ActionParser
     {
         $json = $request->getContent();
 
-        if (in_array($action->name, [
-            RequestAction::ACTION_CREATE, RequestAction::ACTION_UPDATE
-        ])) {
+        if (
+            RequestAction::TARGET_RESOURCE == $action->target
+            && in_array($action->name, [
+                RequestAction::ACTION_CREATE, RequestAction::ACTION_UPDATE
+            ])
+        ) {
             $data = $this->jsonCoder->decode($json);
 
             if (!is_array($data) || !isset($data[$params->primaryType])) {

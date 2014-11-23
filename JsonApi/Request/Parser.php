@@ -158,14 +158,14 @@ class Parser
         $params->action = $this->actionParser->parse($request, $params);
         $content = $request->getContent();
 
-        if (!empty($content)) {
-            // Needs the params from the ActionParser.
-            $params->resources = $this->bodyParser->parse($request, $params);
-        }
-
         if (!empty($params->primaryIds)) {
             // Needs the params from the ActionParser.
             $params->entities = $this->entityFinder->find($params);
+        }
+
+        if (!empty($content)) {
+            // Needs the params from the ActionParser.
+            $params->resources = $this->bodyParser->parse($request, $params);
         }
 
         return $params;
