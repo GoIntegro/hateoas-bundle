@@ -78,6 +78,7 @@ class MagicAlterController extends SymfonyController
 
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
+
         try {
             $entities = [];
 
@@ -149,6 +150,7 @@ class MagicAlterController extends SymfonyController
 
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
+
         try {
             foreach ($params->entities as &$entity) {
                 $data = $params->resources[$entity->getId()];
@@ -220,6 +222,7 @@ class MagicAlterController extends SymfonyController
 
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
+
         try {
             foreach ($params->entities as $entity) {
                 $this->get('hateoas.entity.deleter')
@@ -237,6 +240,9 @@ class MagicAlterController extends SymfonyController
 
     /**
      * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_link", methods="POST")
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_update_link", methods="PUT")
+     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_unlink_one", methods="DELETE")
+     * @Route("/{primaryType}/{id}/links/{relationship}/{ids}", name="hateoas_magic_unlink_many", methods="DELETE")
      * @param string $primaryType
      * @param string $id
      * @param string $relationship
@@ -244,6 +250,7 @@ class MagicAlterController extends SymfonyController
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
      * @see http://jsonapi.org/format/#crud-updating-relationships
+     * @todo The 409 response should happend during parsing.
      */
     public function linkAction($primaryType, $id, $relationship)
     {
@@ -263,6 +270,7 @@ class MagicAlterController extends SymfonyController
 
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
+
         try {
             foreach ($params->entities as &$entity) {
                 $data = $params->resources[$entity->getId()];
@@ -284,49 +292,8 @@ class MagicAlterController extends SymfonyController
             throw $e;
         }
 
-
         return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
     }
-
-    /**
-     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_update_link", methods="PUT")
-     * @param string $primaryType
-     * @param string $id
-     * @param string $relationship
-     * @throws AccessDeniedHttpException
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
-     * @see http://jsonapi.org/format/#crud-updating-relationships
-     */
-    public function updateLinkAction($primaryType, $id, $relationship)
-    {}
-
-    /**
-     * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_unlink_one", methods="DELETE")
-     * @param string $primaryType
-     * @param string $id
-     * @param string $relationship
-     * @throws AccessDeniedHttpException
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
-     * @see http://jsonapi.org/format/#crud-updating-relationships
-     */
-    public function unlinkOneAction($primaryType, $id, $relationship)
-    {}
-
-    /**
-     * @Route("/{primaryType}/{id}/links/{relationship}/{ids}", name="hateoas_magic_unlink_many", methods="DELETE")
-     * @param string $primaryType
-     * @param string $id
-     * @param string $relationship
-     * @param string $ids
-     * @throws AccessDeniedHttpException
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
-     * @see http://jsonapi.org/format/#crud-updating-relationships
-     */
-    public function unlinkManyAction($primaryType, $id, $relationship, $ids)
-    {}
 
     /**
      * @param array &$data
