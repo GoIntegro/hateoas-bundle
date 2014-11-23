@@ -25,7 +25,7 @@ class Deleter
      */
     public function delete($resourceType, ResourceEntityInterface $entity)
     {
-        return isset($deleters[$resourceType])
+        return isset($this->deleters[$resourceType])
             ? $this->deleters[$resourceType]->delete($entity)
             : $this->deleters['default']->delete($entity);
     }
