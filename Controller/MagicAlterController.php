@@ -252,7 +252,7 @@ class MagicAlterController extends SymfonyController
      * @see http://jsonapi.org/format/#crud-updating-relationships
      * @todo The 409 response should happend during parsing.
      */
-    public function linkAction($primaryType, $id, $relationship)
+    public function linkAction($primaryType, $id, $relationship, $ids = NULL)
     {
         try {
             $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
