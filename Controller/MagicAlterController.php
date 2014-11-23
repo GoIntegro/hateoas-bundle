@@ -83,7 +83,7 @@ class MagicAlterController extends SymfonyController
         $em->getConnection()->beginTransaction();
 
         try {
-            foreach ($params->entities as &$entity) {
+            foreach ($params->entities->primary as &$entity) {
                 $data = $params->resources[$entity->getId()];
                 $links = $this->extractLinks($data);
 
@@ -210,7 +210,7 @@ class MagicAlterController extends SymfonyController
         $em->getConnection()->beginTransaction();
 
         try {
-            foreach ($params->entities as &$entity) {
+            foreach ($params->entities->primary as &$entity) {
                 $data = $params->resources[$entity->getId()];
                 $links = $this->extractLinks($data);
 
@@ -230,15 +230,15 @@ class MagicAlterController extends SymfonyController
             throw $e;
         }
 
-        $resources = 1 < count($params->entities)
+        $resources = 1 < count($params->entities->primary)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)
-                ->addEntities($params->entities)
+                ->addEntities($params->entities->primary)
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($params->entities))
+                ->setEntity(reset($params->entities->primary))
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
@@ -282,7 +282,7 @@ class MagicAlterController extends SymfonyController
         $em->getConnection()->beginTransaction();
 
         try {
-            foreach ($params->entities as $entity) {
+            foreach ($params->entities->primary as $entity) {
                 $this->get('hateoas.entity.deleter')
                     ->delete($params->primaryType, $entity);
             }

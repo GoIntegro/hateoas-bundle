@@ -48,7 +48,7 @@ class RelateBodyParser
             throw new ParseException(self::ERROR_EMPTY_BODY);
         }
 
-        $entity = reset($params->entities);
+        $entity = reset($params->entities->primary);
         $entityData = [
             (string) $entity->getId() => [
                 self::LINKS => [

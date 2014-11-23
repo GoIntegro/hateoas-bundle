@@ -64,8 +64,6 @@ class ParamEntityFinder
      * @throws ParseException
      * @throws EntityNotFoundException
      * @throws EntityAccessDeniedException
-     * @todo Return an object with both the primary and related entities.
-     * @todo Check the accesses of the primary and related entities separately.
      */
     public function find(Params $params)
     {
@@ -73,7 +71,9 @@ class ParamEntityFinder
             throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
-        $entities = $this->findPrimaryEntities($params);
+        $entities = (object) [
+            'primary' => $this->findPrimaryEntities($params)
+        ];
 
         if (
             empty($entities)
@@ -83,8 +83,9 @@ class ParamEntityFinder
         }
 
         if (!empty($params->relationship)) {
-            $entity = reset($entities);
-            $entities = $this->findRelationshipEntities($params, $entity);
+            $entity = reset($entities->primary);
+            $entities->relationship
+                = $this->findRelationshipEntities($params, $entity);
         }
 
         return $entities;
@@ -113,6 +114,8 @@ class ParamEntityFinder
      * @param ResourceEntityInterface $entity
      * @return array
      * @throws EntityAccessDeniedException
+     * @todo Find by relationship Ids when deleting.
+     * @todo Refactor.
      */
     protected function findRelationshipEntities(
         Params $params,
@@ -128,8 +131,26 @@ class ParamEntityFinder
             $entities = [$entities];
         }
 
-        if (!$this->canAccessEntities($params, $entities)) {
-            throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
+        if (!empty($params->relationshipIds)) {
+            foreach ($entities as $entity) {
+                if (!$this->securityContext->isGranted(
+                    self::ACCESS_VIEW, $entity
+                )) {
+                    throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
+                }
+            }
+        } else {
+            $visible = [];
+
+            foreach ($entities as $entity) {
+                if ($this->securityContext->isGranted(
+                    self::ACCESS_VIEW, $entity
+                )) {
+                    $visible[] = $entity;
+                }
+            }
+
+            $entities = $visible;
         }
 
         return $entities;
