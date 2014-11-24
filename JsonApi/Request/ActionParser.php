@@ -67,12 +67,12 @@ class ActionParser
         $action = new RequestAction;
 
         $action->name = self::$methodToAction[$request->getMethod()];
-        $action->type = $this->isMultipleAction($request, $params, $action)
-            ? RequestAction::TYPE_MULTIPLE
-            : RequestAction::TYPE_SINGLE;
         $action->target = !empty($params->relationship)
             ? RequestAction::TARGET_RELATIONSHIP
             : RequestAction::TARGET_RESOURCE;
+        $action->type = $this->isMultipleAction($request, $params, $action)
+            ? RequestAction::TYPE_MULTIPLE
+            : RequestAction::TYPE_SINGLE;
 
         return $action;
     }
