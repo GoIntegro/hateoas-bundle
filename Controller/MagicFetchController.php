@@ -75,19 +75,20 @@ class MagicFetchController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         }
 
-        $relatedResource
-            = RequestAction::TYPE_MULTIPLE == $params->action->type
-                ? $this->get('hateoas.resource_manager')
-                    ->createCollectionFactory()
-                    ->setParams($params)
-                    ->addEntities($params->entities->relationship)
-                    ->create()
-                : empty($params->entities->relationship)
-                    ? NULL
-                    : $this->get('hateoas.resource_manager')
-                        ->createResourceFactory()
-                        ->setEntity(reset($params->entities->relationship))
-                        ->create();
+        $relatedResource = NULL;
+
+        if (RequestAction::TYPE_MULTIPLE == $params->action->type) {
+            $relatedResource = $this->get('hateoas.resource_manager')
+                ->createCollectionFactory()
+                ->setParams($params)
+                ->addEntities($params->entities->relationship)
+                ->create();
+        } elseif (!empty($params->entities->relationship)) {
+            $relatedResource = $this->get('hateoas.resource_manager')
+                ->createResourceFactory()
+                ->setEntity(reset($params->entities->relationship))
+                ->create();
+        }
 
         $json = empty($relatedResource)
             ? NULL
