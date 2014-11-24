@@ -53,7 +53,7 @@ JSON;
                 'primaryType' => 'users'
             ]
         );
-        $parser = new ActionParser($jsonCoder);
+        $parser = new ActionParser($jsonCoder, self::createMetadataMiner());
         // When...
         $action = $parser->parse($request, $params);
         // Then...
@@ -95,5 +95,21 @@ JSON;
         );
 
         return $request;
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface
+     */
+    private static function createMetadataMiner()
+    {
+        $metadata = Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Metadata\\Resource\\ResourceMetadata',
+            ['isRelationship' => TRUE, 'isLinkOnlyRelationship' => FALSE]
+        );
+
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\Metadata\\Resource\\MetadataMinerInterface',
+            ['mine' => $metadata]
+        );
     }
 }

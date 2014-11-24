@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Request,
 use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination;
 // JSON.
 use GoIntegro\Bundle\HateoasBundle\Util;
+// Metadata.
+use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
 
 /**
  * @see http://jsonapi.org/format/#introduction
@@ -37,13 +39,22 @@ class ActionParser
      * @var Util\JsonCoder
      */
     protected $jsonCoder;
+    /**
+     * @var MetadataMinerInterface
+     */
+    private $mm;
 
     /**
      * @param Util\JsonCoder $jsonCoder
+     * @param MetadataMinerInterface $mm
      */
-    public function __construct(Util\JsonCoder $jsonCoder)
+    public function __construct(
+        Util\JsonCoder $jsonCoder,
+        MetadataMinerInterface $mm
+    )
     {
         $this->jsonCoder = $jsonCoder;
+        $this->mm = $mm;
     }
 
     /**
@@ -78,7 +89,8 @@ class ActionParser
     {
         return $this->isFilteredFetch($params, $action)
             || $this->isIdParamAList($params, $action)
-            || $this->isPrimaryResourceAList($request, $params, $action);
+            || $this->isPrimaryResourceAList($request, $params, $action)
+            || $this->isRelationshipToMany($params, $action);
     }
 
     /**
@@ -140,6 +152,23 @@ class ActionParser
             );
         }
 
+        return FALSE;
+    }
+
+    /**
+     * @param Params $params
+     * @param RequestAction $action
+     * @return boolean
+     */
+    private function isRelationshipToMany(
+        Params $params, RequestAction $action
+    )
+    {
+        if (RequestAction::TARGET_RELATIONSHIP == $action->target) {
+            $metadata = $this->mm->mine($params->primaryClass);
+
+            return $metadata->isToManyRelationship($params->relationship);
+        }
 
         return FALSE;
     }
