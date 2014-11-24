@@ -46,7 +46,7 @@ class DocumentSerializer
             $this->document, $apiUrlPath
         );
         $this->linkedResourcesSerializer = new LinkedResourcesSerializer(
-            $this->document
+            $this->document, $securityContext
         );
         $this->metadataSerializer = new MetadataSerializer($this->document);
     }
