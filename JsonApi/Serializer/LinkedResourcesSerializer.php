@@ -16,8 +16,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
     GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource;
 // Metadata.
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceRelationship;
-// Excepciones.
-use Exception;
+// Security.
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class LinkedResourcesSerializer implements SerializerInterface
 {
@@ -28,10 +28,22 @@ class LinkedResourcesSerializer implements SerializerInterface
         ERROR_UNKOWN_RELATIONSHIP = "La relación \"%s\" no existe.";
 
     private $document;
+    /**
+     * @var SecurityContextInterface
+     */
+    private $securityContext;
 
-    public function __construct(Document $document)
+    /**
+     * @param Document $document
+     * @param SecurityContextInterface $securityContext
+     */
+    public function __construct(
+        Document $document,
+        SecurityContextInterface $securityContext
+    )
     {
         $this->document = $document;
+        $this->securityContext = $securityContext;
     }
 
     public function serialize()
@@ -62,7 +74,7 @@ class LinkedResourcesSerializer implements SerializerInterface
     )
     {
         if (self::RECURSION_DEPTH_LIMIT <= $depth) {
-            throw new Exception(self::ERROR_RECURSION_DEPTH);
+            throw new \Exception(self::ERROR_RECURSION_DEPTH);
         }
 
         foreach ($include as $relationships) {
@@ -94,12 +106,12 @@ class LinkedResourcesSerializer implements SerializerInterface
                     $relationshipName,
                     $urlTemplate
                 );
-                throw new Exception($message);
+                throw new \Exception($message);
             } else {
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new Exception($message);
+                throw new \Exception($message);
             }
 
             if (
@@ -135,7 +147,7 @@ class LinkedResourcesSerializer implements SerializerInterface
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new Exception($message);
+                throw new \Exception($message);
             }
 
             $relationship = $resource->getMetadata()
@@ -188,7 +200,7 @@ class LinkedResourcesSerializer implements SerializerInterface
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new Exception($message);
+                throw new \Exception($message);
             }
 
             $relationship = $resource->getMetadata()
@@ -218,7 +230,7 @@ class LinkedResourcesSerializer implements SerializerInterface
                     $linkedResources[] = $linkedResource;
                 } else {
                     // @todo Esto no debería pasar. Hay un error vinculado con el tipo de un recurso siendo averiguado erróneamente cuando se trata de un hijo en una herencia de Doctrine, e.g. tipo "applications" para una app ActivityStream.
-                    throw new Exception(sprintf(
+                    throw new \Exception(sprintf(
                         self::ERROR_INHERITANCE_MAPPING,
                         implode('.', $relationships)
                     ));
@@ -267,7 +279,9 @@ class LinkedResourcesSerializer implements SerializerInterface
             ? $this->document->sparseFields[$metadata->type]
             : [];
 
-        $serializer = new ResourceObjectSerializer($resource, $fields);
+        $serializer = new ResourceObjectSerializer(
+            $resource, $this->securityContext, $fields
+        );
 
         return $serializer->serialize();
     }

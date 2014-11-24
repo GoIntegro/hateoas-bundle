@@ -7,14 +7,14 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
-// Serialización.
+// Serializers.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelLinksSerializer,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\LinkedResourcesSerializer,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\ResourceObjectSerializer,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\LinkedResourcesSerialization,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\MetadataSerializer;
-// Excepciones.
-use Exception;
+// Security.
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class DocumentSerializer
 {
@@ -24,19 +24,29 @@ class DocumentSerializer
     private $linkedResourcesSerializer;
     private $metadataSerializer;
     private $document;
+    /**
+     * @var SecurityContextInterface
+     */
+    private $securityContext;
 
     /**
      * @param Document $document
+     * @param SecurityContextInterface $securityContext
      * @param string $apiUrlPath
      */
-    public function __construct(Document $document, $apiUrlPath = '')
+    public function __construct(
+        Document $document,
+        SecurityContextInterface $securityContext,
+        $apiUrlPath = ''
+    )
     {
         $this->document = $document;
+        $this->securityContext = $securityContext;
         $this->topLevelLinkSerializer = new TopLevelLinksSerializer(
             $this->document, $apiUrlPath
         );
         $this->linkedResourcesSerializer = new LinkedResourcesSerializer(
-            $this->document
+            $this->document, $securityContext
         );
         $this->metadataSerializer = new MetadataSerializer($this->document);
     }
@@ -131,7 +141,7 @@ class DocumentSerializer
     )
     {
         $serializer = new ResourceObjectSerializer(
-            $resource, $fields
+            $resource, $this->securityContext, $fields
         );
 
         return $serializer->serialize();

@@ -13,6 +13,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser as RequestParser;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+// Security.
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class SerializerFactory implements Factory
 {
@@ -20,6 +22,10 @@ class SerializerFactory implements Factory
      * @var ResourceCache
      */
     private $resourceCache;
+    /**
+     * @var SecurityContextInterface
+     */
+    private $securityContext;
     /**
      * @var DocumentResource
      */
@@ -50,14 +56,17 @@ class SerializerFactory implements Factory
 
     /**
      * @param ResourceCache $resourceCache
+     * @param SecurityContextInterface $securityContext
      * @param string $apiUrlPath
      */
     public function __construct(
         ResourceCache $resourceCache,
+        SecurityContextInterface $securityContext,
         $apiUrlPath = ''
     )
     {
         $this->resourceCache = $resourceCache;
+        $this->securityContext = $securityContext;
         $this->apiUrlPath = $apiUrlPath;
     }
 
@@ -146,6 +155,8 @@ class SerializerFactory implements Factory
             $document->addResourceMeta($this->documentResource, $meta);
         }
 
-        return new DocumentSerializer($document, $this->apiUrlPath);
+        return new DocumentSerializer(
+            $document, $this->securityContext, $this->apiUrlPath
+        );
     }
 }

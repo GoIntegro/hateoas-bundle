@@ -8,9 +8,12 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
 // Metadata.
-use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface as MetadataMiner;
-// Servicios.
+use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface
+    as MetadataMiner;
+// DI.
 use Symfony\Component\DependencyInjection\ContainerInterface;
+// Security.
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class ResourceManager
 {
@@ -27,6 +30,10 @@ class ResourceManager
      */
     private $serviceContainer;
     /**
+     * @var SecurityContextInterface
+     */
+    private $securityContext;
+    /**
      * @var array
      */
     private $apiUrlPath;
@@ -35,18 +42,21 @@ class ResourceManager
      * @param MetadataMiner $metadataMiner
      * @param ResourceCache $resourceCache
      * @param ContainerInterface $serviceContainer
+     * @param SecurityContextInterface $securityContext
      * @param string $apiUrlPath
      */
     public function __construct(
         MetadataMiner $metadataMiner,
         ResourceCache $resourceCache,
         ContainerInterface $serviceContainer,
+        SecurityContextInterface $securityContext,
         $apiUrlPath = ''
     )
     {
         $this->metadataMiner = $metadataMiner;
         $this->resourceCache = $resourceCache;
         $this->serviceContainer = $serviceContainer;
+        $this->securityContext = $securityContext;
         $this->apiUrlPath = $apiUrlPath;
     }
 
@@ -73,6 +83,8 @@ class ResourceManager
      */
     public function createSerializerFactory()
     {
-        return new SerializerFactory($this->resourceCache, $this->apiUrlPath);
+        return new SerializerFactory(
+            $this->resourceCache, $this->securityContext, $this->apiUrlPath
+        );
     }
 }

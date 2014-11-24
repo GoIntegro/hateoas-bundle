@@ -72,8 +72,8 @@ class ParamEntityFinder
         ];
 
         if (
-            empty($entities)
-            || count($entities) !== count($params->primaryIds)
+            empty($entities->primary)
+            || count($entities->primary) !== count($params->primaryIds)
         ) {
             throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }

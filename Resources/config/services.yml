@@ -97,6 +97,7 @@ services:
       - @hateoas.metadata_miner
       - @hateoas.resource_cache
       - @service_container
+      - @security.context
       - %api.url_path%
 
   hateoas.resource_cache:
