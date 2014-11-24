@@ -7,31 +7,43 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer;
 
-// Interfaces.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
-    Doctrine\Common\Collections\Collection as CollectionInterface;
-// Datos.
+// Collections.
+use Doctrine\Common\Collections\Collection as CollectionInterface;
+// Inflection.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
-// Recursos.
+// JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource,
     GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource;
-// Excepciones.
-use Exception;
+// Security.
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class ResourceObjectSerializer implements SerializerInterface
 {
+    const ACCESS_VIEW = 'view';
+
     const ERROR_FIELD_IS_RELATIONSHIP = "El campo \"%s\" es en sí un recurso vinculado.",
         ERROR_UNKOWN_FIELD = "El campo \"%s\" no existe.";
 
     public $resource;
     public $fields = [];
+    /**
+     * @var SecurityContextInterface
+     */
+    private $securityContext;
 
+    /**
+     * @param DocumentResource $resource
+     * @param SecurityContextInterface $securityContext
+     * @param array $sparseFields
+     */
     public function __construct(
         DocumentResource $resource,
+        SecurityContextInterface $securityContext,
         array $sparseFields = []
     )
     {
         $this->resource = $resource;
+        $this->securityContext = $securityContext;
         $this->fields = $sparseFields ?: $resource->getMetadata()->fields;
     }
 
@@ -50,19 +62,19 @@ class ResourceObjectSerializer implements SerializerInterface
         foreach ($this->fields as $field) {
             if ($metadata->isRelationship($field)) {
                 $message = sprintf(self::ERROR_FIELD_IS_RELATIONSHIP, $field);
-                throw new Exception($message);
+                throw new \Exception($message);
             }
 
             if ($this->resource->isFieldBlacklisted($field)) {
                 $message = sprintf(self::ERROR_UNKOWN_FIELD, $field);
-                throw new Exception($message);
+                throw new \Exception($message);
             }
 
             try {
                 $value = $this->resource->callGetter($field);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $message = sprintf(self::ERROR_UNKOWN_FIELD, $field);
-                throw new Exception($message);
+                throw new \Exception($message);
             }
 
             if ('object' == gettype($value)) {
@@ -95,25 +107,39 @@ class ResourceObjectSerializer implements SerializerInterface
         $links = [];
 
         foreach (
-            $this->resource->getMetadata()->relationships->toOne as $relationship => $relation
+            $this->resource->getMetadata()->relationships->toOne
+                as $relationship => $relation
         ) {
             $entity = $this->resource->callGetter($relationship);
+
+            if (!$this->securityContext->isGranted(
+                static::ACCESS_VIEW, $entity
+            )) {
+                continue;
+            }
+
             EntityResource::validateToOneRelation($entity, $relationship);
             $links[$relationship] = EntityResource::getStringId($entity);
         }
 
         foreach (
-            $this->resource->getMetadata()->relationships->toMany as $relationship => $relation
+            $this->resource->getMetadata()->relationships->toMany
+                as $relationship => $relation
         ) {
             $collection = $this->resource->callGetter($relationship);
             $collection = EntityResource::normalizeToManyRelation(
                 $collection, $relationship
             );
-            $callback = function(ResourceEntityInterface $entity) {
-                return EntityResource::getStringId($entity);
-            };
-            $links[$relationship] = $collection->map($callback)->toArray();
-            $links[$relationship] = array_values($links[$relationship]);
+
+            foreach ($collection as $entity) {
+                if (!$this->securityContext->isGranted(
+                    static::ACCESS_VIEW, $entity
+                )) {
+                    continue;
+                }
+
+                $links[$relationship][] = EntityResource::getStringId($entity);
+            }
         }
 
         return $links;

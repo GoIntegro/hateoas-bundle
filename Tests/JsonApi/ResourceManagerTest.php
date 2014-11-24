@@ -72,9 +72,21 @@ class ResourceManagerTest extends TestCase
         $resourceManager = new ResourceManager(
             $metadataMiner,
             $resourceCache,
-            $serviceContainer
+            $serviceContainer,
+            self::buildSecurityContext()
         );
 
         return $resourceManager;
+    }
+
+    /**
+     * @return \Symfony\Component\Security\Core\SecurityContextInterface
+     */
+    public static function buildSecurityContext()
+    {
+        return Stub::makeEmpty(
+            'Symfony\\Component\\Security\\Core\\SecurityContextInterface',
+            ['isGranted' => TRUE]
+        );
     }
 }

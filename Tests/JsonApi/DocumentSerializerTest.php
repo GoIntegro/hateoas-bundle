@@ -30,7 +30,9 @@ class DocumentSerializerTest extends TestCase
                 'getResourceMeta' => function() { return []; }
             ]
         );
-        $serializer = new DocumentSerializer($document);
+        $serializer = new DocumentSerializer(
+            $document, self::buildSecurityContext()
+        );
         /* When... (Action) */
         $json = $serializer->serialize();
         /* Then... (Assertions) */
@@ -49,7 +51,9 @@ class DocumentSerializerTest extends TestCase
                 'getResourceMeta' => function() { return []; }
             ]
         );
-        $serializer = new DocumentSerializer($document);
+        $serializer = new DocumentSerializer(
+            $document, self::buildSecurityContext()
+        );
         /* When... (Action) */
         $json = $serializer->serialize();
         /* Then... (Assertions) */
@@ -71,7 +75,9 @@ class DocumentSerializerTest extends TestCase
                 'getResourceMeta' => function() { return []; }
             ]
         );
-        $serializer = new DocumentSerializer($document);
+        $serializer = new DocumentSerializer(
+            $document, self::buildSecurityContext()
+        );
         /* When... (Action) */
         $json = $serializer->serialize();
         /* Then... (Assertions) */
@@ -115,7 +121,9 @@ class DocumentSerializerTest extends TestCase
                 'pagination' => $pagination
             ]
         );
-        $serializer = new DocumentSerializer($document);
+        $serializer = new DocumentSerializer(
+            $document, self::buildSecurityContext()
+        );
         /* When... (Action) */
         $json = $serializer->serialize();
         /* Then... (Assertions) */
@@ -162,7 +170,9 @@ class DocumentSerializerTest extends TestCase
                 'pagination' => $pagination
             ]
         );
-        $serializer = new DocumentSerializer($document);
+        $serializer = new DocumentSerializer(
+            $document, self::buildSecurityContext()
+        );
         /* When... (Action) */
         $json = $serializer->serialize();
         /* Then... (Assertions) */
@@ -222,5 +232,16 @@ class DocumentSerializerTest extends TestCase
         );
 
         return $collection;
+    }
+
+    /**
+     * @return \Symfony\Component\Security\Core\SecurityContextInterface
+     */
+    public static function buildSecurityContext()
+    {
+        return Stub::makeEmpty(
+            'Symfony\\Component\\Security\\Core\\SecurityContextInterface',
+            ['isGranted' => TRUE]
+        );
     }
 }
