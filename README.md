@@ -643,6 +643,10 @@ Feedback
 
 Feel free to **open an issue** if you have valuable (or otherwise) feedback. Hoping to hear from you (either way).
 
+If you're going to dare rocking so hard as to make a pull request, use the `master` branch for fixes, and the `develop` branch for proposed features.
+
+New code should not exceed the legendary eighty char boundary, and [be fully documented](http://www.phpdoc.org/docs/latest/index.html).
+
 Disclaimer
 ==========
 
