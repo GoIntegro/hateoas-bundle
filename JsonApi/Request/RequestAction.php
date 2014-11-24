@@ -21,15 +21,16 @@ class RequestAction
         TARGET_RELATIONSHIP = 'relationship';
 
     /**
-     * @var string
+     * @var string The kind of action; C-F-U-D.
      */
     public $name;
     /**
-     * @var string
+     * @var string Whether we want an individual or collection representation.
+     * @see http://jsonapi.org/format/#document-structure-resource-representations
      */
     public $type;
     /**
-     * @var string
+     * @var string Whether we're acting upon the resource or its relationships.
      */
     public $target;
 }
