@@ -24,7 +24,8 @@ class RelateBodyParser
     const ERROR_EMPTY_BODY = "The resource data was not found on the body.",
         ERROR_RELATIONSHIP_TYPE = "The type of the relationship Ids is unexpected",
         ERROR_RELATIONSHIP_EXISTS = "The relationships \"%s\" already exist.",
-        ERROR_RELATIONSHIP_NOT_FOUND = "The relationships \"%s\" were not found.";
+        ERROR_RELATIONSHIPS_NOT_FOUND = "The relationships \"%s\" were not found.",
+        ERROR_RELATIONSHIP_NOT_FOUND = "The relationship was not found.";
 
     /**
      * @var Util\JsonCoder
@@ -70,36 +71,76 @@ class RelateBodyParser
             $ids = $data[$params->relationship];
 
             if (RequestAction::ACTION_CREATE == $params->action->name) {
-                if (is_array($ids)) {
-                    if (!is_array($relation)) {
-                        throw new ParseException(
-                            self::ERROR_RELATIONSHIP_TYPE
-                        );
-                    }
-
-                    $callback = function($entity) {
-                        return (string) $entity->getId();
-                    };
-                    $current = array_map($callback, $relation);
-                    $intersection = array_intersect($ids, $current);
-
-                    if (!empty($intersection)) {
-                        $message = sprintf(
-                            self::ERROR_RELATIONSHIP_EXISTS,
-                            implode('", "', $intersection)
-                        );
-                        throw new ExistingRelationshipException($message);
-                    }
-
-                    $ids = array_merge($current, $ids);
-                } elseif (is_string($ids) && !empty($relation)) {
-                    $message = sprintf(self::ERROR_RELATIONSHIP_EXISTS, $ids);
-                    throw new ExistingRelationshipException($message);
-                } else {
-                    throw new ParseException(self::ERROR_RELATIONSHIP_TYPE);
-                }
+                $ids = $this->parseCreateAction($ids, $relation);
             }
         } elseif (RequestAction::ACTION_DELETE == $params->action->name) {
+            $ids = $this->parseDeleteAction($params, $relation);
+        }
+
+        $entityData = [
+            (string) $entity->getId() => [
+                self::LINKS => [
+                    $params->relationship => $ids
+                ]
+            ]
+        ];
+
+        return $entityData;
+    }
+
+    /**
+     * @param mixed $ids
+     * @param array $relation
+     * @return mixed
+     * @throws ParseException
+     * @throws ExistingRelationshipException
+     */
+    protected function parseCreateAction($ids, array $relation)
+    {
+        if (is_array($ids)) {
+            if (!is_array($relation)) {
+                throw new ParseException(
+                    self::ERROR_RELATIONSHIP_TYPE
+                );
+            }
+
+            $callback = function($entity) {
+                return (string) $entity->getId();
+            };
+            $current = array_map($callback, $relation);
+            $intersection = array_intersect($ids, $current);
+
+            if (!empty($intersection)) {
+                $message = sprintf(
+                    self::ERROR_RELATIONSHIP_EXISTS,
+                    implode('", "', $intersection)
+                );
+                throw new ExistingRelationshipException($message);
+            }
+
+            $ids = array_merge($current, $ids);
+        } elseif (is_string($ids) && !empty($relation)) {
+            $message = sprintf(self::ERROR_RELATIONSHIP_EXISTS, $ids);
+            throw new ExistingRelationshipException($message);
+        } elseif (!is_string($ids)) {
+            throw new ParseException(self::ERROR_RELATIONSHIP_TYPE);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param Params $params
+     * @param mixed $relation
+     * @return mixed
+     * @throws ParseException
+     * @throws RelationshipNotFoundException
+     */
+    protected function parseDeleteAction(Params $params, $relation)
+    {
+        $ids = NULL;
+
+        if (!empty($params->relationshipIds)) {
             if (!is_array($relation)) {
                 throw new ParseException(
                     self::ERROR_RELATIONSHIP_TYPE
@@ -115,23 +156,21 @@ class RelateBodyParser
 
             if (!empty($diff)) {
                 $message = sprintf(
-                    self::ERROR_RELATIONSHIP_NOT_FOUND,
+                    self::ERROR_RELATIONSHIPS_NOT_FOUND,
                     implode('", "', $diff)
                 );
                 throw new RelationshipNotFoundException($message);
             }
 
             $ids = array_diff($ids, $targets);
+        } elseif (is_array($relation)) {
+            $ids = [];
+        } elseif (empty($relation)) {
+            throw new RelationshipNotFoundException(
+                self::ERROR_RELATIONSHIP_NOT_FOUND
+            );
         }
 
-        $entityData = [
-            (string) $entity->getId() => [
-                self::LINKS => [
-                    $params->relationship => $ids
-                ]
-            ]
-        ];
-
-        return $entityData;
+        return $ids;
     }
 }
