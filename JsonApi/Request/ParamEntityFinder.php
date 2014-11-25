@@ -26,6 +26,7 @@ class ParamEntityFinder
 
     const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
+        ERROR_RELATIONSHIP_NOT_FOUND = "The relationship was not found.",
         ERROR_CANNOT_CHOOSE_ACCESS = "Cannot choose right access to check";
 
     /**
@@ -71,13 +72,6 @@ class ParamEntityFinder
             'primary' => $this->findPrimaryEntities($params)
         ];
 
-        if (
-            empty($entities->primary)
-            || count($entities->primary) !== count($params->primaryIds)
-        ) {
-            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
         if (!empty($params->relationship)) {
             $entity = reset($entities->primary);
             $entities->relationship
@@ -106,6 +100,13 @@ class ParamEntityFinder
             throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
         }
 
+        if (
+            empty($entities)
+            || count($entities) !== count($params->primaryIds)
+        ) {
+            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
+        }
+
         return $entities;
     }
 
@@ -131,29 +132,69 @@ class ParamEntityFinder
             $entities = [$entities];
         }
 
-        if (!empty($params->relationshipIds)) {
-            foreach ($entities as $entity) {
+        return empty($params->relationshipIds)
+            ? $this->filterRelationshipEntities($params, $entities)
+            : $this->selectRelationshipEntities($params, $entities);
+    }
+
+    /**
+     * @param Params $params
+     * @param array $entities
+     * @return array
+     */
+    private function filterRelationshipEntities(
+        Params $params, array $entities
+    )
+    {
+        $visible = [];
+
+        foreach ($entities as $entity) {
+            if ($this->securityContext->isGranted(
+                self::ACCESS_VIEW, $entity
+            )) {
+                $visible[] = $entity;
+            }
+        }
+
+        return $visible;
+    }
+
+    /**
+     * @param Params $params
+     * @param array $entities
+     * @return array
+     * @throws EntityAccessDeniedException
+     */
+    private function selectRelationshipEntities(
+        Params $params, array $entities
+    )
+    {
+        $selected = [];
+
+        foreach ($entities as $entity) {
+            if (in_array(
+                (string) $entity->getId(), $params->relationshipIds
+            )) {
                 if (!$this->securityContext->isGranted(
                     self::ACCESS_VIEW, $entity
                 )) {
                     throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
                 }
-            }
-        } else {
-            $visible = [];
 
-            foreach ($entities as $entity) {
-                if ($this->securityContext->isGranted(
-                    self::ACCESS_VIEW, $entity
-                )) {
-                    $visible[] = $entity;
-                }
+                $selected[] = $entity;
             }
-
-            $entities = $visible;
         }
 
-        return $entities;
+        if (
+            empty($selected)
+            || count($selected) !== count($params->primaryIds)
+        ) {
+            throw new EntityNotFoundException(
+                self::ERROR_RELATIONSHIP_NOT_FOUND
+            );
+        }
+
+        return $selected;
     }
 
     /**

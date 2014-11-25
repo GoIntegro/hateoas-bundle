@@ -26,6 +26,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpExcepti
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Document,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\ConflictException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\NotFoundException;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
@@ -77,6 +78,8 @@ class MagicAlterController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (ConflictException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -132,6 +135,8 @@ class MagicAlterController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        } catch (ConflictException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -204,6 +209,8 @@ class MagicAlterController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        } catch (ConflictException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -276,6 +283,8 @@ class MagicAlterController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        } catch (ConflictException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();

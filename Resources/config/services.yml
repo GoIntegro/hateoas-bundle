@@ -122,7 +122,6 @@ services:
     public: false
     tags:
       - name: hateoas.repo_helper.filter
-        entity_class: GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
 
   hateoas.document_blender:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Merge\Blender

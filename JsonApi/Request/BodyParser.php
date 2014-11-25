@@ -108,12 +108,14 @@ JSON;
                     );
                     break;
             }
-        } else {
+        } elseif (!RequestAction::ACTION_FETCH != $params->action->name) {
             $data = $this->relationBodyParser->parse($request, $params);
             $schema = static::LINK_SCHEMA;
         }
 
-        return $this->prepareData($params, $schema, $data);
+        return !empty($data) && !empty($schema)
+            ? $this->prepareData($params, $schema, $data)
+            : [];
     }
 
     /**
