@@ -131,29 +131,60 @@ class ParamEntityFinder
             $entities = [$entities];
         }
 
-        if (!empty($params->relationshipIds)) {
-            foreach ($entities as $entity) {
+        return empty($params->relationshipIds)
+            ? $this->selectRelationshipEntities($params, $entities)
+            : $this->filterRelationshipEntities($params, $entities);
+    }
+
+    /**
+     * @param Params $params
+     * @param array $entities
+     * @return array
+     */
+    private function filterRelationshipEntities(
+        Params $params, array $entities
+    )
+    {
+        $visible = [];
+
+        foreach ($entities as $entity) {
+            if ($this->securityContext->isGranted(
+                self::ACCESS_VIEW, $entity
+            )) {
+                $visible[] = $entity;
+            }
+        }
+
+        return $visible;
+    }
+
+    /**
+     * @param Params $params
+     * @param array $entities
+     * @return array
+     * @throws EntityAccessDeniedException
+     */
+    private function selectRelationshipEntities(
+        Params $params, array $entities
+    )
+    {
+        $selected = [];
+
+        foreach ($entities as $entity) {
+            if (in_array(
+                (string) $entity->getId(), $params->relationshipIds
+            )) {
                 if (!$this->securityContext->isGranted(
                     self::ACCESS_VIEW, $entity
                 )) {
                     throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
                 }
-            }
-        } else {
-            $visible = [];
 
-            foreach ($entities as $entity) {
-                if ($this->securityContext->isGranted(
-                    self::ACCESS_VIEW, $entity
-                )) {
-                    $visible[] = $entity;
-                }
+                $selected[] = $entity;
             }
-
-            $entities = $visible;
         }
 
-        return $entities;
+        return $selected;
     }
 
     /**

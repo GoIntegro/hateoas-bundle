@@ -12,4 +12,8 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
  */
 class JsonApiSpec
 {
+    /**
+     * @var array
+     */
+    private static $reserved = ['include', 'fields', 'sort', 'page', 'size'];
 }
