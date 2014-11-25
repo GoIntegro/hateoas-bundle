@@ -130,7 +130,7 @@ JSON;
         $ramlDoc = $this->docFinder->find($params->primaryType);
         $jsonSchema = $this->docFinder
             ->createNavigator($ramlDoc)
-            ->findRequestSchema($method, $params->primaryType);
+            ->findRequestSchema($method, '/' . $params->primaryType);
 
         if (empty($jsonSchema)) {
             $message = sprintf(
