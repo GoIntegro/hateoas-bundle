@@ -77,7 +77,11 @@ class Params
     /**
      * @var array
      */
-    public $resources;
+    public $resources = [];
+    /**
+     * @var array
+     */
+    public $entities = [];
     /**
      * @var RequestAction
      */

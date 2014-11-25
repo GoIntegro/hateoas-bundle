@@ -40,7 +40,8 @@ class Parser
         ERROR_MULTIPLE_IDS_WITH_RELATIONSHIP = "Multiple Ids are not supported when requesting a resource field or link.",
         ERROR_RESOURCE_NOT_FOUND = "The requested resource was not found.",
         ERROR_ACTION_NOT_ALLOWED = "The attempted action is not allowed on the requested resource. Supported HTTP methods are [%s].",
-        ERROR_RELATIONSHIP_UNDEFINED = "The requested relationship is undefined or can only be accessed through its own URL, filtering by its relationship with the current resource.";
+        ERROR_RELATIONSHIP_UNDEFINED = "The requested relationship is undefined or can only be accessed through its own URL, filtering by its relationship with the current resource.",
+        ERROR_CONTENT_ON_DELETE = "JSON-API expects DELETE requests not to have a body.";
 
     /**
      * @var DocFinder
@@ -127,6 +128,12 @@ class Parser
      */
     public function parse(Request $request)
     {
+        $content = $request->getContent();
+
+        if (!empty($content) && self::HTTP_DELETE == $request->getMethod()) {
+            throw new ParseException(self::ERROR_CONTENT_ON_DELETE);
+        }
+
         $params = new Params;
         $params->path = $this->parsePath($request);
         $params->primaryType = $this->parsePrimaryType($request);
@@ -156,7 +163,6 @@ class Parser
 
         $params->filters = $this->filterParser->parse($request, $params);
         $params->action = $this->actionParser->parse($request, $params);
-        $content = $request->getContent();
 
         if (!empty($params->primaryIds)) {
             // Needs the params from the ActionParser.
