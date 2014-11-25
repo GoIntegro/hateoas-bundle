@@ -200,29 +200,7 @@ class ResourceCollectionFactory implements Factory
             }
 
             if (!empty($this->params->relationship)) {
-                $relation = NULL;
-                $metadata
-                    = $this->metadataMiner->mine($this->params->primaryType);
-
-                if ($metadata->relationships->isToOneRelationship(
-                    $this->params->relationship
-                )) {
-                    $relation = $metadata
-                        ->relationships
-                        ->toOne[$this->params->relationship];
-                } elseif ($metadata->relationships->isToManyRelationship(
-                    $this->params->relationship
-                )) {
-                    $relation = $metadata
-                        ->relationships
-                        ->toMany[$this->params->relationship];
-                } else {
-                    throw new FactoryErrorException(
-                        self::ERROR_PARAMS_INCOHERENT
-                    );
-                }
-
-                $type = $relation->type;
+                $type = $this->getRelationType($this->params);
             } else {
                 $type = $this->params->primaryType;
             }
@@ -231,6 +209,37 @@ class ResourceCollectionFactory implements Factory
         }
 
         return $metadata;
+    }
+
+    /**
+     * @param Params $params
+     * @return string
+     */
+    private function getRelationType(Params $params)
+    {
+        $relation = NULL;
+        $metadata
+            = $this->metadataMiner->mine($this->params->primaryClass);
+
+        if ($metadata->isToOneRelationship(
+            $this->params->relationship
+        )) {
+            $relation = $metadata
+                ->relationships
+                ->toOne[$this->params->relationship];
+        } elseif ($metadata->isToManyRelationship(
+            $this->params->relationship
+        )) {
+            $relation = $metadata
+                ->relationships
+                ->toMany[$this->params->relationship];
+        } else {
+            throw new FactoryErrorException(
+                self::ERROR_PARAMS_INCOHERENT
+            );
+        }
+
+        return $relation->type;
     }
 
     /**
