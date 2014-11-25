@@ -40,6 +40,7 @@ abstract class ApiTestCase extends WebTestCase
         'Forbidden' => 403,
         'NotFound' => 404,
         'MethodNotAllowed' => 405,
+        'Conflict' => 409,
         // Server error.
         'InternalServerError' => 500,
         'NotImplemented' => 501
