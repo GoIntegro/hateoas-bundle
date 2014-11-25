@@ -82,7 +82,7 @@ class ResourceLinksHydrant
                 $class
                     = $metadata->relationships->toOne[$relationship]->class;
                 $ids = $this->em->getRepository($class)->findOneById($ids);
-            } else {
+            } elseif (!is_null($ids)) {
                 $message = sprintf(
                     self::ERROR_LINKS_CONTENT_TYPE, $relationship
                 );
