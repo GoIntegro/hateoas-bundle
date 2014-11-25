@@ -13,7 +13,48 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 class JsonApiSpec
 {
     /**
-     * @var array
+     * For the time being, it's the only supported type.
      */
-    private static $reserved = ['include', 'fields', 'sort', 'page', 'size'];
+    const HATEOAS_CONTENT_TYPE = 'application/vnd.api+json';
+
+    const JSON_API_SCHEMA_PATH = '@GoIntegroHateoasBundle/Resources/json-schemas/json-api.schema.json';
+
+    /**
+     * @var array This mapping is defined by JSON-API, not HTTP nor REST.
+     */
+    public static $methodToAction = [
+        Request\Parser::HTTP_GET => Request\RequestAction::ACTION_FETCH,
+        Request\Parser::HTTP_POST => Request\RequestAction::ACTION_CREATE,
+        Request\Parser::HTTP_PUT => Request\RequestAction::ACTION_UPDATE,
+        Request\Parser::HTTP_DELETE => Request\RequestAction::ACTION_DELETE
+    ];
+
+    /**
+     * @var array
+     * @see http://jsonapi.org/format/#document-structure-resource-object-attributes
+     */
+    public static $resourceObjectKeys = ['id', 'type', 'href', 'links'];
+
+    /**
+     * @var array
+     * @todo Actually some are from the extended pagination.
+     */
+    public static $reservedRequestParams = [
+        'include', 'fields', 'sort', 'page', 'size'
+    ];
+
+    /**
+     * @var array
+     * @see http://jsonapi.org/format/#errors
+     */
+    public static $errorObjectKeys = [
+        "id",
+        "href",
+        "status",
+        "code",
+        "title",
+        "detail",
+        "links",
+        "path"
+    ];
 }

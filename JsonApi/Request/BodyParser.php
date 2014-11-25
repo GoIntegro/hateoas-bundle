@@ -97,14 +97,14 @@ JSON;
                 case RequestAction::ACTION_CREATE:
                     $data = $this->creationBodyParser->parse($request, $params);
                     $schema = $this->findResourceObjectSchema(
-                        $params, Raml\RamlDoc::HTTP_POST
+                        $params, Raml\RamlSpec::HTTP_POST
                     );
                     break;
 
                 case RequestAction::ACTION_UPDATE:
                     $data = $this->mutationBodyParser->parse($request, $params);
                     $schema = $this->findResourceObjectSchema(
-                        $params, Raml\RamlDoc::HTTP_PUT
+                        $params, Raml\RamlSpec::HTTP_PUT
                     );
                     break;
             }
