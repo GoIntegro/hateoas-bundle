@@ -26,6 +26,7 @@ class ParamEntityFinder
 
     const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
+        ERROR_RELATIONSHIP_NOT_FOUND = "The relationship was not found.",
         ERROR_CANNOT_CHOOSE_ACCESS = "Cannot choose right access to check";
 
     /**
@@ -188,7 +189,9 @@ class ParamEntityFinder
             empty($selected)
             || count($selected) !== count($params->primaryIds)
         ) {
-            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
+            throw new EntityNotFoundException(
+                self::ERROR_RELATIONSHIP_NOT_FOUND
+            );
         }
 
         return $selected;
