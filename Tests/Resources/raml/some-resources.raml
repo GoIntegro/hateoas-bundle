@@ -4,7 +4,7 @@ version: v1
 baseUri: http://hateoas-example.skqr.net/app_dev.php/api/{version}
 mediaType: application/vnd.api+json
 schemas:
-  - default: !include some-resources.schema.json
+  - some-resources: !include some-resources.schema.json
 /some-resources:
   displayName: Random resources
   get:

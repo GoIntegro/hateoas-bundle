@@ -90,7 +90,9 @@ class DocNavigator
 
             return $schema;
         } else {
-            return $this->ramlDoc->getNamedSchema('default');
+            list($resourceType) = explode('/', substr($resourceUri, 1));
+
+            return $this->ramlDoc->getNamedSchema($resourceType);
         }
     }
 

@@ -121,7 +121,7 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DefaultFilter
     public: false
     tags:
-      - name: hateoas.repo_helper.filter
+      - { name: hateoas.repo_helper.filter }
 
   hateoas.document_blender:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Merge\Blender

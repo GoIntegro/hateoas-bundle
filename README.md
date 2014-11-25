@@ -6,27 +6,26 @@ You don't get scaffolds. You get a working API.
 
 You get a working API with features sweeter than [a Bobcat's self-esteem](http://s3.amazonaws.com/theoatmeal-img/comics/bobcats_thursday/mirror.png).
 
-Features
---------
+## Features
 
 Here's what I mean.
 
-* Modeling, documenting, and creating your API are one step.
+* Modeling, documenting, and creating your API are [one step](#api-definition).
 * Flat, referenced JSON serialization.
   * Clear distinction between scalar fields and linked resources.
 * Magic controllers.
   * Fetching resources, with support for:
     * Sparse fields;
     * Linked resources expansion;
-    * Standarized filtering and sorting;
+    * [Standarized filtering](#query-filters) and sorting;
     * Pagination;
     * Resource metadata, such as facets in a search.
   * Altering resources, with support for:
     * Processing multiple actions in one request;
     * Request validation using JSON schema;
-    * Create, update, and delete out of the box;
-    * Assing services to handle any of the above for specific resources.
-* Metadata caching, similar to that of Doctrine 2;
+    * [Create, update, and delete](#creating-updating-and-deleting) out of the box;
+    * Assign services to handle any of the above for specific resources.
+* [Metadata caching](#caching), similar to that of Doctrine 2;
   * Redis,
   * Or Memcached.
 
@@ -36,18 +35,15 @@ Here's what you'll need.
 * A RAML API definition;
 * At least one Symfony 2 security voter.
 
-Try it out
-==========
+# Try it out
 
 Check out [the example app project](https://github.com/skqr/hateoas-bundle-example), so you can feel the magic in your finger tips without much ado.
 
 ___
 
-Installation
-============
+# Installation
 
-Step 1: Download the Bundle
----------------------------
+## Step 1: Download the Bundle
 
 Open a command console, enter your project directory and execute the
 following command to download the latest stable version of this bundle:
@@ -60,8 +56,7 @@ This command requires you to have Composer installed globally, as explained
 in the [installation chapter](https://getcomposer.org/doc/00-intro.md)
 of the Composer documentation.
 
-Step 2: Enable the Bundle
--------------------------
+## Step 2: Enable the Bundle
 
 Then, enable the bundle by adding the following line in the `app/AppKernel.php`
 file of your project:
@@ -89,8 +84,7 @@ class AppKernel extends Kernel
 ?>
 ```
 
-Step 3: Add these parameters
-----------------------------
+## Step 3: Add these parameters
 
 ```yaml
 # app/config/parameters.yml
@@ -101,8 +95,7 @@ api.url_path: "/api/v2"
 api.resource_class_path: "Rest2/Resource"
 ```
 
-Step 4: Add these routes
-------------------------
+## Step 4: Add these routes
 
 ```yaml
 # app/config/routing.yml
@@ -115,8 +108,7 @@ go_integro_hateoas:
 
 ___
 
-Usage
-=====
+# Usage
 
 Have your entity implement the resource interface.
 
@@ -128,56 +120,17 @@ class User implements ResourceEntityInterface {}
 ?>
 ```
 
-You can now create a HATEOAS resource for it and serialize it as JSON-API. And, if your controller extends the HATEOAS controller, you can even return a neat HTTP response with the JSON-API Content-Type.
-
-```php
-<?php
-use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
-    Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
-class UsersController extends Controller {
-    /**
-     * @Route("/users/{user}", name="api_get_user", methods="GET")
-     * @return \GoIntegro\Bundle\HateoasBundle\Http\JsonResponse
-     */
-    public function getUserAction(User $user) {
-      $resourceManager = $serviceContainer->get('hateoas.resource_manager');
-      $resource = $resourceManager->createResourceFactory()
-        ->setEntity($user)
-        ->create();
-
-      $json = $resourceManager->createSerializerFactory()
-        ->setDocumentResources($resource)
-        ->create()
-        ->serialize();
-
-      return $this->createETagResponse($json);
-    }
-?>
-```
-
-Seems like it could get awfully repetitive, doesn't it?
-
-That's why you don't have to.
-
 Just register your entity as a *magic service*.
 
 ```yaml
 # app/config/config.yml
 
-# The resource_type *must* match the calculated type - for now.
 go_integro_hateoas:
   json_api:
     magic_services:
       - resource_type: users
         entity_class: GoIntegro\Bundle\ExampleBundle\Entity\User
         raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/users.raml
-      - resource_type: posts
-        entity_class: GoIntegro\Bundle\ExampleBundle\Entity\Post
-        raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/posts.raml
-      - resource_type: comments
-        entity_class: GoIntegro\Bundle\ExampleBundle\Entity\Comment
-        raml_doc: %kernel.root_dir%/../src/HateoasInc/Bundle/ExampleBundle/Resources/raml/comments.raml
   cache: ~
 ```
 
@@ -189,9 +142,9 @@ GET /users/1
 GET /users/1,2,3
 GET /users/1/name
 GET /users/1/linked/posts
-GET /posts/1/linked/author
-GET /posts?author=1
-GET /posts?author=1,2,3
+GET /posts/1/linked/owner
+GET /posts?owner=1
+GET /posts?owner=1,2,3
 GET /users?sort=name,-birth-date
 GET /users?include=posts,posts.comments
 GET /users?fields=name,email
@@ -214,10 +167,23 @@ DELETE /users/1
 DELETE /users/1,2,3
 ```
 
+And you get to link or unlink resources thus.
+
+```
+POST /users/1/links/user-groups
+
+PUT /users/1/links/user-groups
+
+DELETE /users/1/links/user-groups
+DELETE /users/1/links/user-groups/1
+DELETE /users/1/links/user-groups/1,2,3
+```
+
 Sweet, right?
 
-API Definition
-==============
+> The `resource_type` **must** match the calculated type - for now. E.g. `UserGroup`, `user-groups`.
+
+# API Definition
 
 But first - you need to define your API.
 
@@ -235,12 +201,26 @@ go_integro_hateoas:
 
 Check out the [RAML docs](http://raml.org/docs.html) in order to learn more about what your API could look like. Nevertheless, the bundle will only pay attention to the [JSON-API URLs](http://jsonapi.org/format/#document-structure-resource-urls).
 
-JSON-SCHEMA
------------
-Support for creating, updating, and deleting resources according to JSON-API is in progress. Currently, creating, updating, and deleting one or many resources magically is supported, and the services that handle these operations can be overridden - but resources can't be related when creating or updating. Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
+## JSON Schema
 
-Resources
-=========
+Requests that create or update resources have the content of their bodies validated against the schema defined in the RAML for that resource and method.
+
+Since bodies in JSON-API [look pretty similar](http://jsonapi.org/format/#document-structure-resource-representations) whether you are fetching, creating, or updating, you can use a *default* schema, defined in the root of the RAML document with the resource type as key.
+
+For example, this could be the RAML definition for the `/users` resource.
+
+```yaml
+#%RAML 0.8
+title: HATEOAS Inc. Example API
+version: v1
+baseUri: http://api.hateoas-example.net/{version}
+mediaType: application/vnd.api+json
+schemas:
+  - users: !include users.schema.json
+/users:
+```
+
+# Resources
 
 But you need to have some control over what you expose, right? Got you covered.
 
@@ -303,34 +283,50 @@ class UserResource extends EntityResource implements ContainerAwareInterface
 
 Check out the unit tests for more details.
 
-Entities
-========
+# Entities
 
 This bundle is pretty entity-centric. The way your entities look and the relationships between them, as mapped in Doctrine 2, are essential to the intelligence this bundle employs in determining what your API should look like.
 
-Security
---------
+## Security
 
 Access control is handled by [Symfony's Security Component](http://symfony.com/doc/current/components/security/introduction.html), so either [security voters](http://symfony.com/doc/current/cookbook/security/voters_data_permission.html) or [ACL](http://symfony.com/doc/current/cookbook/security/acl.html) must be configured.
 
 If you don't want security at all, just configure a single voter accepting anything that implements `GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface`. Not the best advice ever, though.
 
-There is an unresolved [issue related to access control and pagination](https://github.com/GoIntegro/hateoas-bundle/issues/10).
+What about pagination? I'm pretty sure `isGranted` will not be called against every single entity in the collection - right?
 
-Validation
-----------
+Absolutely.
+
+In order to address this, we came up with a really simple solution. We mixed the security voter and custom filter interfaces.
+
+Have your voter/filter implement `GoIntegro\Bundle\HateoasBundle\Security\VoterFilterInterface` and tag it with both the `security.voter` and `hateoas.repo_helper.filter` tags.
+
+```yaml
+# src/Example/Bundle/AppBundle/Resources/config/services.yml
+
+  security.access.user_voter:
+    class: HateoasInc\Bundle\ExampleBundle\Security\Authorization\Voter\UserVoter
+    public: false
+    tags:
+      - { name: security.voter }
+      - { name: hateoas.repo_helper.filter }
+```
+
+Your access control logic for viewing the entity should be expressed in the shape of a security voter within the method `vote`, and the shape of a fetch request filter within the method `filter`.
+
+Voilà.
+
+## Validation
 
 Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
 
-Transactions
-------------
+## Transactions
 
 Creating, updating, or deleting multiple resources on a single request is supported by JSON-API - [but no partial updates are allowed](http://jsonapi.org/format/#crud).
 
 We use [explicit transaction demarcation](http://doctrine-orm.readthedocs.org/en/latest/reference/transactions-and-concurrency.html#approach-2-explicitly) on the controller that handles creating, updating, and deleting resources *magically* so that this rule is enforced.
 
-Creating, updating, and deleting
---------------------------------
+## Creating, updating, and deleting
 
 As mentioned, services for creating, updating, and deleting resources are provided by default.
 
@@ -360,8 +356,45 @@ hateoas.entity.builder | `GoIntegro\Bundle\HateoasBundle\Entity\BuilderInterface
 hateoas.entity.mutator | `GoIntegro\Bundle\HateoasBundle\Entity\MutatorInterface`
 hateoas.entity.deleter | `GoIntegro\Bundle\HateoasBundle\Entity\DeleterInterface`
 
-Ghosts
-======
+# Extending
+
+## [Muggle](https://en.wikipedia.org/wiki/Muggle) Controllers
+
+If you want to override the magic controllers for whatever reason, just create a good old Symfony 2 controller.
+
+You can use entities implementing the `ResourceEntityInterface` with the services provided by the HATEOAS bundle quite independently.
+
+Here's a pretty basic example.
+
+```php
+<?php
+use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
+    Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+
+class UsersController extends Controller {
+    /**
+     * @Route("/users/{user}", name="api_get_user", methods="GET")
+     * @return \GoIntegro\Bundle\HateoasBundle\Http\JsonResponse
+     */
+    public function getUserAction(User $user) {
+      $resourceManager = $serviceContainer->get('hateoas.resource_manager');
+      $resource = $resourceManager->createResourceFactory()
+        ->setEntity($user)
+        ->create();
+
+      $json = $resourceManager->createSerializerFactory()
+        ->setDocumentResources($resource)
+        ->create()
+        ->serialize();
+
+      return $this->createETagResponse($json);
+    }
+?>
+```
+
+Check out the bundle's `services.yml` for a glimpse at the HATEOAS arsenal we keep there.
+
+## Ghosts
 
 I know what you're thinking - what if my resource does not have an entity? Am I left to fend for myself in the cold dark night?
 
@@ -484,8 +517,29 @@ class StarCluster implements GhostResourceEntity
 ?>
 ```
 
-Testing
-=======
+## Query filters
+
+The [standard fetch request filters](http://jsonapi.org/format/#fetching-filtering) are bundled along with the bundle.
+
+This is the service providing them.
+
+```yaml
+# GoIntegro/HateoasBundle/Resources/config/services.yml
+
+  hateoas.repo_helper.default_filter:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DefaultFilter
+    public: false
+    tags:
+      - name: hateoas.repo_helper.filter
+```
+
+If you're somewhat familiar with [tagged services](http://symfony.com/doc/current/components/dependency_injection/tags.html), you probably guessed that you can add your own.
+
+Just have your filter class implement `GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterInterface`, and add the `hateoas.repo_helper.filter` tag when you declare it as a service.
+
+> Your filter should use the entity and filter parameters it gets in order to decide whether or not to act. Make sure a single class doesn't get [too much filtering responsibility](https://en.wikipedia.org/wiki/Single_responsibility_principle).
+
+# Testing
 
 The bundle comes with a comfy PHPUnit test case designed to make HATEOAS API functional tests.
 
@@ -544,8 +598,7 @@ class SomeResourceTest extends ApiTestCase
 ?>
 ```
 
-Error handling
-==============
+# Error handling
 
 JSON-API covers [how to inform about errors](http://jsonapi.org/format/#errors) as well.
 
@@ -558,8 +611,7 @@ twig:
   exception_controller: 'GoIntegro\Bundle\HateoasBundle\Controller\ExceptionController::showAction'
 ```
 
-Fetching multiple URLs
-======================
+# Fetching multiple URLs
 
 Here's something useful but not RESTful.
 
@@ -573,15 +625,13 @@ The URLs just need to be encoded, but you can use the full set of JSON-API funct
 
 A *blender* service wil make sure to notify you if, by chance, the URLs provided are not mergeable.
 
-Caching
-=======
+# Caching
 
 Yeah. These processes are not cheap.
 
 You might want to hold on to that metadata you've mined or that resource you've serialized for a while.
 
-Resource Metadata
------------------
+## Resource Metadata
 
 The resource metadata describes a resource type. It describes its name, fields, its relationships to other resources, and other such things.
 
@@ -627,8 +677,7 @@ go_integro_hateoas:
     #         port: 11211
 ```
 
-HTTP Response
--------------
+## HTTP Response
 
 Fetch responses are all delivered with an [Etag](https://en.wikipedia.org/wiki/HTTP_ETag).
 
@@ -638,8 +687,7 @@ Etags on requests are checked [using Symfony](http://symfony.com/doc/current/boo
 
 ___
 
-Feedback
-========
+# Feedback
 
 Feel free to **open an issue** if you have valuable (or otherwise) feedback. Hoping to hear from you (either way).
 
@@ -647,8 +695,7 @@ If you're going to dare rocking so hard as to make a pull request, use the `mast
 
 New code should not exceed the legendary eighty char boundary, and [be fully documented](http://www.phpdoc.org/docs/latest/index.html).
 
-Disclaimer
-==========
+# Disclaimer
 
 You might have [noticed something fishy](http://cdn.duitang.com/uploads/item/201203/12/20120312155233_AaA8J.jpeg) in the PHP snippets above.
 
