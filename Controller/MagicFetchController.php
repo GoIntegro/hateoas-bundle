@@ -16,7 +16,6 @@ use Doctrine\Common\Collections\Collection;
 // HTTP.
 use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
-    Symfony\Component\HttpKernel\Exception\ConflictHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
     Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException,
@@ -31,9 +30,6 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpExcepti
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Security.
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-// Validator.
-use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface,
-    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface;
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionNotAllowedException,
