@@ -13,6 +13,13 @@ use Doctrine\ORM\QueryBuilder;
 interface FilterInterface
 {
     /**
+     * @param string $class
+     * @return boolean
+     * @see \Symfony\Component\Security\Core\Authorization\Voter
+     */
+    public function supportsClass($class);
+
+    /**
      * @param QueryBuilder $qb
      * @param array $filters
      * @param string $alias

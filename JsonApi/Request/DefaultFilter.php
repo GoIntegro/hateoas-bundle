@@ -13,10 +13,15 @@ use Doctrine\ORM\QueryBuilder;
 class DefaultFilter implements FilterInterface
 {
     /**
-     * @param QueryBuilder $qb
-     * @param array $filters
-     * @param string $alias
-     * @return QueryBuilder
+     * @see FilterInterface::supportsClass
+     */
+    public function supportsClass($class)
+    {
+        return is_a($class, 'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\ResourceEntityInterface', TRUE);
+    }
+
+    /**
+     * @see FilterInterface::filter
      */
     public function filter(
         QueryBuilder $qb, array $filters, $alias = 'e'

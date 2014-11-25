@@ -15,7 +15,6 @@ class FilterCompilerPass implements CompilerPassInterface
 {
     const SERVICE_NAME = 'hateoas.repo_helper',
         TAG_NAME = 'hateoas.repo_helper.filter',
-        ENTITY_CLASS = 'entity_class',
         METHOD_NAME = 'addFilter';
 
     /**
@@ -28,13 +27,10 @@ class FilterCompilerPass implements CompilerPassInterface
         $definition = $container->getDefinition(self::SERVICE_NAME);
         $taggedServices = $container->findTaggedServiceIds(self::TAG_NAME);
 
-        foreach ($taggedServices as $id => $tagAttributes) {
-            foreach ($tagAttributes as $attributes) {
-                $definition->addMethodCall(
-                    self::METHOD_NAME,
-                    [new Reference($id), $attributes[self::ENTITY_CLASS]]
-                );
-            }
+        foreach (array_keys($taggedServices) as $id) {
+            $definition->addMethodCall(
+                self::METHOD_NAME, [new Reference($id)]
+            );
         }
     }
 }

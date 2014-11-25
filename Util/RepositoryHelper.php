@@ -73,11 +73,9 @@ class RepositoryHelper
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
-        foreach ($this->filters as $class => $filters) {
-            if (is_a($entityClass, $class, TRUE)) {
-                foreach ($filters as $filter) {
-                    $qb = $filter->filter($qb, $criteria, 'e');
-                }
+        foreach ($this->filters as $filter) {
+            if ($filter->supportsClass($entityClass)) {
+                $qb = $filter->filter($qb, $criteria, 'e');
             }
         }
 
@@ -90,13 +88,10 @@ class RepositoryHelper
 
     /**
      * @param Request\FilterInterface $filter
-     * @param string $class
+     * @return self
      */
-    public function addFilter(
-        Request\FilterInterface $filter,
-        $class = self::RESOURCE_ENTITY_INTERFACE
-    )
+    public function addFilter(Request\FilterInterface $filter)
     {
-        $this->filters[$class][] = $filter;
+        $this->filters[] = $filter;
     }
 }

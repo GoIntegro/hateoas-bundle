@@ -5,13 +5,11 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle\Entity\Validation;
+namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
-// Exceptions.
+// JSON-API
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\ConflictException;
 
-class EntityConflictException
-    extends ConflictException
-    implements EntityConflictExceptionInterface
+class ExistingRelationshipException extends ConflictException
 {
 }
