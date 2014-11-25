@@ -26,7 +26,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpExcepti
     GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Document,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\ConflictException;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\ConflictException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\NotFoundException;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;

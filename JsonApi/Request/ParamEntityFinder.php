@@ -132,8 +132,8 @@ class ParamEntityFinder
         }
 
         return empty($params->relationshipIds)
-            ? $this->selectRelationshipEntities($params, $entities)
-            : $this->filterRelationshipEntities($params, $entities);
+            ? $this->filterRelationshipEntities($params, $entities)
+            : $this->selectRelationshipEntities($params, $entities);
     }
 
     /**

@@ -51,6 +51,7 @@ class RelateBodyParser
         $entity = reset($params->entities->primary);
         $ids = NULL;
 
+        // @todo Encapsulate.
         $method = 'get' . Util\Inflector::camelize($params->relationship);
         $relation = $entity->$method();
 
