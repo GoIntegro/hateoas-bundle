@@ -50,7 +50,7 @@ class DocNavigator
      * @return \stdClass|NULL
      */
     public function findRequestSchema(
-        $method, $resourceUri, $mediaType = RamlDoc::MEDIA_TYPE_JSON
+        $method, $resourceUri, $mediaType = RamlSpec::MEDIA_TYPE_JSON
     )
     {
         if (!RamlDoc::isValidMethod($method)) {
@@ -67,9 +67,9 @@ class DocNavigator
             $schema = $this->navigate(
                 $resourceUri,
                 $method,
-                RamlDoc::REQUEST_BODY,
+                RamlSpec::REQUEST_BODY,
                 $mediaType,
-                RamlDoc::BODY_SCHEMA
+                RamlSpec::BODY_SCHEMA
             );
         } catch (PathNotFoundException $e) {
             // In this case, this is OK. Return values are based on navigation,

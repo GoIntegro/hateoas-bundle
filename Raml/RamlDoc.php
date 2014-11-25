@@ -9,39 +9,6 @@ namespace GoIntegro\Bundle\HateoasBundle\Raml;
 
 class RamlDoc
 {
-    const HTTP_OPTIONS = 'options',
-        HTTP_HEAD = 'head',
-        HTTP_GET = 'get',
-        HTTP_POST = 'post',
-        HTTP_PUT = 'put',
-        HTTP_DELETE = 'delete',
-        HTTP_PATCH = 'patch';
-
-    const MEDIA_TYPE_JSON = 'application/json',
-        MEDIA_TYPE_XML = 'text/xml';
-
-    const REQUEST_BODY = 'body',
-        BODY_SCHEMA = 'schema';
-
-    /**
-     * @var array
-     */
-    private static $methods = [
-        self::HTTP_OPTIONS,
-        self::HTTP_HEAD,
-        self::HTTP_GET,
-        self::HTTP_POST,
-        self::HTTP_PUT,
-        self::HTTP_DELETE,
-        self::HTTP_PATCH
-    ];
-    /**
-     * @var array
-     */
-    private static $mediaTypes = [
-        self::MEDIA_TYPE_JSON,
-        self::MEDIA_TYPE_XML
-    ];
     /**
      * @var array Read-only.
      */
@@ -115,7 +82,7 @@ class RamlDoc
      */
     public static function isValidMethod($method)
     {
-        return in_array($method, self::$methods);
+        return in_array($method, RamlSpec::$methods);
     }
 
     /**
@@ -124,7 +91,7 @@ class RamlDoc
      */
     public static function isValidMediaType($mediaType)
     {
-        return in_array($mediaType, self::$mediaTypes);
+        return in_array($mediaType, RamlSpec::$mediaTypes);
     }
 
     /**
@@ -175,7 +142,7 @@ class RamlDoc
     public function getAllowedMethods($path, $case = CASE_LOWER)
     {
         $raml = $this->getPathDefinition($path);
-        $methods = array_intersect(array_keys($raml), static::$methods);
+        $methods = array_intersect(array_keys($raml), RamlSpec::$methods);
 
         if (CASE_UPPER === $case) {
             $callback = function($method) { return strtoupper($method); };

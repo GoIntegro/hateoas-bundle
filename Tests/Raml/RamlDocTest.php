@@ -25,10 +25,10 @@ class RamlDocTest extends TestCase
         $rawRaml = Yaml::parse(__DIR__ . self::DEFAULT_SCHEMA_RAML);
         $ramlDoc = new RamlDoc($rawRaml, self::DEFAULT_SCHEMA_RAML);
         /* When... (Action) */
-        $nay = $ramlDoc->isDefined(RamlDoc::HTTP_PUT, '/some-resources');
-        $yeah = $ramlDoc->isDefined(RamlDoc::HTTP_PUT, '/some-resources/1');
+        $nay = $ramlDoc->isDefined(RamlSpec::HTTP_PUT, '/some-resources');
+        $yeah = $ramlDoc->isDefined(RamlSpec::HTTP_PUT, '/some-resources/1');
         $also = $ramlDoc->isDefined(
-            RamlDoc::HTTP_GET, '/some-resources/1/linked/some-relationship'
+            RamlSpec::HTTP_GET, '/some-resources/1/linked/some-relationship'
         );
         /* Then... (Assertions) */
         $this->assertFalse($nay);
@@ -47,10 +47,10 @@ class RamlDocTest extends TestCase
         $allowedById = $ramlDoc->getAllowedMethods('/some-resources/1');
         /* Then... (Assertions) */
         $this->assertEquals(
-            [RamlDoc::HTTP_GET], $allowedFiltered
+            [RamlSpec::HTTP_GET], $allowedFiltered
         );
         $this->assertEquals(
-            [RamlDoc::HTTP_GET, RamlDoc::HTTP_PUT], $allowedById
+            [RamlSpec::HTTP_GET, RamlSpec::HTTP_PUT], $allowedById
         );
     }
 }

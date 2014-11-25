@@ -12,4 +12,5 @@ namespace GoIntegro\Bundle\HateoasBundle\Raml;
  */
 class JsonSchemaSpec
 {
+    const JSON_SCHEMA_SCHEMA_PATH = '@GoIntegroHateoasBundle/Resources/json-schemas/json-schema.schema.json';
 }

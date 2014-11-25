@@ -20,6 +20,7 @@ trait CommonResponseTrait
      * @param integer $status
      * @param array $headers
      * @return JsonResponse
+     * @see http://jsonapi.org/format/#http-caching
      */
     protected function createETagResponse(
         $content, $status = 200, array $headers = []

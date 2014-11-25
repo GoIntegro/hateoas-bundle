@@ -63,7 +63,7 @@ SCHEMA;
         $navigator = new DocNavigator($ramlDoc, $jsonCoder);
         /* When... (Action) */
         $schema = $navigator->findRequestSchema(
-            RamlDoc::HTTP_POST, '/some-resources'
+            RamlSpec::HTTP_POST, '/some-resources'
         );
         /* Then... (Assertions) */
         $this->assertEquals(self::TEST_SCHEMA, $schema);
@@ -90,7 +90,7 @@ SCHEMA;
         $navigator = new DocNavigator($ramlDoc, $jsonCoder);
         /* When... (Action) */
         $schema = $navigator->findRequestSchema(
-            RamlDoc::HTTP_POST, '/some-resources'
+            RamlSpec::HTTP_POST, '/some-resources'
         );
         /* Then... (Assertions) */
         $this->assertEquals(self::INLINE_BODY_SCHEMA, $schema);
@@ -114,13 +114,13 @@ SCHEMA;
         $navigator = new DocNavigator($ramlDoc, $jsonCoder);
         /* When... (Action) */
         $filteredResponses = $navigator->navigate(
-            '/some-resources', RamlDoc::HTTP_GET, 'responses'
+            '/some-resources', RamlSpec::HTTP_GET, 'responses'
         );
         $withParamResponses = $navigator->navigate(
-            '/some-resources/{some-resource-ids}', RamlDoc::HTTP_PUT
+            '/some-resources/{some-resource-ids}', RamlSpec::HTTP_PUT
         );
         $byIdsResponses = $navigator->navigate(
-            '/some-resources/1,2,3', RamlDoc::HTTP_PUT
+            '/some-resources/1,2,3', RamlSpec::HTTP_PUT
         );
         /* Then... (Assertions) */
         $this->assertEquals([200 => NULL], $filteredResponses);
