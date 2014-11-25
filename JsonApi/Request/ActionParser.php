@@ -10,8 +10,9 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 // HTTP.
 use Symfony\Component\HttpFoundation\Request,
     GoIntegro\Bundle\HateoasBundle\Http\Url;
-// Recursos.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\JsonApiSpec;
 // JSON.
 use GoIntegro\Bundle\HateoasBundle\Util;
 // Metadata.
@@ -24,16 +25,6 @@ class ActionParser
 {
     const ERROR_REQUEST_SCOPE_UNKNOWN = "Could not calculate request scope; whether it affects one or many resources.",
         ERROR_RESOURCE_CONTENT_MISSING = "The primary resource data is missing from the body.";
-
-    /**
-     * @var array This mapping is defined by JSON-API, not HTTP nor REST.
-     */
-    private static $methodToAction = [
-        Parser::HTTP_GET => RequestAction::ACTION_FETCH,
-        Parser::HTTP_POST => RequestAction::ACTION_CREATE,
-        Parser::HTTP_PUT => RequestAction::ACTION_UPDATE,
-        Parser::HTTP_DELETE => RequestAction::ACTION_DELETE
-    ];
 
     /**
      * @var Util\JsonCoder
@@ -66,7 +57,7 @@ class ActionParser
     {
         $action = new RequestAction;
 
-        $action->name = self::$methodToAction[$request->getMethod()];
+        $action->name = JsonApiSpec::$methodToAction[$request->getMethod()];
         $action->target = !empty($params->relationship)
             ? RequestAction::TARGET_RELATIONSHIP
             : RequestAction::TARGET_RESOURCE;

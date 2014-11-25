@@ -9,21 +9,18 @@ namespace GoIntegro\Bundle\HateoasBundle\Http;
 
 // HTTP.
 use Symfony\Component\HttpFoundation\JsonResponse as SymfonyJsonResponse;
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\JsonApiSpec;
 
 class JsonResponse extends SymfonyJsonResponse
 {
-    /**
-     * For the time being, it's the only supported type.
-     */
-    const HATEOAS_CONTENT_TYPE = 'application/vnd.api+json';
-
     /**
      * @see SymfonyHttpResponse::__construct
      */
     public function __construct($data = NULL, $status = 200, $headers = [])
     {
         parent::__construct($data, $status, $headers);
-        $this->headers->set('Content-Type', static::HATEOAS_CONTENT_TYPE);
+        $this->headers->set('Content-Type', JsonApiSpec::HATEOAS_CONTENT_TYPE);
 
         // Keeps the data NULL if NULL it is.
         $this->setData($data);
