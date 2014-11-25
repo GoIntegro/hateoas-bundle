@@ -151,7 +151,7 @@ class RelateBodyParser
             };
             $current = array_map($callback, $relation);
             $targets = array_map($callback, $params->entities->relationship);
-            $diff = array_diff($targets, $ids);
+            $diff = array_diff($targets, $current);
 
             if (!empty($diff)) {
                 $message = sprintf(
@@ -161,7 +161,7 @@ class RelateBodyParser
                 throw new RelationshipNotFoundException($message);
             }
 
-            $ids = array_diff($ids, $targets);
+            $ids = array_diff($current, $targets);
         } elseif (is_array($relation)) {
             $ids = [];
         } elseif (empty($relation)) {

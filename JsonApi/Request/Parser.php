@@ -141,6 +141,8 @@ class Parser
         $params->relationship = $this->parseRelationship($request, $params);
         $params->primaryIds
             = $this->parsePrimaryIds($request, $params->relationship);
+        $params->relationshipIds
+            = $this->parseRelationshipIds($request);
 
         if ($request->query->has('include')) {
             $params->include = $this->parseInclude($request);

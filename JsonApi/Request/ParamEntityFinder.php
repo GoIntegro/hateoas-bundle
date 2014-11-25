@@ -71,13 +71,6 @@ class ParamEntityFinder
             'primary' => $this->findPrimaryEntities($params)
         ];
 
-        if (
-            empty($entities->primary)
-            || count($entities->primary) !== count($params->primaryIds)
-        ) {
-            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
-        }
-
         if (!empty($params->relationship)) {
             $entity = reset($entities->primary);
             $entities->relationship
@@ -104,6 +97,13 @@ class ParamEntityFinder
 
         if (!$this->canAccessEntities($params, $entities)) {
             throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
+        }
+
+        if (
+            empty($entities)
+            || count($entities) !== count($params->primaryIds)
+        ) {
+            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
         return $entities;
@@ -182,6 +182,13 @@ class ParamEntityFinder
 
                 $selected[] = $entity;
             }
+        }
+
+        if (
+            empty($selected)
+            || count($selected) !== count($params->primaryIds)
+        ) {
+            throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
         return $selected;
