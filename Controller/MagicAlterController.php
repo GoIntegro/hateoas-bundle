@@ -33,7 +33,8 @@ use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // Security.
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 // Validator.
-use GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface;
+use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface,
+    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface;
 // Request.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
     GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionNotAllowedException,
@@ -77,6 +78,8 @@ class MagicAlterController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
             throw new AccessDeniedHttpException($e->getMessage(), $e);
+        } catch (ConflictException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -90,7 +93,7 @@ class MagicAlterController extends SymfonyController
                 try {
                     $entity = $this->get('hateoas.entity.mutator')
                         ->update($params->primaryType, $entity, $data, $links);
-                } catch (ConflictException $e) {
+                } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
                     throw new BadRequestHttpException($e->getMessage(), $e);
@@ -132,6 +135,8 @@ class MagicAlterController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        } catch (ConflictException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -145,7 +150,7 @@ class MagicAlterController extends SymfonyController
                     $links = $this->extractLinks($data);
                     $entities[] = $this->get('hateoas.entity.builder')
                         ->create($params->primaryType, $data, $links);
-                } catch (ConflictException $e) {
+                } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
                     throw new BadRequestHttpException($e->getMessage(), $e);
@@ -204,6 +209,8 @@ class MagicAlterController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        } catch (ConflictException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -217,7 +224,7 @@ class MagicAlterController extends SymfonyController
                 try {
                     $entity = $this->get('hateoas.entity.mutator')
                         ->update($params->primaryType, $entity, $data, $links);
-                } catch (ConflictException $e) {
+                } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
                     throw new BadRequestHttpException($e->getMessage(), $e);
@@ -276,6 +283,8 @@ class MagicAlterController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+        } catch (ConflictException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();

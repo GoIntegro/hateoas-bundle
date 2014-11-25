@@ -112,10 +112,8 @@ class RelateBodyParser
             $intersection = array_intersect($ids, $current);
 
             if (!empty($intersection)) {
-                $message = sprintf(
-                    self::ERROR_RELATIONSHIP_EXISTS,
-                    implode('", "', $intersection)
-                );
+                $existing = implode('", "', $intersection);
+                $message = sprintf(self::ERROR_RELATIONSHIP_EXISTS, $existing);
                 throw new ExistingRelationshipException($message);
             }
 
