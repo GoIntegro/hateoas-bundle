@@ -65,21 +65,14 @@ file of your project:
 <?php
 // app/AppKernel.php
 
-// ...
 class AppKernel extends Kernel
 {
     public function registerBundles()
     {
         $bundles = array(
-            // ...
-
             new GoIntegro\Bundle\HateoasBundle\GoIntegroHateoasBundle(),
         );
-
-        // ...
     }
-
-    // ...
 }
 ?>
 ```
@@ -371,12 +364,14 @@ Here's a pretty basic example.
 use GoIntegro\Bundle\HateoasBundle\Controller\Controller,
     Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
-class UsersController extends Controller {
+class UsersController extends Controller
+{
     /**
      * @Route("/users/{user}", name="api_get_user", methods="GET")
      * @return \GoIntegro\Bundle\HateoasBundle\Http\JsonResponse
      */
-    public function getUserAction(User $user) {
+    public function getUserAction(User $user)
+    {
       $resourceManager = $serviceContainer->get('hateoas.resource_manager');
       $resource = $resourceManager->createResourceFactory()
         ->setEntity($user)
@@ -406,7 +401,6 @@ What you use for an Id, and the extent to which you use them is entirely up to y
 
 ```php
 <?php
-
 namespace GoIntegro\Bundle\SomeBundle\Rest2\Ghost;
 
 // Entidades.
