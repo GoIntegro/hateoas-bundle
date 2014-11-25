@@ -33,7 +33,7 @@ class Mutator
         array $relationships = []
     )
     {
-        return isset($mutators[$resourceType])
+        return isset($this->mutators[$resourceType])
             ? $this->mutators[$resourceType]
                 ->update($entity, $fields, $relationships)
             : $this->mutators['default']

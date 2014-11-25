@@ -28,7 +28,7 @@ class Builder
         array $relationships = []
     )
     {
-        return isset($builders[$resourceType])
+        return isset($this->builders[$resourceType])
             ? $this->builders[$resourceType]->create($fields, $relationships)
             : $this->builders['default']->create($fields, $relationships);
     }
