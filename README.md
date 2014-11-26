@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/skqr/hateoas-bundle.svg?branch=master)](https://travis-ci.org/skqr/hateoas-bundle) [![Code Climate](https://codeclimate.com/github/skqr/hateoas-bundle/badges/gpa.svg)](https://codeclimate.com/github/skqr/hateoas-bundle) [![Latest Stable Version](https://poser.pugx.org/gointegro/hateoas-bundle/v/stable.svg)](https://packagist.org/packages/gointegro/hateoas-bundle) [![License](https://poser.pugx.org/gointegro/hateoas-bundle/license.svg)](https://packagist.org/packages/gointegro/hateoas-bundle)
 
-
 This is a library and Symfony 2 bundle that uses a Doctrine 2 entity map and a [RAML](http://raml.org/) API definition to conjure a [HATEOAS](http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) API, following the [JSON-API](http://jsonapi.org/) specification.
 
 You don't get scaffolds. You get a working API.
