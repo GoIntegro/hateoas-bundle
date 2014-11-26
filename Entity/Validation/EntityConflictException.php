@@ -7,6 +7,11 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity\Validation;
 
-interface EntityConflictException
+// Exceptions.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\ConflictException;
+
+class EntityConflictException
+    extends ConflictException
+    implements EntityConflictExceptionInterface
 {
 }
