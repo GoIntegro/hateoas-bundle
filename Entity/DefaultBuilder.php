@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface,
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
-class DefaultBuilder
+class DefaultBuilder implements AbstractBuilderInterface
 {
     use Validating;
 

@@ -12,7 +12,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // Validator.
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-trait ContraintFinding
+trait Validating
 {
     /**
      * @param ResourceEntityInterface $entity

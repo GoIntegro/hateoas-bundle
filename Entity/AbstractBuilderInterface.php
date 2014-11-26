@@ -7,7 +7,7 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
-interface BuilderInterface extends GenericBuilderInterface
+interface AbstractBuilderInterface extends GenericBuilderInterface
 {
     /**
      * @param array $fields
