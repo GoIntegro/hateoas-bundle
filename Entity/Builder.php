@@ -41,7 +41,7 @@ class Builder
     /**
      * @param BuilderInterface
      */
-    public function addBuilder(BuilderInterface $builder, $resourceType)
+    public function addBuilder(GenericBuilderInterface $builder, $resourceType)
     {
         if (isset($this->builders[$resourceType])) {
             $message = sprintf(self::DUPLICATED_BUILDER, $resourceType);

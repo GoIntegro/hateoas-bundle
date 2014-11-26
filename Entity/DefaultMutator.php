@@ -46,8 +46,6 @@ class DefaultMutator implements MutatorInterface
     {
         $this->em = $em;
         $this->validator = $validator;
-        $this->parser = $parser;
-        $this->request = $request;
     }
 
     /**
