@@ -8,7 +8,8 @@
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
 // JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 
 class Mutator
 {
@@ -20,21 +21,21 @@ class Mutator
     private $mutators = [];
 
     /**
-     * @param string $resourceType
+     * @param Params $params
      * @param ResourceEntityInterface $entity
      * @param array $fields
      * @param array $relationships
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
     public function update(
-        $resourceType,
+        Params $params,
         ResourceEntityInterface $entity,
         array $fields,
         array $relationships = []
     )
     {
-        return isset($this->mutators[$resourceType])
-            ? $this->mutators[$resourceType]
+        return isset($this->mutators[$params->primaryType])
+            ? $this->mutators[$params->primaryType]
                 ->update($entity, $fields, $relationships)
             : $this->mutators['default']
                 ->update($entity, $fields, $relationships);

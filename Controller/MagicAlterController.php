@@ -92,7 +92,7 @@ class MagicAlterController extends SymfonyController
 
                 try {
                     $entity = $this->get('hateoas.entity.mutator')
-                        ->update($params->primaryType, $entity, $data, $links);
+                        ->update($params, $entity, $data, $links);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -149,7 +149,7 @@ class MagicAlterController extends SymfonyController
                 try {
                     $links = $this->extractLinks($data);
                     $entities[] = $this->get('hateoas.entity.builder')
-                        ->create($params->primaryType, $data, $links);
+                        ->create($params, $data, $links);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -223,7 +223,7 @@ class MagicAlterController extends SymfonyController
 
                 try {
                     $entity = $this->get('hateoas.entity.mutator')
-                        ->update($params->primaryType, $entity, $data, $links);
+                        ->update($params, $entity, $data, $links);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {

@@ -7,6 +7,9 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+
 class Builder
 {
     const DUPLICATED_BUILDER = "A builder for the resource type \"%s\" is already registered.";
@@ -17,20 +20,22 @@ class Builder
     private $builders = [];
 
     /**
-     * @param string $resourceType
+     * @param Params $params
      * @param array $fields
      * @param array $relationships
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
     public function create(
-        $resourceType,
+        Params $params,
         array $fields,
         array $relationships = []
     )
     {
-        return isset($this->builders[$resourceType])
-            ? $this->builders[$resourceType]->create($fields, $relationships)
-            : $this->builders['default']->create($fields, $relationships);
+        return isset($this->builders[$params->primaryType])
+            ? $this->builders[$params->primaryType]
+                ->create($fields, $relationships)
+            : $this->builders['default']
+                ->create($params->primaryClass, $fields, $relationships);
     }
 
     /**
