@@ -13,7 +13,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
 
 class Mutator
 {
-    const DUPLICATED_MUTATOR = "A mutator for the resource type \"%s\" is already registered.";
+    const DEFAULT_MUTATOR = 'default',
+        DUPLICATED_MUTATOR = "A mutator for the resource type \"%s\" is already registered.";
 
     /**
      * @var array
@@ -37,7 +38,7 @@ class Mutator
         return isset($this->mutators[$params->primaryType])
             ? $this->mutators[$params->primaryType]
                 ->update($entity, $fields, $relationships)
-            : $this->mutators['default']
+            : $this->mutators[self::DEFAULT_MUTATOR]
                 ->update($entity, $fields, $relationships);
     }
 
@@ -52,5 +53,7 @@ class Mutator
         }
 
         $this->mutators[$resourceType] = $mutator;
+
+        return $this;
     }
 }

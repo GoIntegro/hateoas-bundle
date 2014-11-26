@@ -8,11 +8,13 @@
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
 // JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 
 class Deleter
 {
-    const DUPLICATED_DELETER = "A deleter for the resource type \"%s\" is already registered.";
+    const DEFAULT_DELETER = 'default',
+        DUPLICATED_DELETER = "A deleter for the resource type \"%s\" is already registered.";
 
     /**
      * @var array
@@ -20,14 +22,17 @@ class Deleter
     private $deleters = [];
 
     /**
-     * @param string $resourceType
+     * @param Params $params
      * @param ResourceEntityInterface $entity
      */
-    public function delete($resourceType, ResourceEntityInterface $entity)
+    public function delete(
+        Params $params,
+        ResourceEntityInterface $entity
+    )
     {
-        return isset($this->deleters[$resourceType])
-            ? $this->deleters[$resourceType]->delete($entity)
-            : $this->deleters['default']->delete($entity);
+        return isset($this->deleters[$params->primaryType])
+            ? $this->deleters[$params->primaryType]->delete($entity)
+            : $this->deleters[self::DEFAULT_DELETER]->delete($entity);
     }
 
     /**
@@ -41,5 +46,7 @@ class Deleter
         }
 
         $this->deleters[$resourceType] = $deleter;
+
+        return $this;
     }
 }

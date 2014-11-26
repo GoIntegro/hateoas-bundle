@@ -12,7 +12,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 
 class Builder
 {
-    const DUPLICATED_BUILDER = "A builder for the resource type \"%s\" is already registered.";
+    const DEFAULT_BUILDER = 'default',
+        DUPLICATED_BUILDER = "A builder for the resource type \"%s\" is already registered.";
 
     /**
      * @var array
@@ -34,7 +35,7 @@ class Builder
         return isset($this->builders[$params->primaryType])
             ? $this->builders[$params->primaryType]
                 ->create($fields, $relationships)
-            : $this->builders['default']
+            : $this->builders[self::DEFAULT_BUILDER]
                 ->create($params->primaryClass, $fields, $relationships);
     }
 
@@ -49,5 +50,7 @@ class Builder
         }
 
         $this->builders[$resourceType] = $builder;
+
+        return $this;
     }
 }

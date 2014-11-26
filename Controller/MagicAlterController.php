@@ -293,7 +293,7 @@ class MagicAlterController extends SymfonyController
         try {
             foreach ($params->entities->primary as $entity) {
                 $this->get('hateoas.entity.deleter')
-                    ->delete($params->primaryType, $entity);
+                    ->delete($params, $entity);
             }
 
             $em->getConnection()->commit();
