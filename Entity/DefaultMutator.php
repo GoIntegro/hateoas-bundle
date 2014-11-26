@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface,
 
 class DefaultMutator implements MutatorInterface
 {
-    use ConstraintFinding;
+    use Validating;
 
     const GET = 'get', REMOVE = 'remove', ADD = 'add', SET = 'set';
 
@@ -93,10 +93,6 @@ class DefaultMutator implements MutatorInterface
         }
 
         $errors = $this->validator->validate($entity);
-
-        if (0 < count($errors)) {
-            throw new ValidationException($errors);
-        }
 
         try {
             $this->em->persist($entity);

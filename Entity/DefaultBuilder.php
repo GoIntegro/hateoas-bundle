@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class DefaultBuilder
 {
-    use ConstraintFinding;
+    use Validating;
 
     const GET = 'get', ADD = 'add', SET = 'set';
 
@@ -94,18 +94,7 @@ class DefaultBuilder
             }
         }
 
-        $constraints = $this->getUniqueContraints($entity);
-        $errors = $this->validator->validateValue($entity, $constraints);
-
-        if (0 < count($errors)) {
-            throw new Validation\EntityConflictException($errors);
-        } else {
-            $errors = $this->validator->validate($entity);
-
-            if (0 < count($errors)) {
-                throw new Validation\ValidationException($errors);
-            }
-        }
+        $this->validate($entity);
 
         try {
             $this->em->persist($entity);

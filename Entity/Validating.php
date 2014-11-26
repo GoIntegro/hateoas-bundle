@@ -16,6 +16,30 @@ trait ContraintFinding
 {
     /**
      * @param ResourceEntityInterface $entity
+     * @throws Validation\EntityConflictException
+     * @throws Validation\ValidationException
+     * @return \Symfony\Component\Validator\ConstraintViolationListInterface
+     */
+    protected function validate(ResourceEntityInterface $entity)
+    {
+        $constraints = $this->getUniqueContraints($entity);
+        $errors = $this->validator->validateValue($entity, $constraints);
+
+        if (0 < count($errors)) {
+            throw new Validation\EntityConflictException($errors);
+        } else {
+            $errors = $this->validator->validate($entity);
+
+            if (0 < count($errors)) {
+                throw new Validation\ValidationException($errors);
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param ResourceEntityInterface $entity
      * @return array
      */
     protected function getUniqueContraints(ResourceEntityInterface $entity)
