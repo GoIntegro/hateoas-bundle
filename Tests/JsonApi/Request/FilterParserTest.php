@@ -5,13 +5,10 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace JsonApi\Request;
+namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 // Mocks.
 use Codeception\Util\Stub;
-// Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 

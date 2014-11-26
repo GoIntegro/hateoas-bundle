@@ -8,11 +8,13 @@
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
 // JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 
 class Mutator
 {
-    const DUPLICATED_MUTATOR = "A mutator for the resource type \"%s\" is already registered.";
+    const DEFAULT_MUTATOR = 'default',
+        DUPLICATED_MUTATOR = "A mutator for the resource type \"%s\" is already registered.";
 
     /**
      * @var array
@@ -20,23 +22,23 @@ class Mutator
     private $mutators = [];
 
     /**
-     * @param string $resourceType
+     * @param Params $params
      * @param ResourceEntityInterface $entity
      * @param array $fields
      * @param array $relationships
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
     public function update(
-        $resourceType,
+        Params $params,
         ResourceEntityInterface $entity,
         array $fields,
         array $relationships = []
     )
     {
-        return isset($this->mutators[$resourceType])
-            ? $this->mutators[$resourceType]
+        return isset($this->mutators[$params->primaryType])
+            ? $this->mutators[$params->primaryType]
                 ->update($entity, $fields, $relationships)
-            : $this->mutators['default']
+            : $this->mutators[self::DEFAULT_MUTATOR]
                 ->update($entity, $fields, $relationships);
     }
 
@@ -51,5 +53,7 @@ class Mutator
         }
 
         $this->mutators[$resourceType] = $mutator;
+
+        return $this;
     }
 }

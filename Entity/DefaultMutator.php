@@ -10,19 +10,18 @@ namespace GoIntegro\Bundle\HateoasBundle\Entity;
 // Inflection.
 use Doctrine\Common\Util\Inflector;
 // JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // ORM.
 use Doctrine\ORM\EntityManagerInterface,
     Doctrine\ORM\ORMException;
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
-// HTTP.
-use Symfony\Component\HttpFoundation\Request;
 
 class DefaultMutator implements MutatorInterface
 {
+    use Validating;
+
     const GET = 'get', REMOVE = 'remove', ADD = 'add', SET = 'set';
 
     const ERROR_COULD_NOT_UPDATE = "Could not update the resource.";
@@ -35,32 +34,18 @@ class DefaultMutator implements MutatorInterface
      * @var ValidatorInterface
      */
     private $validator;
-    /**
-     * @var Parser
-     */
-    private $parser;
-    /**
-     * @var request
-     */
-    private $request;
 
     /**
      * @param EntityManagerInterface $em
      * @param ValidatorInterface $validator
-     * @param Parser $parser
-     * @param Request $request
      */
     public function __construct(
         EntityManagerInterface $em,
-        ValidatorInterface $validator,
-        Parser $parser,
-        Request $request
+        ValidatorInterface $validator
     )
     {
         $this->em = $em;
         $this->validator = $validator;
-        $this->parser = $parser;
-        $this->request = $request;
     }
 
     /**
@@ -77,8 +62,7 @@ class DefaultMutator implements MutatorInterface
         array $relationships = []
     )
     {
-        $params = $this->parser->parse($this->request);
-        $class = new \ReflectionClass($params->primaryClass);
+        $class = new \ReflectionClass($entity);
 
         foreach ($fields as $field => $value) {
             $method = self::SET . Inflector::camelize($field);
@@ -107,10 +91,6 @@ class DefaultMutator implements MutatorInterface
         }
 
         $errors = $this->validator->validate($entity);
-
-        if (0 < count($errors)) {
-            throw new ValidationException($errors);
-        }
 
         try {
             $this->em->persist($entity);

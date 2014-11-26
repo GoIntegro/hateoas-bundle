@@ -9,21 +9,19 @@ namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
 // Inflection.
 use Doctrine\Common\Util\Inflector;
-// JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser;
 // ORM.
 use Doctrine\ORM\EntityManagerInterface,
     Doctrine\ORM\ORMException;
 // Validator.
 use Symfony\Component\Validator\Validator\ValidatorInterface,
-    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
+    Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
-// HTTP.
-use Symfony\Component\HttpFoundation\Request;
 
-class DefaultBuilder implements BuilderInterface
+class DefaultBuilder implements AbstractBuilderInterface
 {
+    use Validating;
+
     const GET = 'get', ADD = 'add', SET = 'set';
 
     const AUTHOR_IS_OWNER = 'GoIntegro\\Bundle\\HateoasBundle\\Entity\\AuthorIsOwner',
@@ -41,48 +39,34 @@ class DefaultBuilder implements BuilderInterface
      * @var SecurityContextInterface
      */
     private $securityContext;
-    /**
-     * @var Parser
-     */
-    private $parser;
-    /**
-     * @var request
-     */
-    private $request;
 
     /**
      * @param EntityManagerInterface $em
      * @param ValidatorInterface $validator
      * @param SecurityContextInterface $securityContext
-     * @param Parser $parser
-     * @param Request $request
      */
     public function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
-        SecurityContextInterface $securityContext,
-        Parser $parser,
-        Request $request
+        SecurityContextInterface $securityContext
     )
     {
         $this->em = $em;
         $this->validator = $validator;
         $this->securityContext = $securityContext;
-        $this->parser = $parser;
-        $this->request = $request;
     }
 
     /**
+     * @param string $class
      * @param array $fields
      * @param array $relationships
      * @return ResourceEntityInterface
      * @throws EntityConflictExceptionInterface
      * @throws ValidationExceptionInterface
      */
-    public function create(array $fields, array $relationships = [])
+    public function create($class, array $fields, array $relationships = [])
     {
-        $params = $this->parser->parse($this->request);
-        $class = new \ReflectionClass($params->primaryClass);
+        $class = new \ReflectionClass($class);
         $entity = $class->newInstance();
 
         if ($class->implementsInterface(self::AUTHOR_IS_OWNER)) {
@@ -110,11 +94,7 @@ class DefaultBuilder implements BuilderInterface
             }
         }
 
-        $errors = $this->validator->validate($entity);
-
-        if (0 < count($errors)) {
-            throw new ValidationException($errors);
-        }
+        $this->validate($entity);
 
         try {
             $this->em->persist($entity);

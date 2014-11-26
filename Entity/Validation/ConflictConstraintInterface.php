@@ -7,6 +7,6 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity\Validation;
 
-interface EntityConflictInterface
+interface ConflictConstraintInterface
 {
 }

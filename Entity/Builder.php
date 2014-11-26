@@ -7,9 +7,13 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\Entity;
 
+// JSON-API.
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+
 class Builder
 {
-    const DUPLICATED_BUILDER = "A builder for the resource type \"%s\" is already registered.";
+    const DEFAULT_BUILDER = 'default',
+        DUPLICATED_BUILDER = "A builder for the resource type \"%s\" is already registered.";
 
     /**
      * @var array
@@ -17,26 +21,28 @@ class Builder
     private $builders = [];
 
     /**
-     * @param string $resourceType
+     * @param Params $params
      * @param array $fields
      * @param array $relationships
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
     public function create(
-        $resourceType,
+        Params $params,
         array $fields,
         array $relationships = []
     )
     {
-        return isset($this->builders[$resourceType])
-            ? $this->builders[$resourceType]->create($fields, $relationships)
-            : $this->builders['default']->create($fields, $relationships);
+        return isset($this->builders[$params->primaryType])
+            ? $this->builders[$params->primaryType]
+                ->create($fields, $relationships)
+            : $this->builders[self::DEFAULT_BUILDER]
+                ->create($params->primaryClass, $fields, $relationships);
     }
 
     /**
      * @param BuilderInterface
      */
-    public function addBuilder(BuilderInterface $builder, $resourceType)
+    public function addBuilder(GenericBuilderInterface $builder, $resourceType)
     {
         if (isset($this->builders[$resourceType])) {
             $message = sprintf(self::DUPLICATED_BUILDER, $resourceType);
@@ -44,5 +50,7 @@ class Builder
         }
 
         $this->builders[$resourceType] = $builder;
+
+        return $this;
     }
 }
