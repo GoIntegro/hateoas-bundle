@@ -90,7 +90,7 @@ class DefaultMutator implements MutatorInterface
             }
         }
 
-        $errors = $this->validator->validate($entity);
+        $errors = $this->validate($entity);
 
         try {
             $this->em->persist($entity);
