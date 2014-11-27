@@ -13,7 +13,7 @@ use Doctrine\Common\Util\Inflector;
 use Doctrine\ORM\EntityManagerInterface,
     Doctrine\ORM\ORMException;
 // Validator.
-use Symfony\Component\Validator\Validator\ValidatorInterface,
+use Symfony\Component\Validator\ValidatorInterface,
     Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
