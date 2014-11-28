@@ -28,25 +28,13 @@ class RelateBodyParser
         ERROR_RELATIONSHIP_NOT_FOUND = "The relationship was not found.";
 
     /**
-     * @var Util\JsonCoder
-     */
-    protected $jsonCoder;
-
-    /**
-     * @param Util\JsonCoder $jsonCoder
-     */
-    public function __construct(Util\JsonCoder $jsonCoder)
-    {
-        $this->jsonCoder = $jsonCoder;
-    }
-
-    /**
      * @param Request $request
      * @param Params $params
+     * @param array $body
      * @return array
      * @todo Sólo sirve para actualizar ahora.
      */
-    public function parse(Request $request, Params $params)
+    public function parse(Request $request, Params $params, array $body)
     {
         $entity = reset($params->entities->primary);
         $ids = NULL;
@@ -62,14 +50,11 @@ class RelateBodyParser
         if (in_array($params->action->name, [
             RequestAction::ACTION_CREATE, RequestAction::ACTION_UPDATE
         ])) {
-            $rawBody = $request->getContent();
-            $data = $this->jsonCoder->decode($rawBody);
-
-            if (!is_array($data) || !isset($data[$params->relationship])) {
+            if (!is_array($body) || !isset($body[$params->relationship])) {
                 throw new ParseException(self::ERROR_EMPTY_BODY);
             }
 
-            $ids = $data[$params->relationship];
+            $ids = $body[$params->relationship];
 
             if (RequestAction::ACTION_CREATE == $params->action->name) {
                 $ids = $this->parseCreateAction($ids, $relation);

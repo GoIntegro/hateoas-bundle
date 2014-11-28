@@ -21,41 +21,27 @@ class CreateBodyParser
     const ERROR_ID_NOT_SUPPORTED = "Providing an Id on creation is not supported magically yet.";
 
     /**
-     * @var Util\JsonCoder
-     */
-    protected $jsonCoder;
-
-    /**
-     * @param Util\JsonCoder $jsonCoder
-     */
-    public function __construct(Util\JsonCoder $jsonCoder)
-    {
-        $this->jsonCoder = $jsonCoder;
-    }
-
-    /**
      * @param Request $request
      * @param Params $params
+     * @param array $body
      * @return array
      */
-    public function parse(Request $request, Params $params)
+    public function parse(Request $request, Params $params, array $body)
     {
-        $rawBody = $request->getContent();
-        $data = $this->jsonCoder->decode($rawBody);
         $entityData = [];
 
-        if (empty($data[$params->primaryType])) {
+        if (empty($body[$params->primaryType])) {
             throw new ParseException(BodyParser::ERROR_PRIMARY_TYPE_KEY);
         } elseif (
-            Util\ArrayHelper::isAssociative($data[$params->primaryType])
+            Util\ArrayHelper::isAssociative($body[$params->primaryType])
         ) {
-            if (isset($data[$params->primaryType]['id'])) {
+            if (isset($body[$params->primaryType]['id'])) {
                 throw new ParseException(static::ERROR_ID_NOT_SUPPORTED);
             } else {
-                $entityData[] = $data[$params->primaryType];
+                $entityData[] = $body[$params->primaryType];
             }
         } else {
-            foreach ($data[$params->primaryType] as $datum) {
+            foreach ($body[$params->primaryType] as $datum) {
                 if (isset($datum['id'])) {
                     throw new ParseException(static::ERROR_ID_NOT_SUPPORTED);
                 } else {

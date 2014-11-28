@@ -71,7 +71,8 @@ JSON;
         ResourceLinksHydrant $hydrant,
         CreateBodyParser $creationBodyParser,
         UpdateBodyParser $mutationBodyParser,
-        RelateBodyParser $relationBodyParser
+        RelateBodyParser $relationBodyParser,
+        TranslationsParser $translationsBodyParser
     )
     {
         $this->jsonCoder = $jsonCoder;
@@ -80,6 +81,7 @@ JSON;
         $this->creationBodyParser = $creationBodyParser;
         $this->mutationBodyParser = $mutationBodyParser;
         $this->relationBodyParser = $relationBodyParser;
+        $this->translationsParser = $translationsParser;
     }
 
     /**
@@ -91,25 +93,41 @@ JSON;
     {
         $data = NULL;
         $schema = NULL;
+        $rawBody = $request->getContent();
+        $body = $this->jsonCoder->decode($rawBody);
 
         if (RequestAction::TARGET_RESOURCE == $params->action->target) {
-            switch ($params->action->name) {
+            switch ($params->action->name) { // Deliberately missing "break".
                 case RequestAction::ACTION_CREATE:
-                    $data = $this->creationBodyParser->parse($request, $params);
+                    $data = $this->creationBodyParser->parse(
+                        $request, $params, $body
+                    );
                     $schema = $this->findResourceObjectSchema(
                         $params, Raml\RamlSpec::HTTP_POST
                     );
-                    break;
 
                 case RequestAction::ACTION_UPDATE:
-                    $data = $this->mutationBodyParser->parse($request, $params);
+                    $data = $this->mutationBodyParser->parse(
+                        $request, $params, $body
+                    );
                     $schema = $this->findResourceObjectSchema(
                         $params, Raml\RamlSpec::HTTP_PUT
                     );
-                    break;
+
+                default:
+                    $translations = $this->translationsParser->parse(
+                        $request, $params, $body
+                    );
+                    $data['meta'] = [
+                        $params->primaryType => [
+                            'translations' => $translations
+                        ]
+                    ];
             }
         } elseif (!RequestAction::ACTION_FETCH != $params->action->name) {
-            $data = $this->relationBodyParser->parse($request, $params);
+            $data = $this->relationBodyParser->parse(
+                $request, $params, $body
+            );
             $schema = static::LINK_SCHEMA;
         }
 

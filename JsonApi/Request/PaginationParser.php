@@ -20,7 +20,7 @@ use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
  */
 class PaginationParser
 {
-    const ERROR_UNKNOWN_RESOURCE_TYPE = "El tipo de recurso es desconocido.";
+    const ERROR_UNKNOWN_RESOURCE_TYPE = "The resource type is unknown.";
 
     /**
      * @var MetadataMinerInterface
