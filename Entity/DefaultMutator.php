@@ -52,6 +52,7 @@ class DefaultMutator implements MutatorInterface
      * @param ResourceEntityInterface $entity
      * @param array $fields
      * @param array $relationships
+     * @param array $metadata
      * @return ResourceEntityInterface
      * @throws EntityConflictExceptionInterface
      * @throws ValidationExceptionInterface
@@ -59,7 +60,8 @@ class DefaultMutator implements MutatorInterface
     public function update(
         ResourceEntityInterface $entity,
         array $fields,
-        array $relationships = []
+        array $relationships = [],
+        array $metadata = []
     )
     {
         $class = new \ReflectionClass($entity);
