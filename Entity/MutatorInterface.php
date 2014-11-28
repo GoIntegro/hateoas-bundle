@@ -16,11 +16,15 @@ interface MutatorInterface
      * @param ResourceEntityInterface $entity
      * @param array $fields
      * @param array $relationships
+     * @param array $metadata
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      * @throws \GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface
      * @throws \GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface
      */
     public function update(
-        ResourceEntityInterface $entity, array $data, array $relationships = []
+        ResourceEntityInterface $entity,
+        array $data,
+        array $relationships = [],
+        array $metadata = []
     );
 }
