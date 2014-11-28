@@ -118,16 +118,18 @@ JSON;
                     break;
             }
 
-            $translations = $this->translationsParser->parse(
-                $request, $params, $body
-            );
+            if (!empty($body)) {
+                $translations = $this->translationsParser->parse(
+                    $request, $params, $body
+                );
 
-            if (!empty($translations)) {
-                $data['meta'] = [
-                    $params->primaryType => [
-                        'translations' => $translations
-                    ]
-                ];
+                if (!empty($translations)) {
+                    $data['meta'] = [
+                        $params->primaryType => [
+                            'translations' => $translations
+                        ]
+                    ];
+                }
             }
         } elseif (!RequestAction::ACTION_FETCH != $params->action->name) {
             $data = $this->relationBodyParser->parse(
