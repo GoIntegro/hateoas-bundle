@@ -69,7 +69,8 @@ JSON;
             $hydrant,
             self::createCreationBodyParser(),
             self::createMutationBodyParser(),
-            self::createRelationBodyParser()
+            self::createRelationBodyParser(),
+            self::createTranslationsParser()
         );
         // When...
         $resources = $parser->parse($request, $params);
@@ -113,7 +114,8 @@ JSON;
             $hydrant,
             self::createCreationBodyParser(),
             self::createMutationBodyParser(),
-            self::createRelationBodyParser()
+            self::createRelationBodyParser(),
+            self::createTranslationsParser()
         );
         // When...
         $resources = $parser->parse($request, $params);
@@ -160,7 +162,8 @@ JSON;
             $hydrant,
             self::createCreationBodyParser(),
             self::createMutationBodyParser(),
-            self::createRelationBodyParser()
+            self::createRelationBodyParser(),
+            self::createTranslationsParser()
         );
         // When...
         $resources = $parser->parse($request, $params);
@@ -303,6 +306,16 @@ JSON;
                     ]
                 ]
             ]]
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\TranslationsParser
+     */
+    private static function createTranslationsParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\TranslationsParser'
         );
     }
 }

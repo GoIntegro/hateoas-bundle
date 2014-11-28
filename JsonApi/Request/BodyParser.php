@@ -63,7 +63,8 @@ JSON;
      * @param ResourceLinksHydrant $hydrant
      * @param CreateBodyParser $creationBodyParser
      * @param UpdateBodyParser $mutationBodyParser
-     * @param relateBodyParser $relationBodyParser
+     * @param RelateBodyParser $relationBodyParser
+     * @param TranslationsParser $translationsParser
      */
     public function __construct(
         Util\JsonCoder $jsonCoder,
@@ -72,7 +73,7 @@ JSON;
         CreateBodyParser $creationBodyParser,
         UpdateBodyParser $mutationBodyParser,
         RelateBodyParser $relationBodyParser,
-        TranslationsParser $translationsBodyParser
+        TranslationsParser $translationsParser
     )
     {
         $this->jsonCoder = $jsonCoder;
@@ -97,7 +98,7 @@ JSON;
         $body = $this->jsonCoder->decode($rawBody);
 
         if (RequestAction::TARGET_RESOURCE == $params->action->target) {
-            switch ($params->action->name) { // Deliberately missing "break".
+            switch ($params->action->name) {
                 case RequestAction::ACTION_CREATE:
                     $data = $this->creationBodyParser->parse(
                         $request, $params, $body
@@ -105,6 +106,7 @@ JSON;
                     $schema = $this->findResourceObjectSchema(
                         $params, Raml\RamlSpec::HTTP_POST
                     );
+                    break;
 
                 case RequestAction::ACTION_UPDATE:
                     $data = $this->mutationBodyParser->parse(
@@ -113,16 +115,19 @@ JSON;
                     $schema = $this->findResourceObjectSchema(
                         $params, Raml\RamlSpec::HTTP_PUT
                     );
+                    break;
+            }
 
-                default:
-                    $translations = $this->translationsParser->parse(
-                        $request, $params, $body
-                    );
-                    $data['meta'] = [
-                        $params->primaryType => [
-                            'translations' => $translations
-                        ]
-                    ];
+            $translations = $this->translationsParser->parse(
+                $request, $params, $body
+            );
+
+            if (!empty($translations)) {
+                $data['meta'] = [
+                    $params->primaryType => [
+                        'translations' => $translations
+                    ]
+                ];
             }
         } elseif (!RequestAction::ACTION_FETCH != $params->action->name) {
             $data = $this->relationBodyParser->parse(
