@@ -69,7 +69,8 @@ JSON;
             $hydrant,
             self::createCreationBodyParser(),
             self::createMutationBodyParser(),
-            self::createRelationBodyParser(),
+            self::createLinkingBodyParser(),
+            self::createUnlinkingBodyParser(),
             self::createTranslationsParser()
         );
         // When...
@@ -114,7 +115,8 @@ JSON;
             $hydrant,
             self::createCreationBodyParser(),
             self::createMutationBodyParser(),
-            self::createRelationBodyParser(),
+            self::createLinkingBodyParser(),
+            self::createUnlinkingBodyParser(),
             self::createTranslationsParser()
         );
         // When...
@@ -162,7 +164,8 @@ JSON;
             $hydrant,
             self::createCreationBodyParser(),
             self::createMutationBodyParser(),
-            self::createRelationBodyParser(),
+            self::createLinkingBodyParser(),
+            self::createUnlinkingBodyParser(),
             self::createTranslationsParser()
         );
         // When...
@@ -293,12 +296,12 @@ JSON;
     }
 
     /**
-     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\RelateBodyParser
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LinkBodyParser
      */
-    private static function createRelationBodyParser()
+    private static function createLinkingBodyParser()
     {
         return Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\RelateBodyParser',
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\LinkBodyParser',
             ['parse' => [
                 '7' => [
                     'links' => [
@@ -306,6 +309,16 @@ JSON;
                     ]
                 ]
             ]]
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\UnlinkBodyParser
+     */
+    private static function createUnlinkingBodyParser()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\UnlinkBodyParser'
         );
     }
 

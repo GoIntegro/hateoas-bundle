@@ -53,9 +53,13 @@ JSON;
      */
     protected $mutationBodyParser;
     /**
-     * @var RelateBodyParser
+     * @var LinkBodyParser
      */
-    protected $relationBodyParser;
+    protected $linkingBodyParser;
+    /**
+     * @var UnlinkBodyParser
+     */
+    protected $unlinkingBodyParser;
 
     /**
      * @param Util\JsonCoder $jsonCoder
@@ -63,7 +67,8 @@ JSON;
      * @param ResourceLinksHydrant $hydrant
      * @param CreateBodyParser $creationBodyParser
      * @param UpdateBodyParser $mutationBodyParser
-     * @param RelateBodyParser $relationBodyParser
+     * @param LinkBodyParser $linkingBodyParser
+     * @param UnlinkBodyParser $unlinkingBodyParser
      * @param TranslationsParser $translationsParser
      */
     public function __construct(
@@ -72,7 +77,8 @@ JSON;
         ResourceLinksHydrant $hydrant,
         CreateBodyParser $creationBodyParser,
         UpdateBodyParser $mutationBodyParser,
-        RelateBodyParser $relationBodyParser,
+        LinkBodyParser $linkingBodyParser,
+        UnlinkBodyParser $unlinkingBodyParser,
         TranslationsParser $translationsParser
     )
     {
@@ -81,7 +87,8 @@ JSON;
         $this->hydrant = $hydrant;
         $this->creationBodyParser = $creationBodyParser;
         $this->mutationBodyParser = $mutationBodyParser;
-        $this->relationBodyParser = $relationBodyParser;
+        $this->linkingBodyParser = $linkingBodyParser;
+        $this->unlinkingBodyParser = $unlinkingBodyParser;
         $this->translationsParser = $translationsParser;
     }
 
@@ -131,10 +138,15 @@ JSON;
                     ];
                 }
             }
-        } elseif (!RequestAction::ACTION_FETCH != $params->action->name) {
-            $data = $this->relationBodyParser->parse(
-                $request, $params, $body
-            );
+        } elseif (RequestAction::ACTION_FETCH != $params->action->name) {
+            $data = RequestAction::ACTION_DELETE == $params->action->name
+                ? $this->unlinkingBodyParser->parse(
+                    $request, $params, $body
+                )
+                : $this->linkingBodyParser->parse(
+                    $request, $params, $body
+                );
+
             $schema = static::LINK_SCHEMA;
         }
 

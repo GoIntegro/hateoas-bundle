@@ -40,7 +40,8 @@ services:
       - @hateoas.request_parser.hydrant
       - @hateoas.request_parser.body.create
       - @hateoas.request_parser.body.update
-      - @hateoas.request_parser.body.relate
+      - @hateoas.request_parser.body.link
+      - @hateoas.request_parser.body.unlink
       - @hateoas.request_parser.body.translations
 
   hateoas.request_parser.body.create:
@@ -51,8 +52,12 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\UpdateBodyParser
     public: false
 
-  hateoas.request_parser.body.relate:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\RelateBodyParser
+  hateoas.request_parser.body.link:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LinkBodyParser
+    public: false
+
+  hateoas.request_parser.body.unlink:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\UnlinkBodyParser
     public: false
 
   hateoas.request_parser.body.translations:
