@@ -15,7 +15,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 use Doctrine\ORM\EntityManagerInterface,
     Doctrine\ORM\ORMException;
 // Validator.
-use Symfony\Component\Validator\Validator\ValidatorInterface,
+use Symfony\Component\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
 
 class DefaultMutator implements MutatorInterface

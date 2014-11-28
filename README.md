@@ -1,5 +1,7 @@
-[GOintegro](http://www.gointegro.com/en/) / HATEOAS [![Build Status](https://travis-ci.org/skqr/hateoas-bundle.svg?branch=master)](https://travis-ci.org/skqr/hateoas-bundle) [![Code Climate](https://codeclimate.com/github/skqr/hateoas-bundle/badges/gpa.svg)](https://codeclimate.com/github/skqr/hateoas-bundle)
-===================================================
+# [GOintegro](http://www.gointegro.com/en/) / HATEOAS
+
+[![Build Status](https://travis-ci.org/skqr/hateoas-bundle.svg?branch=master)](https://travis-ci.org/skqr/hateoas-bundle) [![Code Climate](https://codeclimate.com/github/skqr/hateoas-bundle/badges/gpa.svg)](https://codeclimate.com/github/skqr/hateoas-bundle) [![Latest Stable Version](https://poser.pugx.org/gointegro/hateoas-bundle/v/stable.svg)](https://packagist.org/packages/gointegro/hateoas-bundle) [![License](https://poser.pugx.org/gointegro/hateoas-bundle/license.svg)](https://packagist.org/packages/gointegro/hateoas-bundle)
+
 This is a library and Symfony 2 bundle that uses a Doctrine 2 entity map and a [RAML](http://raml.org/) API definition to conjure a [HATEOAS](http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) API, following the [JSON-API](http://jsonapi.org/) specification.
 
 You don't get scaffolds. You get a working API.
@@ -23,6 +25,7 @@ Here's what I mean.
   * Altering resources, with support for:
     * Processing multiple actions in one request;
     * Request validation using JSON schema;
+    * [Entity validation](#validation) using Symfony's validator;
     * [Create, update, and delete](#creating-updating-and-deleting) out of the box;
     * Assign services to handle any of the above for specific resources.
 * [Metadata caching](#caching), similar to that of Doctrine 2;
@@ -312,6 +315,16 @@ Voilà.
 ## Validation
 
 Default validation is handled by [Symfony's Validator Component](http://symfony.com/doc/current/book/validation.html), so you can configure basic validation right on your entities.
+
+Also, you can extend the validator by [writing your own constraints](http://symfony.com/doc/current/cookbook/validation/custom_constraint.html).
+
+Since [constraints can be services](http://symfony.com/doc/current/cookbook/validation/custom_constraint.html#constraint-validators-with-dependencies), this means that you are probably not going to need to create custom builders or mutators.
+
+Violations of the [unique entity constraint](http://symfony.com/doc/current/reference/constraints/UniqueEntity.html) ultimately result in a [409 HTTP response status](http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10), *conflict*. :fire:
+
+> JSON-API requires 409 to only be used when attempting to create [a relationship that already exists](http://jsonapi.org/format/#crud-updating-responses). We are expanding its application to include any instance in which validation fails due to a conflict with another resource.
+
+If you'd like to create a custom constraint in which a violation is taken to mean conflict between resources, just have it implement `GoIntegro\Bundle\HateoasBundle\Entity\Validation\ConflictConstraintInterface`.
 
 ## Transactions
 
