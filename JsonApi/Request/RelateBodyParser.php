@@ -17,7 +17,7 @@ use Doctrine\Common\Collections\Collection;
 /**
  * @see http://jsonapi.org/format/#crud-updating
  */
-class RelateBodyParser
+class RelateBodyParser implements BodyParserInterface
 {
     const LINKS = 'links';
 

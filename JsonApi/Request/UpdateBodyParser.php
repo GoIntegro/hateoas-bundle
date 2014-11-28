@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @see http://jsonapi.org/format/#crud-updating
  */
-class UpdateBodyParser
+class UpdateBodyParser implements BodyParserInterface
 {
     const ERROR_MISSING_ID = "A data set provided is missing the Id.",
         ERROR_DUPLICATED_ID = "The Id \"%s\" was sent twice.";

@@ -15,7 +15,7 @@ use GoIntegro\Bundle\HateoasBundle\Util;
 /**
  * @see http://jsonapi.org/format/#crud-creating-resources
  */
-class CreateBodyParser
+class CreateBodyParser implements BodyParserInterface
 {
     // @todo http://jsonapi.org/format/#crud-creating-client-ids
     const ERROR_ID_NOT_SUPPORTED = "Providing an Id on creation is not supported magically yet.";

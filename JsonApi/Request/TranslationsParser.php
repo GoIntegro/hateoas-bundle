@@ -16,22 +16,9 @@ use GoIntegro\Bundle\HateoasBundle\Util;
 /**
  * @see https://github.com/l3pp4rd/DoctrineExtensions/blob/master/doc/translatable.md
  */
-class TranslationsParser
+class TranslationsParser implements BodyParserInterface
 {
     const ERROR_TRANSLATIONS_TYPE = "Translations is expected to be a hash of lists.";
-
-    /**
-     * @var Util\JsonCoder
-     */
-    private $jsonCoder;
-
-    /**
-     * @param Util\JsonCoder $jsonCoder
-     */
-    public function __construct(Util\JsonCoder $jsonCoder)
-    {
-        $this->jsonCoder = $jsonCoder;
-    }
 
     /**
      * @param Request $request
