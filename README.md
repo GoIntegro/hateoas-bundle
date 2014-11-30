@@ -702,6 +702,10 @@ If you're going to dare rocking so hard as to make a pull request, use the `mast
 
 New code should not exceed the legendary eighty char boundary, and [be fully documented](http://www.phpdoc.org/docs/latest/index.html).
 
+# Roadmap
+
+Any [issue labeled *enhancement* goes](https://github.com/GoIntegro/hateoas-bundle/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+author%3Askqr+).
+
 # Disclaimer
 
 You might have [noticed something fishy](http://cdn.duitang.com/uploads/item/201203/12/20120312155233_AaA8J.jpeg) in the PHP snippets above.
