@@ -30,4 +30,12 @@ class LocaleNegotiator implements LocaleNegotiatorInterface
 
         return $this->localeNegotiator->negotiate($request);
     }
+
+    /**
+     * @param LocaleNegotiatorInterface $negotiator
+     */
+    public function setLocaleNegotiator(LocaleNegotiatorInterface $negotiator)
+    {
+        $this->localeNegotiator = $negotiator;
+    }
 }

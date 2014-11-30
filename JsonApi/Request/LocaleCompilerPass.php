@@ -16,7 +16,7 @@ class LocaleCompilerPass implements CompilerPassInterface
 {
     const SERVICE_NAME = 'hateoas.request_parser.locale',
         TAG_NAME = 'hateoas.request_parser.locale',
-        METHOD_NAME = 'setCustomNegotiator';
+        METHOD_NAME = 'setLocaleNegotiator';
 
     /**
      * @param ContainerBuilder $container
