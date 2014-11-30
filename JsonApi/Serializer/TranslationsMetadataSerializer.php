@@ -13,7 +13,7 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 /**
  * @todo Move a un sub-namespace "JsonApi\Extension".
  */
-class PaginationMetadataSerializer implements SerializerInterface
+class TranslationsMetadataSerializer implements SerializerInterface
 {
     public $document;
 

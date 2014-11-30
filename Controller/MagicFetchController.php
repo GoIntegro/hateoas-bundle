@@ -192,6 +192,12 @@ class MagicFetchController extends SymfonyController
      */
     public function getWithFiltersAction($primaryType)
     {
+        $language = $this->getRequest()->getPreferredLanguage();
+        $language = substr($language, 0, 2);
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($language)
+            ->setTranslationFallback(TRUE);
+
         try {
             $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
