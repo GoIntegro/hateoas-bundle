@@ -12,14 +12,15 @@ use Symfony\Component\HttpKernel\Bundle\Bundle,
     Symfony\Component\DependencyInjection\ContainerBuilder;
 // HATEOAS.
 use GoIntegro\Bundle\HateoasBundle\Entity\EntityCompilerPass,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterCompilerPass;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 
 class GoIntegroHateoasBundle extends Bundle
 {
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
-        $container->addCompilerPass(new EntityCompilerPass);
-        $container->addCompilerPass(new FilterCompilerPass);
+        $container->addCompilerPass(new EntityCompilerPass)
+            ->addCompilerPass(new Request\FilterCompilerPass)
+            ->addCompilerPass(new Request\LocaleCompilerPass);
     }
 }

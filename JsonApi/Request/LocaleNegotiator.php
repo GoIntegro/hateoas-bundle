@@ -10,14 +10,24 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 // HTTP.
 use Symfony\Component\HttpFoundation\Request;
 
-class LocaleNegotiator
+class LocaleNegotiator implements LocaleNegotiatorInterface
 {
+    const ERROR_NO_NEGOTIATOR = "No locale negotiator service has been configured.";
+
     /**
-     * Parsea ciertos parámetros de un pedido de HTTP.
+     * @var LocaleNegotiatorInterface
+     */
+    private $localeNegotiator;
+
+    /**
      * @param Request $request
      */
-    public function parse(Request $request)
+    public function negotiate(Request $request)
     {
-        return substr($request->getPreferredLanguage(), 0, 2);
+        if (empty($this->localeNegotiator)) {
+            throw new \ErrorException(self::ERROR_NO_NEGOTIATOR);
+        }
+
+        return $this->localeNegotiator->negotiate($request);
     }
 }

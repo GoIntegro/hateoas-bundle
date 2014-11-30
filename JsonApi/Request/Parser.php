@@ -180,7 +180,7 @@ class Parser
 
         // Needs the params from the ActionParser (and ParamEntityFinder).
         $params->resources = $this->bodyParser->parse($request, $params);
-        $params->locale = $this->localeNegotiator->parse($request);
+        $params->locale = $this->localeNegotiator->negotiate($request);
 
         return $params;
     }

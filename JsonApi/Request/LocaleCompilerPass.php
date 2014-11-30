@@ -12,11 +12,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder,
     Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface,
     Symfony\Component\DependencyInjection\Reference;
 
-class FilterCompilerPass implements CompilerPassInterface
+class LocaleCompilerPass implements CompilerPassInterface
 {
-    const SERVICE_NAME = 'hateoas.repo_helper',
-        TAG_NAME = 'hateoas.repo_helper.filter',
-        METHOD_NAME = 'addFilter';
+    const SERVICE_NAME = 'hateoas.request_parser.locale',
+        TAG_NAME = 'hateoas.request_parser.locale',
+        METHOD_NAME = 'setCustomNegotiator';
 
     /**
      * @param ContainerBuilder $container

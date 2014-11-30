@@ -84,6 +84,12 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LocaleNegotiator
     public: false
 
+  hateoas.request_parser.default_locale:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LocaleNegotiator
+    public: false
+    tags:
+      - { name: hateoas.repo_helper.locale }
+
   hateoas.request_parser.hydrant:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ResourceLinksHydrant
     public: false
