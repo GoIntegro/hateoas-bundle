@@ -85,7 +85,7 @@ services:
     public: false
 
   hateoas.request_parser.default_locale:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LocaleNegotiator
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DefaultLocaleNegotiator
     public: false
     tags:
       - { name: hateoas.request_parser.locale }
