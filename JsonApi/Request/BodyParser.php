@@ -53,9 +53,13 @@ JSON;
      */
     protected $mutationBodyParser;
     /**
-     * @var RelateBodyParser
+     * @var LinkBodyParser
      */
-    protected $relationBodyParser;
+    protected $linkingBodyParser;
+    /**
+     * @var UnlinkBodyParser
+     */
+    protected $unlinkingBodyParser;
 
     /**
      * @param Util\JsonCoder $jsonCoder
@@ -63,7 +67,9 @@ JSON;
      * @param ResourceLinksHydrant $hydrant
      * @param CreateBodyParser $creationBodyParser
      * @param UpdateBodyParser $mutationBodyParser
-     * @param relateBodyParser $relationBodyParser
+     * @param LinkBodyParser $linkingBodyParser
+     * @param UnlinkBodyParser $unlinkingBodyParser
+     * @param TranslationsParser $translationsParser
      */
     public function __construct(
         Util\JsonCoder $jsonCoder,
@@ -71,7 +77,9 @@ JSON;
         ResourceLinksHydrant $hydrant,
         CreateBodyParser $creationBodyParser,
         UpdateBodyParser $mutationBodyParser,
-        RelateBodyParser $relationBodyParser
+        LinkBodyParser $linkingBodyParser,
+        UnlinkBodyParser $unlinkingBodyParser,
+        TranslationsParser $translationsParser
     )
     {
         $this->jsonCoder = $jsonCoder;
@@ -79,7 +87,9 @@ JSON;
         $this->hydrant = $hydrant;
         $this->creationBodyParser = $creationBodyParser;
         $this->mutationBodyParser = $mutationBodyParser;
-        $this->relationBodyParser = $relationBodyParser;
+        $this->linkingBodyParser = $linkingBodyParser;
+        $this->unlinkingBodyParser = $unlinkingBodyParser;
+        $this->translationsParser = $translationsParser;
     }
 
     /**
@@ -91,25 +101,52 @@ JSON;
     {
         $data = NULL;
         $schema = NULL;
+        $rawBody = $request->getContent();
+        $body = $this->jsonCoder->decode($rawBody);
 
         if (RequestAction::TARGET_RESOURCE == $params->action->target) {
             switch ($params->action->name) {
                 case RequestAction::ACTION_CREATE:
-                    $data = $this->creationBodyParser->parse($request, $params);
+                    $data = $this->creationBodyParser->parse(
+                        $request, $params, $body
+                    );
                     $schema = $this->findResourceObjectSchema(
                         $params, Raml\RamlSpec::HTTP_POST
                     );
                     break;
 
                 case RequestAction::ACTION_UPDATE:
-                    $data = $this->mutationBodyParser->parse($request, $params);
+                    $data = $this->mutationBodyParser->parse(
+                        $request, $params, $body
+                    );
                     $schema = $this->findResourceObjectSchema(
                         $params, Raml\RamlSpec::HTTP_PUT
                     );
                     break;
             }
-        } elseif (!RequestAction::ACTION_FETCH != $params->action->name) {
-            $data = $this->relationBodyParser->parse($request, $params);
+
+            if (!empty($body)) {
+                $translations = $this->translationsParser->parse(
+                    $request, $params, $body
+                );
+
+                if (!empty($translations)) {
+                    $data['meta'] = [
+                        $params->primaryType => [
+                            'translations' => $translations
+                        ]
+                    ];
+                }
+            }
+        } elseif (RequestAction::ACTION_FETCH != $params->action->name) {
+            $data = RequestAction::ACTION_DELETE == $params->action->name
+                ? $this->unlinkingBodyParser->parse(
+                    $request, $params, $body
+                )
+                : $this->linkingBodyParser->parse(
+                    $request, $params, $body
+                );
+
             $schema = static::LINK_SCHEMA;
         }
 

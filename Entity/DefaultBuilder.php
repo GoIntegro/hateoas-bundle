@@ -60,11 +60,17 @@ class DefaultBuilder implements AbstractBuilderInterface
      * @param string $class
      * @param array $fields
      * @param array $relationships
+     * @param array $metadata
      * @return ResourceEntityInterface
      * @throws EntityConflictExceptionInterface
      * @throws ValidationExceptionInterface
      */
-    public function create($class, array $fields, array $relationships = [])
+    public function create(
+        $class,
+        array $fields,
+        array $relationships = [],
+        array $metadata = []
+    )
     {
         $class = new \ReflectionClass($class);
         $entity = $class->newInstance();

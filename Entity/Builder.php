@@ -24,19 +24,23 @@ class Builder
      * @param Params $params
      * @param array $fields
      * @param array $relationships
+     * @param array $metadata
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
     public function create(
         Params $params,
         array $fields,
-        array $relationships = []
+        array $relationships = [],
+        array $metadata = []
     )
     {
         return isset($this->builders[$params->primaryType])
             ? $this->builders[$params->primaryType]
-                ->create($fields, $relationships)
+                ->create($fields, $relationships, $metadata)
             : $this->builders[self::DEFAULT_BUILDER]
-                ->create($params->primaryClass, $fields, $relationships);
+                ->create(
+                    $params->primaryClass, $fields, $relationships, $metadata
+                );
     }
 
     /**

@@ -26,20 +26,22 @@ class Mutator
      * @param ResourceEntityInterface $entity
      * @param array $fields
      * @param array $relationships
+     * @param array $metadata
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      */
     public function update(
         Params $params,
         ResourceEntityInterface $entity,
         array $fields,
-        array $relationships = []
+        array $relationships = [],
+        array $metadata = []
     )
     {
-        return isset($this->mutators[$params->primaryType])
+        $mutator = isset($this->mutators[$params->primaryType])
             ? $this->mutators[$params->primaryType]
-                ->update($entity, $fields, $relationships)
-            : $this->mutators[self::DEFAULT_MUTATOR]
-                ->update($entity, $fields, $relationships);
+            : $this->mutators[self::DEFAULT_MUTATOR];
+
+        return $mutator->update($entity, $fields, $relationships, $metadata);
     }
 
     /**

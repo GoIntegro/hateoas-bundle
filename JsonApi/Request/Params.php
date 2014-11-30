@@ -86,6 +86,10 @@ class Params
      * @var RequestAction
      */
     public $action;
+    /**
+     * @var string
+     */
+    public $locale;
 
     /**
      * @param string $field

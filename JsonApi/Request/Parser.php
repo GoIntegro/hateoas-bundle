@@ -76,6 +76,10 @@ class Parser
      */
     private $entityFinder;
     /**
+     * @var LocaleNegotiator
+     */
+    private $localeNegotiator;
+    /**
      * @var MetadataMinerInterface
      */
     private $mm;
@@ -87,6 +91,7 @@ class Parser
      * @param BodyParser $bodyParser
      * @param ActionParser $actionParser
      * @param ParamEntityFinder $entityFinder
+     * @param LocaleNegotiator $localeNegotiator
      * @param MetadataMinerInterface $mm
      * @param string $apiUrlPath
      * @param array $config
@@ -98,6 +103,7 @@ class Parser
         BodyParser $bodyParser,
         ActionParser $actionParser,
         ParamEntityFinder $entityFinder,
+        LocaleNegotiator $localeNegotiator,
         MetadataMinerInterface $mm,
         $apiUrlPath = '',
         array $config = []
@@ -114,6 +120,7 @@ class Parser
         $this->bodyParser = $bodyParser;
         $this->actionParser = $actionParser;
         $this->entityFinder = $entityFinder;
+        $this->localeNegotiator = $localeNegotiator;
         $this->mm = $mm;
     }
 
@@ -173,6 +180,7 @@ class Parser
 
         // Needs the params from the ActionParser (and ParamEntityFinder).
         $params->resources = $this->bodyParser->parse($request, $params);
+        $params->locale = $this->localeNegotiator->negotiate($request);
 
         return $params;
     }

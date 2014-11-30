@@ -82,6 +82,10 @@ class MagicAlterController extends SymfonyController
             throw new ConflictHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
 
@@ -89,10 +93,11 @@ class MagicAlterController extends SymfonyController
             foreach ($params->entities->primary as &$entity) {
                 $data = $params->resources[$entity->getId()];
                 $links = $this->extractLinks($data);
+                $metadata = $this->extractMetadata($data);
 
                 try {
                     $entity = $this->get('hateoas.entity.mutator')
-                        ->update($params, $entity, $data, $links);
+                        ->update($params, $entity, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -139,6 +144,10 @@ class MagicAlterController extends SymfonyController
             throw new ConflictHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
 
@@ -148,8 +157,9 @@ class MagicAlterController extends SymfonyController
             foreach ($params->resources as $data) {
                 try {
                     $links = $this->extractLinks($data);
+                    $metadata = $this->extractMetadata($data);
                     $entities[] = $this->get('hateoas.entity.builder')
-                        ->create($params, $data, $links);
+                        ->create($params, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -213,6 +223,10 @@ class MagicAlterController extends SymfonyController
             throw new ConflictHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
 
@@ -220,10 +234,11 @@ class MagicAlterController extends SymfonyController
             foreach ($params->entities->primary as &$entity) {
                 $data = $params->resources[$entity->getId()];
                 $links = $this->extractLinks($data);
+                $metadata = $this->extractMetadata($data);
 
                 try {
                     $entity = $this->get('hateoas.entity.mutator')
-                        ->update($params, $entity, $data, $links);
+                        ->update($params, $entity, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -287,6 +302,10 @@ class MagicAlterController extends SymfonyController
             throw new ConflictHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
 
@@ -316,5 +335,18 @@ class MagicAlterController extends SymfonyController
         unset($data['links']);
 
         return $links;
+    }
+
+    /**
+     * @param array &$data
+     * @return array
+     * @todo Move.
+     */
+    private function extractMetadata(array &$data)
+    {
+        $metadata = isset($data['meta']) ? $data['meta'] : [];
+        unset($data['meta']);
+
+        return $metadata;
     }
 }

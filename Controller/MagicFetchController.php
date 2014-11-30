@@ -71,6 +71,10 @@ class MagicFetchController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $relatedResource = NULL;
 
         if (RequestAction::TYPE_MULTIPLE == $params->action->type) {
@@ -123,6 +127,10 @@ class MagicFetchController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $metadata = $this->get('hateoas.metadata_miner')
             ->mine($params->primaryClass);
         $json = NULL;
@@ -162,6 +170,10 @@ class MagicFetchController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $resources = 1 < count($params->entities->primary)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
@@ -204,6 +216,10 @@ class MagicFetchController extends SymfonyController
             throw new BadRequestHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $resources = NULL;
         $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         $filter = function(ResourceEntityInterface $entity) {

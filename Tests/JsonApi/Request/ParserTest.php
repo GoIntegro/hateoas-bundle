@@ -44,6 +44,7 @@ class ParserTest extends TestCase
             self::createBodyParser(),
             self::createActionParser(),
             self::createParamEntityFinder(),
+            self::createLocaleNegotiator(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -70,6 +71,7 @@ class ParserTest extends TestCase
             self::createBodyParser(),
             self::createActionParser(),
             self::createParamEntityFinder(),
+            self::createLocaleNegotiator(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -100,6 +102,7 @@ class ParserTest extends TestCase
             self::createBodyParser(),
             self::createActionParser(),
             self::createParamEntityFinder(),
+            self::createLocaleNegotiator(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -130,6 +133,7 @@ class ParserTest extends TestCase
             self::createBodyParser(),
             self::createActionParser(),
             self::createParamEntityFinder(),
+            self::createLocaleNegotiator(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -238,6 +242,16 @@ class ParserTest extends TestCase
     {
         return Stub::makeEmpty(
             'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder'
+        );
+    }
+
+    /**
+     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LocaleNegotiator
+     */
+    private static function createLocaleNegotiator()
+    {
+        return Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LocaleNegotiator'
         );
     }
 

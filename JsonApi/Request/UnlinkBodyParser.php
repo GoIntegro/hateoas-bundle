@@ -17,7 +17,7 @@ use Doctrine\Common\Collections\Collection;
 /**
  * @see http://jsonapi.org/format/#crud-updating
  */
-class RelateBodyParser
+class UnlinkBodyParser
 {
     const LINKS = 'links';
 
@@ -28,23 +28,9 @@ class RelateBodyParser
         ERROR_RELATIONSHIP_NOT_FOUND = "The relationship was not found.";
 
     /**
-     * @var Util\JsonCoder
-     */
-    protected $jsonCoder;
-
-    /**
-     * @param Util\JsonCoder $jsonCoder
-     */
-    public function __construct(Util\JsonCoder $jsonCoder)
-    {
-        $this->jsonCoder = $jsonCoder;
-    }
-
-    /**
      * @param Request $request
      * @param Params $params
      * @return array
-     * @todo Sólo sirve para actualizar ahora.
      */
     public function parse(Request $request, Params $params)
     {
@@ -59,24 +45,7 @@ class RelateBodyParser
             $relation = $relation->toArray();
         }
 
-        if (in_array($params->action->name, [
-            RequestAction::ACTION_CREATE, RequestAction::ACTION_UPDATE
-        ])) {
-            $rawBody = $request->getContent();
-            $data = $this->jsonCoder->decode($rawBody);
-
-            if (!is_array($data) || !isset($data[$params->relationship])) {
-                throw new ParseException(self::ERROR_EMPTY_BODY);
-            }
-
-            $ids = $data[$params->relationship];
-
-            if (RequestAction::ACTION_CREATE == $params->action->name) {
-                $ids = $this->parseCreateAction($ids, $relation);
-            }
-        } elseif (RequestAction::ACTION_DELETE == $params->action->name) {
-            $ids = $this->parseDeleteAction($params, $relation);
-        }
+        $ids = $this->parseDeleteAction($params, $relation);
 
         $entityData = [
             (string) $entity->getId() => [
@@ -87,45 +56,6 @@ class RelateBodyParser
         ];
 
         return $entityData;
-    }
-
-    /**
-     * @param mixed $ids
-     * @param array $relation
-     * @return mixed
-     * @throws ParseException
-     * @throws ExistingRelationshipException
-     */
-    protected function parseCreateAction($ids, array $relation)
-    {
-        if (is_array($ids)) {
-            if (!is_array($relation)) {
-                throw new ParseException(
-                    self::ERROR_RELATIONSHIP_TYPE
-                );
-            }
-
-            $callback = function($entity) {
-                return (string) $entity->getId();
-            };
-            $current = array_map($callback, $relation);
-            $intersection = array_intersect($ids, $current);
-
-            if (!empty($intersection)) {
-                $existing = implode('", "', $intersection);
-                $message = sprintf(self::ERROR_RELATIONSHIP_EXISTS, $existing);
-                throw new ExistingRelationshipException($message);
-            }
-
-            $ids = array_merge($current, $ids);
-        } elseif (is_string($ids) && !empty($relation)) {
-            $message = sprintf(self::ERROR_RELATIONSHIP_EXISTS, $ids);
-            throw new ExistingRelationshipException($message);
-        } elseif (!is_string($ids)) {
-            throw new ParseException(self::ERROR_RELATIONSHIP_TYPE);
-        }
-
-        return $ids;
     }
 
     /**

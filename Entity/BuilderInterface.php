@@ -12,9 +12,14 @@ interface BuilderInterface extends GenericBuilderInterface
     /**
      * @param array $fields
      * @param array $relationships
+     * @param array $metadata
      * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface
      * @throws \GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface
      * @throws \GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface
      */
-    public function create(array $fields, array $relationships = []);
+    public function create(
+        array $fields,
+        array $relationships = [],
+        array $metadata = []
+    );
 }
