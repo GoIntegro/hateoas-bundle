@@ -82,6 +82,10 @@ class MagicAlterController extends SymfonyController
             throw new ConflictHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
 
@@ -140,6 +144,10 @@ class MagicAlterController extends SymfonyController
             throw new ConflictHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
 
@@ -215,6 +223,10 @@ class MagicAlterController extends SymfonyController
             throw new ConflictHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
 
@@ -290,6 +302,10 @@ class MagicAlterController extends SymfonyController
             throw new ConflictHttpException($e->getMessage(), $e);
         }
 
+        // @todo Move.
+        $this->get('stof_doctrine_extensions.listener.translatable')
+            ->setTranslatableLocale($params->locale)
+            ->setTranslationFallback(TRUE);
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
 
