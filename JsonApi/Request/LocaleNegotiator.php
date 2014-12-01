@@ -37,5 +37,7 @@ class LocaleNegotiator implements LocaleNegotiatorInterface
     public function setLocaleNegotiator(LocaleNegotiatorInterface $negotiator)
     {
         $this->localeNegotiator = $negotiator;
+
+        return $this;
     }
 }

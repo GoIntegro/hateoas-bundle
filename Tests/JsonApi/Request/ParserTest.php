@@ -45,6 +45,7 @@ class ParserTest extends TestCase
             self::createActionParser(),
             self::createParamEntityFinder(),
             self::createLocaleNegotiator(),
+            self::createTranslatableListener(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -72,6 +73,7 @@ class ParserTest extends TestCase
             self::createActionParser(),
             self::createParamEntityFinder(),
             self::createLocaleNegotiator(),
+            self::createTranslatableListener(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -103,6 +105,7 @@ class ParserTest extends TestCase
             self::createActionParser(),
             self::createParamEntityFinder(),
             self::createLocaleNegotiator(),
+            self::createTranslatableListener(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -134,6 +137,7 @@ class ParserTest extends TestCase
             self::createActionParser(),
             self::createParamEntityFinder(),
             self::createLocaleNegotiator(),
+            self::createTranslatableListener(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -201,7 +205,7 @@ class ParserTest extends TestCase
     private static function createFilterParser()
     {
         return Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser'
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\FilterParser'
         );
     }
 
@@ -211,7 +215,7 @@ class ParserTest extends TestCase
     private static function createPaginationParser()
     {
         return Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser'
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\PaginationParser'
         );
     }
 
@@ -221,7 +225,7 @@ class ParserTest extends TestCase
     private static function createBodyParser()
     {
         return Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser'
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\BodyParser'
         );
     }
 
@@ -231,7 +235,7 @@ class ParserTest extends TestCase
     private static function createActionParser()
     {
         return Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser'
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\ActionParser'
         );
     }
 
@@ -241,7 +245,7 @@ class ParserTest extends TestCase
     private static function createParamEntityFinder()
     {
         return Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder'
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\ParamEntityFinder'
         );
     }
 
@@ -251,7 +255,17 @@ class ParserTest extends TestCase
     private static function createLocaleNegotiator()
     {
         return Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LocaleNegotiator'
+            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\LocaleNegotiator'
+        );
+    }
+
+    /**
+     * @return \Gedmo\Translatable\Translatable
+     */
+    private static function createTranslatableListener()
+    {
+        return Stub::makeEmpty(
+            'Gedmo\\Translatable\\TranslatableListener'
         );
     }
 
@@ -261,12 +275,12 @@ class ParserTest extends TestCase
     private static function createDocFinder()
     {
         $ramlDoc = Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\Raml\RamlDoc',
+            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\RamlDoc',
             ['isDefined' => TRUE]
         );
 
         return Stub::makeEmpty(
-            'GoIntegro\Bundle\HateoasBundle\Raml\DocFinder',
+            'GoIntegro\\Bundle\\HateoasBundle\\Raml\\DocFinder',
             ['find' => $ramlDoc]
         );
     }

@@ -27,7 +27,8 @@
         "doctrine/orm": "*",
         "justinrainbow/json-schema": "*",
         "rhumsaa/uuid": "*",
-        "predis/predis": "*"
+        "predis/predis": "*",
+        "stof/doctrine-extensions-bundle": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "*",

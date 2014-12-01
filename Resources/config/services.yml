@@ -14,6 +14,7 @@ services:
       - @hateoas.request_parser.action
       - @hateoas.request_parser.entities
       - @hateoas.request_parser.locale
+      - @stof_doctrine_extensions.listener.translatable
       - @hateoas.metadata_miner
       - %api.url_path%
       - %go_integro_hateoas.json_api%

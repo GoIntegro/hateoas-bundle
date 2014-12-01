@@ -15,6 +15,8 @@ use GoIntegro\Bundle\HateoasBundle\Raml\DocFinder;
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 // Metadata.
 use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface;
+// Events.
+use Doctrine\Common\EventSubscriber;
 
 /**
  * @see http://jsonapi.org/format/#fetching
@@ -80,6 +82,10 @@ class Parser
      */
     private $localeNegotiator;
     /**
+     * @var EventSubscriber
+     */
+    private $translatableListener;
+    /**
      * @var MetadataMinerInterface
      */
     private $mm;
@@ -92,6 +98,7 @@ class Parser
      * @param ActionParser $actionParser
      * @param ParamEntityFinder $entityFinder
      * @param LocaleNegotiator $localeNegotiator
+     * @param EventSubscriber $translatableListener
      * @param MetadataMinerInterface $mm
      * @param string $apiUrlPath
      * @param array $config
@@ -104,6 +111,7 @@ class Parser
         ActionParser $actionParser,
         ParamEntityFinder $entityFinder,
         LocaleNegotiator $localeNegotiator,
+        EventSubscriber $translatableListener,
         MetadataMinerInterface $mm,
         $apiUrlPath = '',
         array $config = []
@@ -121,6 +129,7 @@ class Parser
         $this->actionParser = $actionParser;
         $this->entityFinder = $entityFinder;
         $this->localeNegotiator = $localeNegotiator;
+        $this->translatableListener = $translatableListener;
         $this->mm = $mm;
     }
 
@@ -150,6 +159,8 @@ class Parser
             = $this->parsePrimaryIds($request, $params->relationship);
         $params->relationshipIds
             = $this->parseRelationshipIds($request);
+        $params->locale = $this->localeNegotiator->negotiate($request);
+        $this->translatableListener->setTranslatableLocale($params->locale);
 
         if ($request->query->has('include')) {
             $params->include = $this->parseInclude($request);
@@ -180,7 +191,6 @@ class Parser
 
         // Needs the params from the ActionParser (and ParamEntityFinder).
         $params->resources = $this->bodyParser->parse($request, $params);
-        $params->locale = $this->localeNegotiator->negotiate($request);
 
         return $params;
     }
