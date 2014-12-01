@@ -21,7 +21,12 @@ abstract class ApiTestCase extends WebTestCase
 {
     const FAIL_RESPONSE_STATUS_PATTERN = "Failed asserting that the status code %s (\"%s)\" matches the expected %s (\"%s\").",
         WSSE_CREDENTIALS_PATTERN = "X-WSSE: UsernameToken Username=\"%s\", PasswordDigest=\"%s\", Nonce=\"%s\", Created=\"%s\"",
-        HEADER_LOCALE = 'en-GB';
+        HEADER_LOCALE = 'en-GB',
+        CONTENT_JSON = 'application/json',
+        /**
+         * @see http://www.iana.org/assignments/media-types/application/vnd.api+json
+         */
+        CONTENT_JSON_API = 'application/vnd.api+json';
 
     /**
      * @var array Los estados de respuesta HTTP y sus códigos.
@@ -210,13 +215,17 @@ abstract class ApiTestCase extends WebTestCase
      * @return Client
      */
     protected function buildHttpClient(
-        $url = NULL, $username = NULL, $password = NULL
+        $url = NULL,
+        $username = NULL,
+        $password = NULL,
+        $contentType = self::CONTENT_JSON_API,
+        $language = self::HEADER_LOCALE
     )
     {
         $client = new Client($url);
         $client->setHead([
-            'Accept: application/json',
-            'Accept-Language: ' . static::HEADER_LOCALE
+            'Accept: ' . $contentType,
+            'Accept-Language: ' . $language
         ]);
 
         if (is_scalar($username) && is_scalar($password)) {
