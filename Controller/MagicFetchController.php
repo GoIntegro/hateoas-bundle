@@ -177,6 +177,7 @@ class MagicFetchController extends SymfonyController
             ->createSerializerFactory()
             ->setParams($params)
             ->setDocumentResources($resources)
+            ->addMeta($params->entities->translations)
             ->create()
             ->serialize();
 

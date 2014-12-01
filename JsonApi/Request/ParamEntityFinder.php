@@ -69,8 +69,26 @@ class ParamEntityFinder
     public function find(Params $params)
     {
         $entities = (object) [
-            'primary' => $this->findPrimaryEntities($params)
+            'primary' => $this->findPrimaryEntities($params),
+            'translations' => []
         ];
+
+        if ($params->translations) {
+            $repository = $this->em->getRepository(
+                'Gedmo\\Translatable\\Entity\\Translation'
+            );
+
+            if (!empty($repository)) { // Do we have Gedmo?
+                foreach ($entities->primary as $entity) {
+                    $translations = $repository->findTranslations($entity);
+
+                    if (!empty($translations)) {
+                        $entity->translations
+                            = static::rearrangeTranslations($translations);
+                    }
+                }
+            }
+        }
 
         if (!empty($params->relationship)) {
             $entity = reset($entities->primary);
@@ -221,5 +239,22 @@ class ParamEntityFinder
         }
 
         return TRUE;
+    }
+
+    /**
+     * @param array $translations
+     * @return array
+     */
+    private static function rearrangeTranslations(array $byLocale)
+    {
+        $byField = [];
+
+        foreach ($byLocale as $locale => $fields) {
+            foreach ($fields as $field => $value) {
+                $byField[$field][] = compact(['locale', 'value']);
+            }
+        }
+
+        return $byField;
     }
 }

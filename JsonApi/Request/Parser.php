@@ -192,6 +192,7 @@ class Parser
                 = $this->paginationParser->parse($request, $params);
         }
 
+        $params->translations = $request->query->get('i18n', FALSE);
         $params->filters = $this->filterParser->parse($request, $params);
         $params->action = $this->actionParser->parse($request, $params);
 
