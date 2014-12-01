@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder,
     Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface,
     Symfony\Component\DependencyInjection\Reference;
 
-class LocaleCompilerPass implements CompilerPassInterface
+class ParserCompilerPass implements CompilerPassInterface
 {
     const REQUEST_PARSER_SERVICE = 'hateoas.request_parser',
         TRANSLATABLE_LISTENER_SERVICE
