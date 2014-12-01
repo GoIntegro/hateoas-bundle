@@ -168,10 +168,9 @@ class Parser
             = $this->parseRelationshipIds($request);
         $params->locale = $this->localeNegotiator->negotiate($request);
 
-        if (!empty($this->translatableListener)) {
+        if (!empty($this->translatableListener) && !empty($params->locale)) {
             $this->translatableListener
-                ->setTranslatableLocale($params->locale)
-                ->setTranslationFallback(TRUE); // @todo Configurable?
+                ->setTranslatableLocale($params->locale);
         }
 
         if ($request->query->has('include')) {
