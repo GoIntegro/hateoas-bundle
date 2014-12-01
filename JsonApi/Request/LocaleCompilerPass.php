@@ -14,24 +14,36 @@ use Symfony\Component\DependencyInjection\ContainerBuilder,
 
 class LocaleCompilerPass implements CompilerPassInterface
 {
-    const SERVICE_NAME = 'hateoas.request_parser.locale',
+    const LOCALE_PARSER_SERVICE = 'hateoas.request_parser.locale',
+        TRANSLATABLE_LISTENER_SERVICE
+            = 'stof_doctrine_extensions.listener.translatable',
         TAG_NAME = 'hateoas.request_parser.locale',
-        METHOD_NAME = 'setLocaleNegotiator';
+        SET_NEGOTIATOR_METHOD = 'setLocaleNegotiator',
+        SET_TRANSLATABLE_LISTENER = 'setTranslatableListener';
 
     /**
      * @param ContainerBuilder $container
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition(self::SERVICE_NAME)) continue;
+        if (!$container->hasDefinition(self::LOCALE_PARSER_SERVICE)) continue;
 
-        $definition = $container->getDefinition(self::SERVICE_NAME);
+        $definition = $container->getDefinition(self::LOCALE_PARSER_SERVICE);
         $taggedServices = $container->findTaggedServiceIds(self::TAG_NAME);
 
         foreach (array_keys($taggedServices) as $id) {
             $definition->addMethodCall(
-                self::METHOD_NAME, [new Reference($id)]
+                self::SET_NEGOTIATOR_METHOD, [new Reference($id)]
             );
         }
+
+        if ($container->hasDefinition(self::TRANSLATABLE_LISTENER_SERVICE)) {
+            $definition->addMethodCall(
+                self::SET_TRANSLATABLE_LISTENER,
+                [new Reference(self::TRANSLATABLE_LISTENER_SERVICE)]
+            );
+        }
+
+        return $this;
     }
 }

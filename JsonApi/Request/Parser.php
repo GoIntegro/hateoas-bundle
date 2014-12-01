@@ -98,7 +98,6 @@ class Parser
      * @param ActionParser $actionParser
      * @param ParamEntityFinder $entityFinder
      * @param LocaleNegotiator $localeNegotiator
-     * @param EventSubscriber $translatableListener
      * @param MetadataMinerInterface $mm
      * @param string $apiUrlPath
      * @param array $config
@@ -111,7 +110,6 @@ class Parser
         ActionParser $actionParser,
         ParamEntityFinder $entityFinder,
         LocaleNegotiator $localeNegotiator,
-        EventSubscriber $translatableListener,
         MetadataMinerInterface $mm,
         $apiUrlPath = '',
         array $config = []
@@ -129,8 +127,17 @@ class Parser
         $this->actionParser = $actionParser;
         $this->entityFinder = $entityFinder;
         $this->localeNegotiator = $localeNegotiator;
-        $this->translatableListener = $translatableListener;
         $this->mm = $mm;
+    }
+
+    /**
+     * @param EventSubscriber $translatableListener
+     */
+    public function setTranslatableListener(
+        EventSubscriber $translatableListener
+    )
+    {
+        $this->translatableListener = $translatableListener;
     }
 
     /**
@@ -160,7 +167,11 @@ class Parser
         $params->relationshipIds
             = $this->parseRelationshipIds($request);
         $params->locale = $this->localeNegotiator->negotiate($request);
-        $this->translatableListener->setTranslatableLocale($params->locale);
+
+        if (!empty($this->translatableListener)) {
+            $this->translatableListener
+                ->setTranslatableLocale($params->locale);
+        }
 
         if ($request->query->has('include')) {
             $params->include = $this->parseInclude($request);

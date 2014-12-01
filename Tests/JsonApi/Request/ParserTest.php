@@ -45,7 +45,6 @@ class ParserTest extends TestCase
             self::createActionParser(),
             self::createParamEntityFinder(),
             self::createLocaleNegotiator(),
-            self::createTranslatableListener(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -73,7 +72,6 @@ class ParserTest extends TestCase
             self::createActionParser(),
             self::createParamEntityFinder(),
             self::createLocaleNegotiator(),
-            self::createTranslatableListener(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -105,7 +103,6 @@ class ParserTest extends TestCase
             self::createActionParser(),
             self::createParamEntityFinder(),
             self::createLocaleNegotiator(),
-            self::createTranslatableListener(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -137,7 +134,6 @@ class ParserTest extends TestCase
             self::createActionParser(),
             self::createParamEntityFinder(),
             self::createLocaleNegotiator(),
-            self::createTranslatableListener(),
             self::createMetadataMiner(),
             self::API_BASE_URL,
             self::$config
@@ -256,16 +252,6 @@ class ParserTest extends TestCase
     {
         return Stub::makeEmpty(
             'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Request\\LocaleNegotiator'
-        );
-    }
-
-    /**
-     * @return \Gedmo\Translatable\Translatable
-     */
-    private static function createTranslatableListener()
-    {
-        return Stub::makeEmpty(
-            'Gedmo\\Translatable\\TranslatableListener'
         );
     }
 
