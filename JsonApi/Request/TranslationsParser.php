@@ -18,7 +18,7 @@ use GoIntegro\Bundle\HateoasBundle\Util;
  */
 class TranslationsParser implements BodyParserInterface
 {
-    const ERROR_TRANSLATIONS_TYPE = "Translations is expected to be a hash of lists.";
+    const ERROR_TRANSLATIONS_TYPE = "Translations is expected to be a list of hashes.";
 
     /**
      * @param Request $request
@@ -43,7 +43,7 @@ class TranslationsParser implements BodyParserInterface
 
         if (
             !is_array($translations)
-            || !Util\ArrayHelper::isAssociative($translations)
+            || Util\ArrayHelper::isAssociative($translations)
         ) {
             throw new ParseException(self::ERROR_TRANSLATIONS_TYPE);
         }
