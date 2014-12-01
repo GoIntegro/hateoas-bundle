@@ -83,8 +83,12 @@ class ParamEntityFinder
                     $translations = $repository->findTranslations($entity);
 
                     if (!empty($translations)) {
-                        $entity->translations
+                        $translations
                             = static::rearrangeTranslations($translations);
+                        $translations = array_merge(
+                            ['id' => $entity->getId()], $translations
+                        );
+                        $entities->translations[] = $translations;
                     }
                 }
             }
