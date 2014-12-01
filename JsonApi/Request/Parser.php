@@ -170,7 +170,8 @@ class Parser
 
         if (!empty($this->translatableListener)) {
             $this->translatableListener
-                ->setTranslatableLocale($params->locale);
+                ->setTranslatableLocale($params->locale)
+                ->setTranslationFallback(TRUE); // @todo Configurable?
         }
 
         if ($request->query->has('include')) {
