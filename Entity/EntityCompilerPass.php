@@ -46,5 +46,7 @@ class EntityCompilerPass implements CompilerPassInterface
                 }
             }
         }
+
+        return $this;
     }
 }

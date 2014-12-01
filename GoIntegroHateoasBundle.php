@@ -20,6 +20,7 @@ class GoIntegroHateoasBundle extends Bundle
     {
         parent::build($container);
         $container->addCompilerPass(new EntityCompilerPass)
+            ->addCompilerPass(new Request\ParserCompilerPass)
             ->addCompilerPass(new Request\FilterCompilerPass)
             ->addCompilerPass(new Request\LocaleCompilerPass);
     }

@@ -33,5 +33,7 @@ class FilterCompilerPass implements CompilerPassInterface
                 self::METHOD_NAME, [new Reference($id)]
             );
         }
+
+        return $this;
     }
 }
