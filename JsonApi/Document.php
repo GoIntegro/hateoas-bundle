@@ -98,6 +98,7 @@ class Document implements IteratorAggregate, Countable
         }
 
         $this->resources = $documentResource;
+        $this->translations = $translations;
     }
 
     /**
