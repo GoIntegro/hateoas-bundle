@@ -13,7 +13,8 @@ use Doctrine\Common\Util\Inflector;
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // ORM.
 use Doctrine\ORM\EntityManagerInterface,
-    Doctrine\ORM\ORMException;
+    Doctrine\ORM\ORMException,
+    Gedmo\Exception as GedmoException;
 // Validator.
 use Symfony\Component\Validator\ValidatorInterface,
     GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationException;
@@ -26,7 +27,9 @@ class DefaultMutator implements MutatorInterface
 
     const TRANSLATION_ENTITY = 'Gedmo\\Translatable\\Entity\\Translation';
 
-    const ERROR_COULD_NOT_UPDATE = "Could not update the resource.";
+    const ERROR_COULD_NOT_UPDATE = "Could not update the resource.",
+        ERROR_UNTRANSLATABLE_FIELD = "The field \"%s\" is not translatable.",
+        ERROR_TRANSLATION_FAILED = "The field \"%s\" could not be translated.";
 
     /**
      * @var EntityManagerInterface
@@ -94,7 +97,11 @@ class DefaultMutator implements MutatorInterface
             }
         }
 
-        $entity = $this->updateTranslations($entity, $metadata);
+        if (!empty($metadata['translations'])) {
+            $entity = $this->updateTranslations(
+                $entity, $metadata['translations']
+            );
+        }
 
         $errors = $this->validate($entity);
 
@@ -117,11 +124,21 @@ class DefaultMutator implements MutatorInterface
         ResourceEntityInterface $entity, array $translations
     )
     {
-        $repository = $manager->getRepository(self::TRANSLATION_ENTITY);
+        $repository = $this->em->getRepository(self::TRANSLATION_ENTITY);
 
         foreach ($translations as $locale => $fields) {
             foreach ($fields as $field => $value) {
-                $repository->translate($entity, $field, $locale, $value);
+                try {
+                    $repository->translate($entity, $field, $locale, $value);
+                } catch (GedmoException\InvalidArgumentException $e) {
+                    $message
+                        = sprintf(self::ERROR_UNTRANSLATABLE_FIELD, $field);
+                    throw new TranslationException($message, NULL, $e);
+                } catch (GedmoException $e) {
+                    $message
+                        = sprintf(self::ERROR_TRANSLATION_FAILED, $field);
+                    throw new TranslationException($message, NULL, $e);
+                }
             }
         }
 
