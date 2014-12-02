@@ -143,12 +143,16 @@ class SerializerFactory implements Factory
             }
         }
 
+        $translations = $this->params->entities
+            ? $this->params->entities->translations
+            : [];
         $document = new Document(
             $this->documentResource,
             $this->resourceCache,
             $include,
             $fields,
-            $this->params->pagination
+            $this->params->pagination,
+            $translations
         );
 
         foreach ($this->meta as $meta) {

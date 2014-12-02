@@ -83,12 +83,8 @@ class ParamEntityFinder
                     $translations = $repository->findTranslations($entity);
 
                     if (!empty($translations)) {
-                        $translations
-                            = static::rearrangeTranslations($translations);
-                        $translations = array_merge(
-                            ['id' => $entity->getId()], $translations
-                        );
-                        $entities->translations[] = $translations;
+                        $entities->translations[$entity->getId()]
+                            = $translations;
                     }
                 }
             }
@@ -243,22 +239,5 @@ class ParamEntityFinder
         }
 
         return TRUE;
-    }
-
-    /**
-     * @param array $translations
-     * @return array
-     */
-    private static function rearrangeTranslations(array $byLocale)
-    {
-        $byField = [];
-
-        foreach ($byLocale as $locale => $fields) {
-            foreach ($fields as $field => $value) {
-                $byField[$field][] = compact(['locale', 'value']);
-            }
-        }
-
-        return $byField;
     }
 }

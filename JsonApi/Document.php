@@ -55,6 +55,10 @@ class Document implements IteratorAggregate, Countable
      * @todo ¿Mover a un subtipo?
      */
     public $pagination;
+    /**
+     * @var array
+     */
+    public $translations;
 
     /**
      * @param ResourceCache $resourceCache
@@ -65,7 +69,8 @@ class Document implements IteratorAggregate, Countable
         ResourceCache $resourceCache,
         array $include = [],
         array $sparseFields = [],
-        DocumentPagination $pagination = NULL
+        DocumentPagination $pagination = NULL,
+        array $translations = NULL
     )
     {
         $this->primaryResources = new TypedResourceCollection($resourceCache);

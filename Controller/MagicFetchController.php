@@ -173,18 +173,12 @@ class MagicFetchController extends SymfonyController
                 ->setEntity(reset($params->entities->primary))
                 ->create();
 
-        $factory = $this->get('hateoas.resource_manager')
+        $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
             ->setParams($params)
-            ->setDocumentResources($resources);
-
-        if (!empty($params->entities->translations)) {
-            $factory->addMeta([
-                'translations' => $params->entities->translations
-            ]);
-        }
-
-        $json = $factory->create()->serialize();
+            ->setDocumentResources($resources)
+            ->create()
+            ->serialize();
 
         return $this->createETagResponse($json);
     }

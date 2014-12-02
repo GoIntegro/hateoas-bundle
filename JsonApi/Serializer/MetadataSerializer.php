@@ -22,6 +22,8 @@ class MetadataSerializer implements SerializerInterface
             = new PaginationMetadataSerializer($this->document);
         $this->searchResultSerializer
             = new SearchResultMetadataSerializer($this->document);
+        $this->translationsSerializer
+            = new TranslationsMetadataSerializer($this->document);
     }
 
     /**
@@ -33,7 +35,8 @@ class MetadataSerializer implements SerializerInterface
 
         $this->addMetadata($json)
             ->addPagination($json)
-            ->addSearchResult($json);
+            ->addSearchResult($json)
+            ->addTranslations($json);
 
         return $json;
     }
@@ -79,6 +82,23 @@ class MetadataSerializer implements SerializerInterface
             $primaryType
                 = $this->document->resources->getMetadata()->type;
             $json[$primaryType]['searchResult'] = $searchResult;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array &$json
+     * @return self
+     */
+    protected function addTranslations(array &$json)
+    {
+        $translations = $this->translationsSerializer->serialize();
+
+        if ($translations) {
+            $primaryType
+                = $this->document->resources->getMetadata()->type;
+            $json[$primaryType]['translations'] = $translations;
         }
 
         return $this;
