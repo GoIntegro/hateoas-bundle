@@ -119,24 +119,20 @@ JSON;
                     $data = $this->mutationBodyParser->parse(
                         $request, $params, $body
                     );
+                    $translations = $this->translationsParser->parse(
+                        $request, $params, $body
+                    );
+
+                    if (!empty($translations)) {
+                        foreach ($data as $id => &$datum) {
+                            $datum['meta'] = $translations[$id];
+                        }
+                    }
+
                     $schema = $this->findResourceObjectSchema(
                         $params, Raml\RamlSpec::HTTP_PUT
                     );
                     break;
-            }
-
-            if (!empty($body)) {
-                $translations = $this->translationsParser->parse(
-                    $request, $params, $body
-                );
-
-                if (!empty($translations)) {
-                    $data['meta'] = [
-                        $params->primaryType => [
-                            'translations' => $translations
-                        ]
-                    ];
-                }
             }
         } elseif (RequestAction::ACTION_FETCH != $params->action->name) {
             $data = RequestAction::ACTION_DELETE == $params->action->name
