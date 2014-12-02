@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // Utils.
-use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
+use GoIntegro\Bundle\HateoasBundle\Util;
 // Collections.
 use Doctrine\Common\Collections\Collection;
 
@@ -45,18 +45,25 @@ class ParamEntityFinder
      * @var SecurityContextInterface
      */
     private $securityContext;
+    /**
+     * @var Util\RepositoryHelper
+     */
+    private $repoHelper;
 
     /**
      * @param EntityManagerInterface $em
      * @param SecurityContextInterface $securityContext
+     * @param Util\RepositoryHelper
      */
     public function __construct(
         EntityManagerInterface $em,
-        SecurityContextInterface $securityContext
+        SecurityContextInterface $securityContext,
+        Util\RepositoryHelper $repoHelper
     )
     {
         $this->em = $em;
         $this->securityContext = $securityContext;
+        $this->repoHelper = $repoHelper;
     }
 
     /**
@@ -73,27 +80,13 @@ class ParamEntityFinder
             'translations' => []
         ];
 
-        if ($params->translations) {
-            $repository = $this->em->getRepository(
-                'Gedmo\\Translatable\\Entity\\Translation'
-            );
-
-            if (!empty($repository)) { // Do we have Gedmo?
-                foreach ($entities->primary as $entity) {
-                    $translations = $repository->findTranslations($entity);
-
-                    if (!empty($translations)) {
-                        $entities->translations[$entity->getId()]
-                            = $translations;
-                    }
-                }
-            }
-        }
-
         if (!empty($params->relationship)) {
             $entity = reset($entities->primary);
             $entities->relationship
                 = $this->findRelationshipEntities($params, $entity);
+        } elseif ($params->translations) {
+            $entities->translations
+                = $this->findPrimaryEntityTranslations($entities->primary);
         }
 
         return $entities;
@@ -110,9 +103,10 @@ class ParamEntityFinder
             throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
-        $entities = $this->em
-            ->getRepository($params->primaryClass)
-            ->findById($params->primaryIds);
+        $entities = empty($params->primaryIds)
+            ? $this->repoHelper->findByRequestParams($params)
+            : $this->em->getRepository($params->primaryClass)
+                ->findById($params->primaryIds);
 
         if (!$this->canAccessEntities($params, $entities)) {
             throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
@@ -141,7 +135,7 @@ class ParamEntityFinder
         ResourceEntityInterface $entity
     )
     {
-        $method = 'get' . Inflector::camelize($params->relationship);
+        $method = 'get' . Util\Inflector::camelize($params->relationship);
         $entities = $entity->$method();
 
         if ($entities instanceof Collection) {
@@ -175,6 +169,30 @@ class ParamEntityFinder
         }
 
         return $visible;
+    }
+
+    /**
+     * @param array $entities
+     * @return array
+     */
+    private function findPrimaryEntityTranslations(array $entities)
+    {
+        $allTranslations = [];
+        $repository = $this->em->getRepository(
+            'Gedmo\\Translatable\\Entity\\Translation'
+        );
+
+        if (!empty($repository)) { // Do we have Gedmo?
+            foreach ($entities as $entity) {
+                $translations = $repository->findTranslations($entity);
+
+                if (!empty($translations)) {
+                    $allTranslations[$entity->getId()] = $translations;
+                }
+            }
+        }
+
+        return $allTranslations;
     }
 
     /**
