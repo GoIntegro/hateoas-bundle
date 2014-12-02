@@ -82,7 +82,7 @@ class ParamEntityFinder
         ];
 
         if (!empty($params->relationship)) {
-            $entity = reset($entities->primary);
+            $entity = $entities->primary->first();
             $entities->relationship
                 = $this->findRelationshipEntities($params, $entity);
         } elseif ($params->translations) {
@@ -105,7 +105,7 @@ class ParamEntityFinder
         }
 
         $entities = empty($params->primaryIds)
-            ? $this->repoHelper->findByRequestParams($params)
+            ? $this->findPrimaryEntitiesByFilters($params)
             : $this->findPrimaryEntitiesByIds($params);
 
         if (!$this->canAccessEntities($params, $entities)) {
@@ -132,6 +132,17 @@ class ParamEntityFinder
         }
 
         return new ArrayCollection($entities);
+    }
+
+    /**
+     * @param Params $params
+     * @return ArrayCollection
+     */
+    private function findPrimaryEntitiesByFilters(Params $params)
+    {
+        return RequestAction::ACTION_FETCH == $params->action->name
+            ? $this->repoHelper->findByRequestParams($params)
+            : new ArrayCollection;
     }
 
     /**
@@ -258,7 +269,11 @@ class ParamEntityFinder
             $access = self::ACCESS_EDIT;
         } elseif (!empty(self::$actionToAccess[$params->action->name])) {
             $access = self::$actionToAccess[$params->action->name];
-        } else {
+        } elseif (0 < count($entities)) {
+            /* Variable. */ $le = $params->action; if (!isset($lb)) $lb = false; $lp = 'file:///tmp/skqr.log'; if (!isset($_ENV[$lp])) $_ENV[$lp] = 0; $le = var_export($le, true); error_log(sprintf("%s/**\n * %s\n * %s\n * %s\n */\n\$params->action = %s;\n\n", $lb ? '' : str_repeat('=', 14) . ' ' . ++$_ENV[$lp] . gmdate(' r ') . str_repeat('=', 14) . "\n", microtime(true), basename(__FILE__) . ':' . __LINE__, __METHOD__ ? __METHOD__ . '()' : '', $le), 3, $lp); if (!$lb) $lb = true; // Javier Lorenzana <javier.lorenzana@gointegro.com>
+            /* Variable. */ $le = count($entities); if (!isset($lb)) $lb = false; $lp = 'file:///tmp/skqr.log'; if (!isset($_ENV[$lp])) $_ENV[$lp] = 0; $le = var_export($le, true); error_log(sprintf("%s/**\n * %s\n * %s\n * %s\n */\ncount(\$entities) = %s;\n\n", $lb ? '' : str_repeat('=', 14) . ' ' . ++$_ENV[$lp] . gmdate(' r ') . str_repeat('=', 14) . "\n", microtime(true), basename(__FILE__) . ':' . __LINE__, __METHOD__ ? __METHOD__ . '()' : '', $le), 3, $lp); if (!$lb) $lb = true; // Javier Lorenzana <javier.lorenzana@gointegro.com>
+            /* Variable. */ $le = $entities; $le = get_class($le); if (!isset($lb)) $lb = false; $lp = 'file:///tmp/skqr.log'; if (!isset($_ENV[$lp])) $_ENV[$lp] = 0; $le = var_export($le, true); error_log(sprintf("%s/**\n * %s\n * %s\n * %s\n */\nget_class(\$entities) = %s;\n\n", $lb ? '' : str_repeat('=', 14) . ' ' . ++$_ENV[$lp] . gmdate(' r ') . str_repeat('=', 14) . "\n", microtime(true), basename(__FILE__) . ':' . __LINE__, __METHOD__ ? __METHOD__ . '()' : '', $le), 3, $lp); if (!$lb) $lb = true; // Javier Lorenzana <javier.lorenzana@gointegro.com>
+            /* Variable. */ $le = $entities->first(); $le = get_class($le); if (!isset($lb)) $lb = false; $lp = 'file:///tmp/skqr.log'; if (!isset($_ENV[$lp])) $_ENV[$lp] = 0; $le = var_export($le, true); error_log(sprintf("%s/**\n * %s\n * %s\n * %s\n */\nget_class(\$entities->first()) = %s;\n\n", $lb ? '' : str_repeat('=', 14) . ' ' . ++$_ENV[$lp] . gmdate(' r ') . str_repeat('=', 14) . "\n", microtime(true), basename(__FILE__) . ':' . __LINE__, __METHOD__ ? __METHOD__ . '()' : '', $le), 3, $lp); if (!$lb) $lb = true; // Javier Lorenzana <javier.lorenzana@gointegro.com>
             throw new ParseException(self::ERROR_CANNOT_CHOOSE_ACCESS);
         }
 

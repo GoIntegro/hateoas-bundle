@@ -244,11 +244,11 @@ class MagicAlterController extends SymfonyController
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)
-                ->addEntities($params->entities->primary)
+                ->addEntities($params->entities->primary->toArray())
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($params->entities->primary))
+                ->setEntity($params->entities->primary->first())
                 ->create();
         $json = $this->get('hateoas.resource_manager')
             ->createSerializerFactory()
