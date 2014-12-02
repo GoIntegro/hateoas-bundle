@@ -125,7 +125,8 @@ JSON;
 
                     if (!empty($translations)) {
                         foreach ($data as $id => &$datum) {
-                            $datum['meta'] = $translations[$id];
+                            $datum['meta']['translations']
+                                = $translations[$id];
                         }
                     }
 

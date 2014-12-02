@@ -24,6 +24,8 @@ class DefaultMutator implements MutatorInterface
 
     const GET = 'get', REMOVE = 'remove', ADD = 'add', SET = 'set';
 
+    const TRANSLATION_ENTITY = 'Gedmo\\Translatable\\Entity\\Translation';
+
     const ERROR_COULD_NOT_UPDATE = "Could not update the resource.";
 
     /**
@@ -92,6 +94,8 @@ class DefaultMutator implements MutatorInterface
             }
         }
 
+        $entity = $this->updateTranslations($entity, $metadata);
+
         $errors = $this->validate($entity);
 
         try {
@@ -99,6 +103,26 @@ class DefaultMutator implements MutatorInterface
             $this->em->flush();
         } catch (ORMException $e) {
             throw new PersistenceException(self::ERROR_COULD_NOT_UPDATE);
+        }
+
+        return $entity;
+    }
+
+    /**
+     * @param ResourceEntityInterface $entity
+     * @param array $translations
+     * @return ResourceEntityInterface
+     */
+    private function updateTranslations(
+        ResourceEntityInterface $entity, array $translations
+    )
+    {
+        $repository = $manager->getRepository(self::TRANSLATION_ENTITY);
+
+        foreach ($translations as $locale => $fields) {
+            foreach ($fields as $field => $value) {
+                $repository->translate($entity, $field, $locale, $value);
+            }
         }
 
         return $entity;
