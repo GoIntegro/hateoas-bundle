@@ -16,7 +16,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // Utils.
 use GoIntegro\Bundle\HateoasBundle\Util;
 // Collections.
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Collection,
+    Doctrine\Common\Collections\ArrayCollection;
 
 class ParamEntityFinder
 {
@@ -105,12 +106,23 @@ class ParamEntityFinder
 
         $entities = empty($params->primaryIds)
             ? $this->repoHelper->findByRequestParams($params)
-            : $this->em->getRepository($params->primaryClass)
-                ->findById($params->primaryIds);
+            : $this->findPrimaryEntitiesByIds($params);
 
         if (!$this->canAccessEntities($params, $entities)) {
             throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
         }
+
+        return $entities;
+    }
+
+    /**
+     * @param Params $params
+     * @return ArrayCollection
+     */
+    private function findPrimaryEntitiesByIds(Params $params)
+    {
+        $entities = $this->em->getRepository($params->primaryClass)
+            ->findById($params->primaryIds);
 
         if (
             empty($entities)
@@ -119,7 +131,7 @@ class ParamEntityFinder
             throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
-        return $entities;
+        return new ArrayCollection($entities);
     }
 
     /**
@@ -235,10 +247,10 @@ class ParamEntityFinder
 
     /**
      * @param Params $params
-     * @param array $entities
+     * @param Collection $entities
      * @throws ParseException
      */
-    private function canAccessEntities(Params $params, array $entities)
+    private function canAccessEntities(Params $params, Collection $entities)
     {
         $access = NULL;
 
