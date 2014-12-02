@@ -18,7 +18,10 @@ use GoIntegro\Bundle\HateoasBundle\Util;
  */
 class TranslationsParser implements BodyParserInterface
 {
-    const ERROR_TRANSLATIONS_TYPE = "Translations is expected to be a list of hashes.";
+    const ERROR_TRANSLATIONS_TYPE = "Translations is expected to be a list of hashes.",
+        ERROR_MISSING_ID = "The resource Id is missing for one of the given translations.",
+        ERROR_DUPLICATED_TRANSLATION = "Two or more translations were provided twice for the same field and locale in an entity.",
+        ERROR_MALFORMED_TRANSLATION = "The translation is missing a locale or a value.";
 
     /**
      * @param Request $request
@@ -37,13 +40,45 @@ class TranslationsParser implements BodyParserInterface
         ) {
             return $translations;
         } else {
-            $translations
-                = $body['meta'][$params->primaryType]['translations'];
+            foreach (
+                $body['meta'][$params->primaryType]['translations']
+                    as $resourceTranslations
+            ) {
+                if (empty($resourceTranslations['id'])) {
+                    throw new ParseException(self::ERROR_MISSING_ID);
+                }
+
+                $id = $resourceTranslations['id'];
+
+                foreach (
+                    $resourceTranslations as $field => $fieldTranslations
+                ) {
+                    if (!is_array($fieldTranslations)) continue;
+
+                    foreach ($fieldTranslations as $translation) {
+                        extract($translation); // $locale, $value.
+
+                        if (empty($locale) || empty($value)) {
+                            throw new ParseException(
+                                self::ERROR_MALFORMED_TRANSLATION
+                            );
+                        }
+
+                        if (!empty($translations[$id][$locale][$field])) {
+                            throw new ParseException(
+                                self::ERROR_DUPLICATED_TRANSLATION
+                            );
+                        }
+
+                        $translations[$id][$locale][$field] = $value;
+                    }
+                }
+            }
         }
 
         if (
             !is_array($translations)
-            || Util\ArrayHelper::isAssociative($translations)
+            || !Util\ArrayHelper::isAssociative($translations)
         ) {
             throw new ParseException(self::ERROR_TRANSLATIONS_TYPE);
         }
