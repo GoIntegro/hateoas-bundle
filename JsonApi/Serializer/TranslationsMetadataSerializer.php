@@ -26,13 +26,38 @@ class TranslationsMetadataSerializer implements SerializerInterface
     {
         $json = [];
 
-        if (!empty($this->document->pagination)) {
-            foreach (['page', 'size', 'total'] as $key) {
-                if (is_null($this->document->pagination->$key)) continue;
-                $json[$key] = $this->document->pagination->$key;
+        if (!empty($this->document->translations)) {
+            if ($this->document->wasCollection) {
+                foreach (
+                    $this->document->translations as $id => $translations
+                ) {
+                    $translations
+                        = static::rearrangeTranslations($translations);
+                    $json[] = array_merge(compact('id'), $translations);
+                }
+            } else {
+                $translations = reset($this->document->translations);
+                $json = static::rearrangeTranslations($translations);
             }
         }
 
         return $json;
+    }
+
+    /**
+     * @param array $translations
+     * @return array
+     */
+    private static function rearrangeTranslations(array $byLocale)
+    {
+        $byField = [];
+
+        foreach ($byLocale as $locale => $fields) {
+            foreach ($fields as $field => $value) {
+                $byField[$field][] = compact(['locale', 'value']);
+            }
+        }
+
+        return $byField;
     }
 }

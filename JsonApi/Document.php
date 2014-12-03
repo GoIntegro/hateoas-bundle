@@ -46,7 +46,7 @@ class Document implements IteratorAggregate, Countable
      */
     public $meta = [];
     /**
-     * @var boolean Se trata del tipo de representación.
+     * @var boolean It's about the representation; single or collection.
      * @see http://jsonapi.org/format/#document-structure-resource-representations
      */
     public $wasCollection = FALSE;
@@ -55,6 +55,10 @@ class Document implements IteratorAggregate, Countable
      * @todo ¿Mover a un subtipo?
      */
     public $pagination;
+    /**
+     * @var array
+     */
+    public $translations;
 
     /**
      * @param ResourceCache $resourceCache
@@ -65,7 +69,8 @@ class Document implements IteratorAggregate, Countable
         ResourceCache $resourceCache,
         array $include = [],
         array $sparseFields = [],
-        DocumentPagination $pagination = NULL
+        DocumentPagination $pagination = NULL,
+        array $translations = NULL
     )
     {
         $this->primaryResources = new TypedResourceCollection($resourceCache);
@@ -93,6 +98,7 @@ class Document implements IteratorAggregate, Countable
         }
 
         $this->resources = $documentResource;
+        $this->translations = $translations;
     }
 
     /**

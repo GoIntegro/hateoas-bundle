@@ -168,10 +168,9 @@ class Parser
             = $this->parseRelationshipIds($request);
         $params->locale = $this->localeNegotiator->negotiate($request);
 
-        if (!empty($this->translatableListener)) {
+        if (!empty($this->translatableListener) && !empty($params->locale)) {
             $this->translatableListener
-                ->setTranslatableLocale($params->locale)
-                ->setTranslationFallback(TRUE); // @todo Configurable?
+                ->setTranslatableLocale($params->locale);
         }
 
         if ($request->query->has('include')) {
@@ -193,13 +192,12 @@ class Parser
                 = $this->paginationParser->parse($request, $params);
         }
 
+        $params->translations = $request->query->has('i18n');
         $params->filters = $this->filterParser->parse($request, $params);
         $params->action = $this->actionParser->parse($request, $params);
 
-        if (!empty($params->primaryIds)) {
-            // Needs the params from the ActionParser.
-            $params->entities = $this->entityFinder->find($params);
-        }
+        // Needs the params from the ActionParser.
+        $params->entities = $this->entityFinder->find($params);
 
         // Needs the params from the ActionParser (and ParamEntityFinder).
         $params->resources = $this->bodyParser->parse($request, $params);

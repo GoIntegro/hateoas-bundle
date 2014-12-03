@@ -18,7 +18,11 @@ use GoIntegro\Bundle\HateoasBundle\Util;
  */
 class TranslationsParser implements BodyParserInterface
 {
-    const ERROR_TRANSLATIONS_TYPE = "Translations is expected to be a hash of lists.";
+    const ERROR_TRANSLATIONS_TYPE = "Translations is expected to be a list of hashes.",
+        ERROR_MISSING_ID = "The resource Id is missing for one of the given translations.",
+        ERROR_DUPLICATED_TRANSLATION = "Two or more translations were provided twice for the same field and locale in an entity.",
+        ERROR_DUPLICATED_ENTITY = "The same entity appears twice or more in the translation list.",
+        ERROR_MALFORMED_TRANSLATION = "The translation is missing a locale or a value.";
 
     /**
      * @param Request $request
@@ -36,9 +40,25 @@ class TranslationsParser implements BodyParserInterface
             || empty($body['meta'][$params->primaryType]['translations'])
         ) {
             return $translations;
-        } else {
+        }
+
+        $bodyTranslations
+            = &$body['meta'][$params->primaryType]['translations'];
+
+        if (Util\ArrayHelper::isAssociative($bodyTranslations)) {
             $translations
-                = $body['meta'][$params->primaryType]['translations'];
+                = $this->serializeTransationObject($bodyTranslations);
+        } else {
+            foreach ($bodyTranslations as $resourceTranslations) {
+                if (empty($resourceTranslations['id'])) {
+                    throw new ParseException(self::ERROR_MISSING_ID);
+                } elseif (isset($translations[$resourceTranslations['id']])) {
+                    throw new ParseException(self::ERROR_DUPLICATED_ENTITY);
+                }
+
+                $translations[$resourceTranslations['id']]
+                    = $this->serializeTransationObject($resourceTranslations);
+            }
         }
 
         if (
@@ -46,6 +66,40 @@ class TranslationsParser implements BodyParserInterface
             || !Util\ArrayHelper::isAssociative($translations)
         ) {
             throw new ParseException(self::ERROR_TRANSLATIONS_TYPE);
+        }
+
+        return $translations;
+    }
+
+    /**
+     *
+     */
+    protected function serializeTransationObject(array $resourceTranslations)
+    {
+        $translations = [];
+
+        foreach (
+            $resourceTranslations as $field => $fieldTranslations
+        ) {
+            if (!is_array($fieldTranslations)) continue;
+
+            foreach ($fieldTranslations as $translation) {
+                extract($translation); // $locale, $value.
+
+                if (empty($locale) || empty($value)) {
+                    throw new ParseException(
+                        self::ERROR_MALFORMED_TRANSLATION
+                    );
+                }
+
+                if (!empty($translations[$locale][$field])) {
+                    throw new ParseException(
+                        self::ERROR_DUPLICATED_TRANSLATION
+                    );
+                }
+
+                $translations[$locale][$field] = $value;
+            }
         }
 
         return $translations;

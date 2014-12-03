@@ -36,7 +36,7 @@ class LinkBodyParser implements BodyParserInterface
      */
     public function parse(Request $request, Params $params, array $body)
     {
-        $entity = reset($params->entities->primary);
+        $entity = $params->entities->primary->first();
         $ids = NULL;
 
         // @todo Encapsulate.

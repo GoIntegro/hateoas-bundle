@@ -90,6 +90,10 @@ class Params
      * @var string
      */
     public $locale;
+    /**
+     * @var boolean
+     */
+    public $translations;
 
     /**
      * @param string $field

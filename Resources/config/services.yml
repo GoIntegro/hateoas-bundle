@@ -78,7 +78,7 @@ services:
     arguments:
       - @doctrine.orm.entity_manager
       - @security.context
-      - @hateoas.json_coder
+      - @hateoas.repo_helper
 
   hateoas.request_parser.locale:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LocaleNegotiator

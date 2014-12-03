@@ -34,7 +34,7 @@ class UnlinkBodyParser
      */
     public function parse(Request $request, Params $params)
     {
-        $entity = reset($params->entities->primary);
+        $entity = $params->entities->primary->first();
         $ids = NULL;
 
         // @todo Encapsulate.
