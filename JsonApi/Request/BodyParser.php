@@ -21,7 +21,8 @@ class BodyParser
 {
     const ERROR_PRIMARY_TYPE_KEY = "The resource type key is missing from the body.",
         ERROR_MISSING_SCHEMA = "A RAML schema was expected for the current action upon the resource \"%s\".",
-        ERROR_MALFORMED_SCHEMA = "The RAML schema for the current action is missing the primary type key, \"%s\".";
+        ERROR_MALFORMED_SCHEMA = "The RAML schema for the current action is missing the primary type key, \"%s\".",
+        ERROR_MISSING_TRANSLATION = "A translation is missing for the entity with the Id \"%s\".";
 
     const LINK_SCHEMA = <<<'JSON'
         {
@@ -125,6 +126,13 @@ JSON;
 
                     if (!empty($translations)) {
                         foreach ($data as $id => &$datum) {
+                            if (empty($translations[$id])) {
+                                $message = sprintf(
+                                    self::ERROR_MISSING_TRANSLATION, $id
+                                );
+                                throw new ParseException($message);
+                            }
+
                             $datum['meta']['translations']
                                 = $translations[$id];
                         }

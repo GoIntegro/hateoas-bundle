@@ -46,7 +46,8 @@ class TranslationsParser implements BodyParserInterface
             = &$body['meta'][$params->primaryType]['translations'];
 
         if (Util\ArrayHelper::isAssociative($bodyTranslations)) {
-            $translations
+            $id = reset($params->primaryIds);
+            $translations[$id]
                 = $this->serializeTransationObject($bodyTranslations);
         } else {
             foreach ($bodyTranslations as $resourceTranslations) {
