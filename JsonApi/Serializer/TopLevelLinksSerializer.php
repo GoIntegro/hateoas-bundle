@@ -13,26 +13,30 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 /**
  * @see http://jsonapi.org/format/#document-structure-top-level
  */
-class TopLevelLinksSerializer implements SerializerInterface
+class TopLevelLinksSerializer implements DocumentSerializerInterface
 {
-    private $document;
+    private $apiUrlPath;
     private $linkedResourcesSerializer;
     private $paginationLinksSerializer;
 
-    public function __construct(Document $document, $apiUrlPath = '')
+    /**
+     * @param string $apiUrlPath
+     */
+    public function __construct($apiUrlPath = '')
     {
-        $this->document = $document;
-        $this->linkedResourcesSerializer
-            = new TopLevelLinkedLinksSerializer($this->document, $apiUrlPath);
-        $this->paginationLinksSerializer
-            = new TopLevelPaginationLinksSerializer($this->document);
+        $this->apiUrlPath = $apiUrlPath;
     }
 
     /**
-     * @see SerializerInterface::serialize
+     * @see DocumentSerializerInterface::serialize
      */
-    public function serialize()
+    public function serialize(Document $document)
     {
+        $this->linkedResourcesSerializer
+            = new TopLevelLinkedLinksSerializer($document, $this->apiUrlPath);
+        $this->paginationLinksSerializer
+            = new TopLevelPaginationLinksSerializer($document);
+
         $json = [];
 
         $this->addLinkedResources($json)

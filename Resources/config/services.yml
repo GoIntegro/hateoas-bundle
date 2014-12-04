@@ -113,8 +113,6 @@ services:
       - @hateoas.metadata_miner
       - @hateoas.resource_cache
       - @service_container
-      - @security.context
-      - %api.url_path%
 
   hateoas.resource_cache:
     class: %hateoas.resource_cache.class%
@@ -185,6 +183,34 @@ services:
     tags:
       -  { name: hateoas.entity.deleter, resource_type: default }
 
+  hateoas.serializer.document:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentSerializer
+    arguments:
+      - @hateoas.serializer.document.links
+      - @hateoas.serializer.document.linked
+      - @hateoas.serializer.document.meta
+      - @security.context
+
+  hateoas.serializer.document.links:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelLinksSerializer
+    public: false
+    arguments: [%api.url_path%]
+
+  hateoas.serializer.document.linked:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\LinkedResourcesSerializer
+    public: false
+    arguments: [@security.context]
+
+  hateoas.serializer.document.meta:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\MetadataSerializer
+    public: false
+    arguments: [@hateoas.serializer.document.translations_meta]
+
+  hateoas.serializer.document.translations_meta:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TranslationsMetadataSerializer
+    public: false
+    arguments: [@doctrine.orm.entity_manager]
+
   hateoas.raml.finder:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocFinder
     arguments:
@@ -194,5 +220,4 @@ services:
 
   hateoas.raml.parser:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocParser
-    arguments:
-      - @hateoas.json_coder
+    arguments: [@hateoas.json_coder]

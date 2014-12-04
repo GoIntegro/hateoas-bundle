@@ -8,15 +8,11 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi;
 
 // Serializers.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelLinksSerializer,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\LinkedResourcesSerializer,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\ResourceObjectSerializer,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\LinkedResourcesSerialization,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\MetadataSerializer;
+use GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
-class DocumentSerializer
+class DocumentSerializer implements Serializer\DocumentSerializerInterface
 {
     const ERROR_EMPTY_DOCUMENT = "El documento debe contener al menos un recurso de entidad.";
 
@@ -30,29 +26,33 @@ class DocumentSerializer
     private $securityContext;
 
     /**
-     * @param Document $document
+     * @param Serializer\TopLevelLinksSerializer $topLevelLinkSerializer
+     * @param Serializer\LinkedResourcesSerializer $linkedResourcesSerializer
+     * @param Serializer\MetadataSerializer $metadataSerializer
      * @param SecurityContextInterface $securityContext
-     * @param string $apiUrlPath
      */
     public function __construct(
-        Document $document,
-        SecurityContextInterface $securityContext,
-        $apiUrlPath = ''
+        Serializer\TopLevelLinksSerializer $topLevelLinkSerializer,
+        Serializer\LinkedResourcesSerializer $linkedResourcesSerializer,
+        Serializer\MetadataSerializer $metadataSerializer,
+        SecurityContextInterface $securityContext
     )
     {
-        $this->document = $document;
+        $this->topLevelLinkSerializer = $topLevelLinkSerializer;
+        $this->linkedResourcesSerializer = $linkedResourcesSerializer;
+        $this->metadataSerializer = $metadataSerializer;
         $this->securityContext = $securityContext;
-        $this->topLevelLinkSerializer = new TopLevelLinksSerializer(
-            $this->document, $apiUrlPath
-        );
-        $this->linkedResourcesSerializer = new LinkedResourcesSerializer(
-            $this->document, $securityContext
-        );
-        $this->metadataSerializer = new MetadataSerializer($this->document);
     }
 
-    public function serialize()
+    /**
+     * @param Document $document
+     * @return array
+     */
+    public function serialize(Document $document)
     {
+        // @todo Make services out of these guys.
+        $this->document = $document;
+
         $json = [];
 
         // @todo El TopLevelLinksSerializer debería ir primero, pero depende de que el LinkedResourcesSerializer arme el Document.
@@ -125,7 +125,7 @@ class DocumentSerializer
 
     protected function addMetadata(array &$json)
     {
-        $meta = $this->metadataSerializer->serialize();
+        $meta = $this->metadataSerializer->serialize($this->document);
 
         if ($meta) $json['meta'] = $meta;
 
@@ -140,7 +140,7 @@ class DocumentSerializer
         DocumentResource $resource, array $fields = []
     )
     {
-        $serializer = new ResourceObjectSerializer(
+        $serializer = new Serializer\ResourceObjectSerializer(
             $resource, $this->securityContext, $fields
         );
 

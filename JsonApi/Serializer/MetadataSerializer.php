@@ -10,33 +10,42 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer;
 // Recursos REST.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 
-class MetadataSerializer implements SerializerInterface
+class MetadataSerializer implements DocumentSerializerInterface
 {
     private $document;
+    private $translationsSerializer;
     private $paginationSerializer;
+    private $searchResultSerializer;
 
-    public function __construct(Document $document)
+    /**
+     * @param TranslationsMetadataSerializer $translationsSerializer
+     */
+    public function __construct(
+        TranslationsMetadataSerializer $translationsSerializer
+    )
     {
+        $this->translationsSerializer = $translationsSerializer;
+    }
+
+    /**
+     * @param Document $document
+     * @return array
+     */
+    public function serialize(Document $document)
+    {
+        // @todo Make services out of these guys.
         $this->document = $document;
         $this->paginationSerializer
             = new PaginationMetadataSerializer($this->document);
         $this->searchResultSerializer
             = new SearchResultMetadataSerializer($this->document);
-        $this->translationsSerializer
-            = new TranslationsMetadataSerializer($this->document);
-    }
 
-    /**
-     * @see SerializerInterface::serialize
-     */
-    public function serialize()
-    {
         $json = [];
 
         $this->addMetadata($json)
             ->addPagination($json)
             ->addSearchResult($json)
-            ->addTranslations($json);
+            ->addTranslations($document, $json);
 
         return $json;
     }
@@ -88,12 +97,13 @@ class MetadataSerializer implements SerializerInterface
     }
 
     /**
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addTranslations(array &$json)
+    protected function addTranslations(Document $document, array &$json)
     {
-        $translations = $this->translationsSerializer->serialize();
+        $translations = $this->translationsSerializer->serialize($document);
 
         if ($translations) {
             $primaryType

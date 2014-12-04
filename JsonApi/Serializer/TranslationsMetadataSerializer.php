@@ -9,20 +9,32 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer;
 
 // JSON-API
 use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
+// ORM.
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @todo Move a un sub-namespace "JsonApi\Extension".
  */
-class TranslationsMetadataSerializer implements SerializerInterface
+class TranslationsMetadataSerializer implements DocumentSerializerInterface
 {
-    public $document;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
 
-    public function __construct(Document $document)
+    /**
+     * @param EntityManagerInterface $em
+     */
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->document = $document;
+        $this->em = $em;
     }
 
-    public function serialize()
+    /**
+     * @param Document $document
+     * @return array
+     */
+    public function serialize(Document $document)
     {
         $json = [];
 

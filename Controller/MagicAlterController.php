@@ -175,12 +175,15 @@ class MagicAlterController extends SymfonyController
                 ->createResourceFactory()
                 ->setEntity(reset($entities))
                 ->create();
-        $json = $this->get('hateoas.resource_manager')
-            ->createSerializerFactory()
+
+        $document = $this->get('hateoas.resource_manager')
+            ->createDocumentFactory()
             ->setParams($params)
-            ->setDocumentResources($resources)
-            ->create()
-            ->serialize();
+            ->setResources($resources)
+            ->create();
+
+        $json = $this->get('hateoas.serializer.document')
+            ->serialize($document);
 
         return $this->createNoCacheResponse($json, Response::HTTP_CREATED);
     }
@@ -250,12 +253,15 @@ class MagicAlterController extends SymfonyController
                 ->createResourceFactory()
                 ->setEntity($params->entities->primary->first())
                 ->create();
-        $json = $this->get('hateoas.resource_manager')
-            ->createSerializerFactory()
+
+        $document = $this->get('hateoas.resource_manager')
+            ->createDocumentFactory()
             ->setParams($params)
-            ->setDocumentResources($resources)
-            ->create()
-            ->serialize();
+            ->setResources($resources)
+            ->create();
+
+        $json = $this->get('hateoas.serializer.document')
+            ->serialize($document);
 
         return $this->createNoCacheResponse($json);
     }
