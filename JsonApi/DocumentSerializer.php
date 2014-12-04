@@ -50,35 +50,37 @@ class DocumentSerializer implements Serializer\DocumentSerializerInterface
      */
     public function serialize(Document $document)
     {
-        // @todo Make services out of these guys.
-        $this->document = $document;
-
         $json = [];
 
         // @todo El TopLevelLinksSerializer debería ir primero, pero depende de que el LinkedResourcesSerializer arme el Document.
-        $this->addMetadata($json)
-            ->addLinkedResources($json)
-            ->addPrimaryResources($json)
-            ->addTopLevelLinks($json);
+        $this->addMetadata($document, $json)
+            ->addLinkedResources($document, $json)
+            ->addPrimaryResources($document, $json)
+            ->addTopLevelLinks($document, $json);
 
         // @todo Arreglo temporal para el orden de las llaves principales.
         return array_reverse($json);
     }
 
-    private function addPrimaryResources(array &$json)
+    /**
+     * @param Document $document
+     * @param array &$json
+     * @return self
+     */
+    private function addPrimaryResources(Document $document, array &$json)
     {
-        $metadata = $this->document->resources->getMetadata();
-        $fields = isset($this->document->sparseFields[$metadata->type])
-            ? $this->document->sparseFields[$metadata->type]
+        $metadata = $document->resources->getMetadata();
+        $fields = isset($document->sparseFields[$metadata->type])
+            ? $document->sparseFields[$metadata->type]
             : [];
         $primaryResources = [];
 
-        foreach ($this->document->resources as $resource) {
+        foreach ($document->resources as $resource) {
             $primaryResources[]
                 = $this->serializeResourceObject($resource, $fields);
         }
 
-        $json[$metadata->type] = $this->document->wasCollection
+        $json[$metadata->type] = $document->wasCollection
             ? $primaryResources
             : @$primaryResources[0];
 
@@ -87,16 +89,17 @@ class DocumentSerializer implements Serializer\DocumentSerializerInterface
 
     /**
      * Ojo - variables dinámicas.
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addTopLevelLinks(array &$json)
+    protected function addTopLevelLinks(Document $document, array &$json)
     {
         $name = 'links';
 
         if (
-            0 < count($this->document)
-            and $$name = $this->topLevelLinkSerializer->serialize()
+            0 < count($document)
+            and $$name = $this->topLevelLinkSerializer->serialize($document)
         ) {
             $json[$name] = $$name;
         }
@@ -106,16 +109,17 @@ class DocumentSerializer implements Serializer\DocumentSerializerInterface
 
     /**
      * Ojo - variables dinámicas.
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addLinkedResources(array &$json)
+    protected function addLinkedResources(Document $document, array &$json)
     {
         $name = 'linked';
 
         if (
-            0 < count($this->document)
-            and $$name = $this->linkedResourcesSerializer->serialize()
+            0 < count($document)
+            and $$name = $this->linkedResourcesSerializer->serialize($document)
         ) {
             $json[$name] = $$name;
         }
@@ -123,9 +127,14 @@ class DocumentSerializer implements Serializer\DocumentSerializerInterface
         return $this;
     }
 
-    protected function addMetadata(array &$json)
+    /**
+     * @param Document $document
+     * @param array &$json
+     * @return self
+     */
+    protected function addMetadata(Document $document, array &$json)
     {
-        $meta = $this->metadataSerializer->serialize($this->document);
+        $meta = $this->metadataSerializer->serialize($document);
 
         if ($meta) $json['meta'] = $meta;
 

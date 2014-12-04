@@ -131,11 +131,13 @@ class ParamEntityFinder
             throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
+        $entities = new ArrayCollection($entities);
+
         if (!$this->canAccessEntities($params, $entities)) {
             throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
         }
 
-        return new ArrayCollection($entities);
+        return $entities;
     }
 
     /**
