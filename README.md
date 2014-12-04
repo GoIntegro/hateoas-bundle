@@ -402,7 +402,7 @@ class UsersController extends Controller
 
 Check out the bundle's `services.yml` for a glimpse at the HATEOAS arsenal we keep there.
 
-## Ghosts
+## Ghosts :ghost:
 
 I know what you're thinking - what if my resource does not have an entity? Am I left to fend for myself in the cold dark night?
 
