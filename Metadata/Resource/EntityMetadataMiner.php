@@ -49,6 +49,9 @@ class EntityMetadataMiner implements MetadataMinerInterface
      */
     public function mine($entityClassName)
     {
+        $entityClassName = $this->metadataCache
+            ->getMapping($entityClassName)
+            ->getName();
         $type = $this->parseType($entityClassName);
         $subtype = $this->parseSubtype($entityClassName);
         $resourceClass = $this->getResourceClass($entityClassName);

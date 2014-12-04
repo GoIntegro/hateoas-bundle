@@ -170,7 +170,8 @@ class EntityMetadataMinerTest extends TestCase
                 'getAssociationMappings'
                     => function() use ($associationMappings) {
                         return $associationMappings;
-                    }
+                    },
+                'getName' => 'GoIntegro\Entity\Workspace'
             ]
         );
         $property = Stub::makeEmpty(
@@ -180,8 +181,8 @@ class EntityMetadataMinerTest extends TestCase
         $entityClass = Stub::makeEmpty(
             'ReflectionClass',
             [
-                'getName' => function() { return 'GoIntegro\Entity\Workspace'; },
-                'getShortName' => function() { return 'Workspace'; },
+                'getName' => 'GoIntegro\Entity\Workspace',
+                'getShortName' => 'Workspace',
                 'getMethods' => function() use ($entityMethods) {
                     return $entityMethods;
                 },
@@ -192,11 +193,8 @@ class EntityMetadataMinerTest extends TestCase
         $resourceClass = Stub::makeEmpty(
             'ReflectionClass',
             [
-                'getMethods' => function() use ($resourceMethods) {
-                    return $resourceMethods;
-                },
-                'getProperty'
-                    => function() use ($property) { return $property; }
+                'getMethods' => $resourceMethods,
+                'getProperty' => $property
             ]
         );
         $cache = Stub::makeEmpty(
@@ -218,7 +216,7 @@ class EntityMetadataMinerTest extends TestCase
                                 return $reflectionClasses[$name];
                         }
                     },
-                'getMapping' => function() use ($mapping) { return $mapping; }
+                'getMapping' => $mapping
             ]
         );
 
