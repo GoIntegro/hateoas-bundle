@@ -10,7 +10,8 @@ namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Request;
 // ORM.
 use Doctrine\ORM\EntityManagerInterface;
 // Security.
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\SecurityContextInterface,
+    GoIntegro\Bundle\HateoasBundle\Security\VoterFilterException;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface;
 // Utils.
@@ -28,7 +29,8 @@ class ParamEntityFinder
     const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
         ERROR_RELATIONSHIP_NOT_FOUND = "The relationship was not found.",
-        ERROR_CANNOT_CHOOSE_ACCESS = "Cannot choose right access to check";
+        ERROR_CANNOT_CHOOSE_ACCESS = "Cannot choose right access to check",
+        ERROR_ACCESS_CONTROL_FILTER = "Access control voters are not being supported properly by corresponding query filters.";
 
     /**
      * @var array
@@ -108,16 +110,14 @@ class ParamEntityFinder
             ? $this->findPrimaryEntitiesByFilters($params)
             : $this->findPrimaryEntitiesByIds($params);
 
-        if (!$this->canAccessEntities($params, $entities)) {
-            throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
-        }
-
         return $entities;
     }
 
     /**
      * @param Params $params
      * @return ArrayCollection
+     * @throws EntityNotFoundException
+     * @throws EntityAccessDeniedException
      */
     private function findPrimaryEntitiesByIds(Params $params)
     {
@@ -131,18 +131,29 @@ class ParamEntityFinder
             throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
+        if (!$this->canAccessEntities($params, $entities)) {
+            throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
+        }
+
         return new ArrayCollection($entities);
     }
 
     /**
      * @param Params $params
      * @return ArrayCollection
+     * @throws VoterFilterException
      */
     private function findPrimaryEntitiesByFilters(Params $params)
     {
-        return RequestAction::ACTION_FETCH == $params->action->name
+        $entities = RequestAction::ACTION_FETCH == $params->action->name
             ? $this->repoHelper->findByRequestParams($params)
             : new ArrayCollection;
+
+        if (!$this->canAccessEntities($params, $entities)) {
+            throw new VoterFilterException(self::ERROR_ACCESS_CONTROL_FILTER);
+        }
+
+        return $entities;
     }
 
     /**
