@@ -93,7 +93,7 @@ class Params
     /**
      * @var boolean
      */
-    public $translations;
+    public $i18n;
 
     /**
      * @param string $field

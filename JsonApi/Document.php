@@ -56,13 +56,17 @@ class Document implements IteratorAggregate, Countable
      */
     public $pagination;
     /**
-     * @var array
+     * @var boolean
      */
-    public $translations;
+    public $i18n;
 
     /**
+     * @param DocumentResource $documentResource
      * @param ResourceCache $resourceCache
-     * @todo Organizar.
+     * @param array $include
+     * @param array $sparseFields
+     * @param DocumentPagination $pagination
+     * @param boolean $i18n
      */
     public function __construct(
         DocumentResource $documentResource,
@@ -70,7 +74,7 @@ class Document implements IteratorAggregate, Countable
         array $include = [],
         array $sparseFields = [],
         DocumentPagination $pagination = NULL,
-        array $translations = NULL
+        $i18n = FALSE
     )
     {
         $this->primaryResources = new TypedResourceCollection($resourceCache);
@@ -98,7 +102,7 @@ class Document implements IteratorAggregate, Countable
         }
 
         $this->resources = $documentResource;
-        $this->translations = $translations;
+        $this->i18n = $i18n;
     }
 
     /**

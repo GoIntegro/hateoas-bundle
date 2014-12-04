@@ -16,6 +16,8 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
 
 class DocumentFactory implements Factory
 {
+    const ERROR_PARAMS_MISSING = "The request params object was not set.";
+
     /**
      * @var ResourceCache
      */
@@ -115,6 +117,10 @@ class DocumentFactory implements Factory
         $include = NULL;
         $fields = NULL;
 
+        if (empty($this->params)) {
+            throw new \ErrorException(self::ERROR_PARAMS_MISSING);
+        }
+
         if (empty($this->fields) || empty($this->include)) {
             if (empty($this->include)) {
                 $include = $this->params->include;
@@ -125,16 +131,13 @@ class DocumentFactory implements Factory
             }
         }
 
-        $translations = $this->params->entities
-            ? $this->params->entities->translations
-            : [];
         $document = new Document(
             $this->documentResource,
             $this->resourceCache,
             $include,
             $fields,
             $this->params->pagination,
-            $translations
+            $this->params->i18n
         );
 
         foreach ($this->meta as $meta) {
