@@ -18,12 +18,18 @@ class MetadataSerializer implements DocumentSerializerInterface
     private $searchResultSerializer;
 
     /**
+     * @param PaginationMetadataSerializer $paginationSerializer
+     * @param SearchResultMetadataSerializer $searchResultSerializer
      * @param TranslationsMetadataSerializer $translationsSerializer
      */
     public function __construct(
+        PaginationMetadataSerializer $paginationSerializer,
+        SearchResultMetadataSerializer $searchResultSerializer,
         TranslationsMetadataSerializer $translationsSerializer
     )
     {
+        $this->paginationSerializer = $paginationSerializer;
+        $this->searchResultSerializer = $searchResultSerializer;
         $this->translationsSerializer = $translationsSerializer;
     }
 
@@ -33,46 +39,41 @@ class MetadataSerializer implements DocumentSerializerInterface
      */
     public function serialize(Document $document)
     {
-        // @todo Make services out of these guys.
-        $this->document = $document;
-        $this->paginationSerializer
-            = new PaginationMetadataSerializer($this->document);
-        $this->searchResultSerializer
-            = new SearchResultMetadataSerializer($this->document);
-
         $json = [];
 
-        $this->addMetadata($json)
-            ->addPagination($json)
-            ->addSearchResult($json)
+        $this->addMetadata($document, $json)
+            ->addPagination($document, $json)
+            ->addSearchResult($document, $json)
             ->addTranslations($document, $json);
 
         return $json;
     }
 
     /**
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addMetadata(array &$json)
+    protected function addMetadata(Document $document, array &$json)
     {
-        $meta = $this->document->getResourceMeta();
+        $meta = $document->getResourceMeta();
         $json = array_merge($json, $meta);
 
         return $this;
     }
 
     /**
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addPagination(array &$json)
+    protected function addPagination(Document $document, array &$json)
     {
-        $pagination = $this->paginationSerializer->serialize();
+        $pagination = $this->paginationSerializer->serialize($document);
 
         if ($pagination) {
             $primaryType
-                = $this->document->resources->getMetadata()->type;
+                = $document->resources->getMetadata()->type;
             $json[$primaryType]['pagination'] = $pagination;
         }
 
@@ -80,16 +81,17 @@ class MetadataSerializer implements DocumentSerializerInterface
     }
 
     /**
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addSearchResult(array &$json)
+    protected function addSearchResult(Document $document, array &$json)
     {
-        $searchResult = $this->searchResultSerializer->serialize();
+        $searchResult = $this->searchResultSerializer->serialize($document);
 
         if ($searchResult) {
             $primaryType
-                = $this->document->resources->getMetadata()->type;
+                = $document->resources->getMetadata()->type;
             $json[$primaryType]['searchResult'] = $searchResult;
         }
 
@@ -107,7 +109,7 @@ class MetadataSerializer implements DocumentSerializerInterface
 
         if ($translations) {
             $primaryType
-                = $this->document->resources->getMetadata()->type;
+                = $document->resources->getMetadata()->type;
             $json[$primaryType]['translations'] = $translations;
         }
 

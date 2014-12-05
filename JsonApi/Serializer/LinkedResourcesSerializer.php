@@ -75,7 +75,9 @@ class LinkedResourcesSerializer implements DocumentSerializerInterface
     )
     {
         if (self::RECURSION_DEPTH_LIMIT <= $depth) {
-            throw new \Exception(self::ERROR_RECURSION_DEPTH);
+            throw new InclusionDepthLimitException(
+                self::ERROR_RECURSION_DEPTH
+            );
         }
 
         foreach ($include as $relationships) {
@@ -107,12 +109,12 @@ class LinkedResourcesSerializer implements DocumentSerializerInterface
                     $relationshipName,
                     $urlTemplate
                 );
-                throw new \Exception($message);
+                throw new InvalidRelationshipException($message);
             } else {
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new \Exception($message);
+                throw new InvalidRelationshipException($message);
             }
 
             if (
@@ -148,7 +150,7 @@ class LinkedResourcesSerializer implements DocumentSerializerInterface
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new \Exception($message);
+                throw new InvalidRelationshipException($message);
             }
 
             $relationship = $resource->getMetadata()
@@ -201,7 +203,7 @@ class LinkedResourcesSerializer implements DocumentSerializerInterface
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new \Exception($message);
+                throw new InvalidRelationshipException($message);
             }
 
             $relationship = $resource->getMetadata()
@@ -230,8 +232,8 @@ class LinkedResourcesSerializer implements DocumentSerializerInterface
                 if (!empty($linkedResource)) {
                     $linkedResources[] = $linkedResource;
                 } else {
-                    // @todo Esto no debería pasar. Hay un error vinculado con el tipo de un recurso siendo averiguado erróneamente cuando se trata de un hijo en una herencia de Doctrine, e.g. tipo "applications" para una app ActivityStream.
-                    throw new \Exception(sprintf(
+                    // @todo This should never happen.
+                    throw new SerializationException(sprintf(
                         self::ERROR_INHERITANCE_MAPPING,
                         implode('.', $relationships)
                     ));

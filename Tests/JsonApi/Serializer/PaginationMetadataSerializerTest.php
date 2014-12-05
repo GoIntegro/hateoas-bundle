@@ -12,7 +12,7 @@ use Codeception\Util\Stub;
 // Tests.
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
-class MetadataSerializerTest extends TestCase
+class PaginationMetadataSerializerTest extends TestCase
 {
     const RESOURCE_TYPE = 'resources';
 
@@ -40,19 +40,49 @@ class MetadataSerializerTest extends TestCase
                 'pagination' => $pagination
             ]
         );
-        $serializer = new MetadataSerializer(
-            self::buildPaginationSerializer(),
-            self::buildSearchResultSerializer(),
-            self::buildTranslationsSerializer()
-        );
+        $serializer = new PaginationMetadataSerializer;
         /* When... (Action) */
         $json = $serializer->serialize($document);
         /* Then... (Assertions) */
-        $this->assertEquals(['resources' => ['pagination' => [
+        $this->assertEquals([
             'page' => 5,
             'size' => 3,
             'total' => 1000
-        ]]], $json);
+        ], $json);
+    }
+
+    public function testSerializingEmptyPaginatedDocument()
+    {
+        /* Given... (Fixture) */
+        $offset = 10;
+        $resources = self::createResourcesMock(0, $offset);
+        $pagination = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentPagination',
+            [
+                'total' => 0,
+                'size' => 0,
+                'page' => 0,
+                'offset' => $offset
+            ]
+        );
+        $document = Stub::makeEmpty(
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\Document',
+            [
+                'wasCollection' => TRUE, // Key to this test.
+                'resources' => $resources,
+                'getResourceMeta' => function() { return []; },
+                'pagination' => $pagination
+            ]
+        );
+        $serializer = new PaginationMetadataSerializer;
+        /* When... (Action) */
+        $json = $serializer->serialize($document);
+        /* Then... (Assertions) */
+        $this->assertEquals([
+            'page' => 0,
+            'size' => 0,
+            'total' => 0
+        ], $json);
     }
 
     /**
@@ -101,40 +131,5 @@ class MetadataSerializerTest extends TestCase
         );
 
         return $collection;
-    }
-
-    /**
-     * @return PaginationMetadataSerializer
-     */
-    public static function buildPaginationSerializer()
-    {
-        return Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Serializer\\PaginationMetadataSerializer',
-            ['serialize' => [
-                'page' => 5,
-                'size' => 3,
-                'total' => 1000
-            ]]
-        );
-    }
-
-    /**
-     * @return SearchResultMetadataSerializer
-     */
-    public static function buildSearchResultSerializer()
-    {
-        return Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Serializer\\SearchResultMetadataSerializer'
-        );
-    }
-
-    /**
-     * @return TranslationsMetadataSerializer
-     */
-    public static function buildTranslationsSerializer()
-    {
-        return Stub::makeEmpty(
-            'GoIntegro\\Bundle\\HateoasBundle\\JsonApi\\Serializer\\TranslationsMetadataSerializer'
-        );
     }
 }

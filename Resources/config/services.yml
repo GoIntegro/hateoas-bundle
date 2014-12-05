@@ -204,7 +204,18 @@ services:
   hateoas.serializer.document.meta:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\MetadataSerializer
     public: false
-    arguments: [@hateoas.serializer.document.translations_meta]
+    arguments:
+      - @hateoas.serializer.document.pagination_meta
+      - @hateoas.serializer.document.search_result_meta
+      - @hateoas.serializer.document.translations_meta
+
+  hateoas.serializer.document.pagination_meta:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\PaginationMetadataSerializer
+    public: false
+
+  hateoas.serializer.document.search_result_meta:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\SearchResultMetadataSerializer
+    public: false
 
   hateoas.serializer.document.translations_meta:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TranslationsMetadataSerializer
