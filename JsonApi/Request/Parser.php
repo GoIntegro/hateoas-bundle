@@ -159,6 +159,7 @@ class Parser
 
         $params = new Params;
         $params->path = $this->parsePath($request);
+        $params->i18n = $this->parseI18n($request);
         $params->primaryType = $this->parsePrimaryType($request);
         $params->primaryClass = $this->getEntityClass($params->primaryType);
         $params->relationship = $this->parseRelationship($request, $params);
@@ -192,7 +193,6 @@ class Parser
                 = $this->paginationParser->parse($request, $params);
         }
 
-        $params->i18n = $request->query->has('i18n');
         $params->filters = $this->filterParser->parse($request, $params);
         $params->action = $this->actionParser->parse($request, $params);
 
@@ -398,6 +398,18 @@ class Parser
         array_walk($sort, $callback);
 
         return $sorting;
+    }
+
+    /**
+     * @param Request $request
+     * @return boolean
+     */
+    private function parseI18n(Request $request)
+    {
+        $meta = $request->query->get('meta');
+        $meta = explode(',', $meta);
+
+        return in_array('i18n', $meta);
     }
 
     /**
