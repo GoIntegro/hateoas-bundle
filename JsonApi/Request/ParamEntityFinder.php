@@ -79,17 +79,13 @@ class ParamEntityFinder
     public function find(Params $params)
     {
         $entities = (object) [
-            'primary' => $this->findPrimaryEntities($params),
-            'translations' => []
+            'primary' => $this->findPrimaryEntities($params)
         ];
 
         if (!empty($params->relationship)) {
             $entity = $entities->primary->first();
             $entities->relationship
                 = $this->findRelationshipEntities($params, $entity);
-        } elseif ($params->translations) {
-            $entities->translations
-                = $this->findPrimaryEntityTranslations($entities->primary);
         }
 
         return $entities;
@@ -131,11 +127,13 @@ class ParamEntityFinder
             throw new EntityNotFoundException(self::ERROR_RESOURCE_NOT_FOUND);
         }
 
+        $entities = new ArrayCollection($entities);
+
         if (!$this->canAccessEntities($params, $entities)) {
             throw new EntityAccessDeniedException(self::ERROR_ACCESS_DENIED);
         }
 
-        return new ArrayCollection($entities);
+        return $entities;
     }
 
     /**
@@ -203,30 +201,6 @@ class ParamEntityFinder
         }
 
         return $visible;
-    }
-
-    /**
-     * @param Collection $entities
-     * @return array
-     */
-    private function findPrimaryEntityTranslations(Collection $entities)
-    {
-        $allTranslations = [];
-        $repository = $this->em->getRepository(
-            'Gedmo\\Translatable\\Entity\\Translation'
-        );
-
-        if (!empty($repository)) { // Do we have Gedmo?
-            foreach ($entities as $entity) {
-                $translations = $repository->findTranslations($entity);
-
-                if (!empty($translations)) {
-                    $allTranslations[$entity->getId()] = $translations;
-                }
-            }
-        }
-
-        return $allTranslations;
     }
 
     /**

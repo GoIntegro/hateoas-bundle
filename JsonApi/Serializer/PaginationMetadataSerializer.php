@@ -13,23 +13,16 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 /**
  * @todo Move a un sub-namespace "JsonApi\Extension".
  */
-class PaginationMetadataSerializer implements SerializerInterface
+class PaginationMetadataSerializer implements DocumentSerializerInterface
 {
-    public $document;
-
-    public function __construct(Document $document)
-    {
-        $this->document = $document;
-    }
-
-    public function serialize()
+    public function serialize(Document $document)
     {
         $json = [];
 
-        if (!empty($this->document->pagination)) {
+        if (!empty($document->pagination)) {
             foreach (['page', 'size', 'total'] as $key) {
-                if (is_null($this->document->pagination->$key)) continue;
-                $json[$key] = $this->document->pagination->$key;
+                if (is_null($document->pagination->$key)) continue;
+                $json[$key] = $document->pagination->$key;
             }
         }
 

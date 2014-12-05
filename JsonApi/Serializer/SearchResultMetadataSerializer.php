@@ -16,24 +16,17 @@ use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 /**
  * @todo Move a un sub-namespace "JsonApi\Extension".
  */
-class SearchResultMetadataSerializer implements SerializerInterface
+class SearchResultMetadataSerializer implements DocumentSerializerInterface
 {
-    public $document;
-
-    public function __construct(Document $document)
-    {
-        $this->document = $document;
-    }
-
-    public function serialize()
+    public function serialize(Document $document)
     {
         $json = [];
 
         if (
-            $this->document->resources
+            $document->resources
                 instanceof SearchResultResourceCollection
         ) {
-            $searchResult = $this->document->resources->getSearchResult();
+            $searchResult = $document->resources->getSearchResult();
 
             foreach (['query', 'query-time', 'facets'] as $property) {
                 $method = 'get' . Inflector::camelize($property, TRUE);

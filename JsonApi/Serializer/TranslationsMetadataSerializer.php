@@ -8,36 +8,53 @@
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer;
 
 // JSON-API
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
+use GoIntegro\Bundle\HateoasBundle\JsonApi;
+// ORM.
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @todo Move a un sub-namespace "JsonApi\Extension".
  */
-class TranslationsMetadataSerializer implements SerializerInterface
+class TranslationsMetadataSerializer implements DocumentSerializerInterface
 {
-    public $document;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
 
-    public function __construct(Document $document)
+    /**
+     * @param EntityManagerInterface $em
+     */
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->document = $document;
+        $this->em = $em;
     }
 
-    public function serialize()
+    /**
+     * @param JsonApi\Document $document
+     * @return array
+     */
+    public function serialize(JsonApi\Document $document)
     {
         $json = [];
 
-        if (!empty($this->document->translations)) {
-            if ($this->document->wasCollection) {
-                foreach (
-                    $this->document->translations as $id => $translations
-                ) {
-                    $translations
-                        = static::rearrangeTranslations($translations);
-                    $json[] = array_merge(compact('id'), $translations);
+        if ($document->i18n) {
+            $docTranslations = $this->findTranslations($document->resources);
+
+            if (!empty($docTranslations)) {
+
+                if ($document->wasCollection) {
+                    foreach (
+                        $docTranslations as $id => $translations
+                    ) {
+                        $translations
+                            = static::rearrangeTranslations($translations);
+                        $json[] = array_merge(compact('id'), $translations);
+                    }
+                } else {
+                    $translations = reset($docTranslations);
+                    $json = static::rearrangeTranslations($translations);
                 }
-            } else {
-                $translations = reset($this->document->translations);
-                $json = static::rearrangeTranslations($translations);
             }
         }
 
@@ -59,5 +76,31 @@ class TranslationsMetadataSerializer implements SerializerInterface
         }
 
         return $byField;
+    }
+
+    /**
+     * @param JsonApi\ResourceCollection $resources
+     * @return array
+     */
+    private function findTranslations(JsonApi\ResourceCollection $resources)
+    {
+        $allTranslations = [];
+        $repository = $this->em->getRepository(
+            'Gedmo\\Translatable\\Entity\\Translation'
+        );
+
+        if (!empty($repository)) { // Do we have Gedmo?
+            foreach ($resources as $resource) {
+                $translations
+                    = $repository->findTranslations($resource->entity);
+
+                if (!empty($translations)) {
+                    $allTranslations[(string) $resource->entity->getId()]
+                        = $translations;
+                }
+            }
+        }
+
+        return $allTranslations;
     }
 }

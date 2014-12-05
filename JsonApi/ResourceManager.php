@@ -12,8 +12,6 @@ use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMinerInterface
     as MetadataMiner;
 // DI.
 use Symfony\Component\DependencyInjection\ContainerInterface;
-// Security.
-use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class ResourceManager
 {
@@ -29,35 +27,21 @@ class ResourceManager
      * @var ContainerInterface
      */
     private $serviceContainer;
-    /**
-     * @var SecurityContextInterface
-     */
-    private $securityContext;
-    /**
-     * @var array
-     */
-    private $apiUrlPath;
 
     /**
      * @param MetadataMiner $metadataMiner
      * @param ResourceCache $resourceCache
      * @param ContainerInterface $serviceContainer
-     * @param SecurityContextInterface $securityContext
-     * @param string $apiUrlPath
      */
     public function __construct(
         MetadataMiner $metadataMiner,
         ResourceCache $resourceCache,
-        ContainerInterface $serviceContainer,
-        SecurityContextInterface $securityContext,
-        $apiUrlPath = ''
+        ContainerInterface $serviceContainer
     )
     {
         $this->metadataMiner = $metadataMiner;
         $this->resourceCache = $resourceCache;
         $this->serviceContainer = $serviceContainer;
-        $this->securityContext = $securityContext;
-        $this->apiUrlPath = $apiUrlPath;
     }
 
     /**
@@ -79,12 +63,10 @@ class ResourceManager
     }
 
     /**
-     * @return SerializerFactory
+     * @return DocumentFactory
      */
-    public function createSerializerFactory()
+    public function createDocumentFactory()
     {
-        return new SerializerFactory(
-            $this->resourceCache, $this->securityContext, $this->apiUrlPath
-        );
+        return new DocumentFactory($this->resourceCache);
     }
 }

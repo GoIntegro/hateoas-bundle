@@ -13,41 +13,46 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
 /**
  * @see http://jsonapi.org/format/#document-structure-top-level
  */
-class TopLevelLinksSerializer implements SerializerInterface
+class TopLevelLinksSerializer implements DocumentSerializerInterface
 {
-    private $document;
     private $linkedResourcesSerializer;
     private $paginationLinksSerializer;
 
-    public function __construct(Document $document, $apiUrlPath = '')
+    /**
+     * @param TopLevelLinkedLinksSerializer $linkedResourcesSerializer
+     * @param TopLevelPaginationLinksSerializer $paginationLinksSerializer
+     */
+    public function __construct(
+        TopLevelLinkedLinksSerializer $linkedResourcesSerializer,
+        TopLevelPaginationLinksSerializer $paginationLinksSerializer
+    )
     {
-        $this->document = $document;
-        $this->linkedResourcesSerializer
-            = new TopLevelLinkedLinksSerializer($this->document, $apiUrlPath);
-        $this->paginationLinksSerializer
-            = new TopLevelPaginationLinksSerializer($this->document);
+        $this->linkedResourcesSerializer = $linkedResourcesSerializer;
+        $this->paginationLinksSerializer = $paginationLinksSerializer;
     }
 
     /**
-     * @see SerializerInterface::serialize
+     * @see DocumentSerializerInterface::serialize
      */
-    public function serialize()
+    public function serialize(Document $document)
     {
         $json = [];
 
-        $this->addLinkedResources($json)
-            ->addPaginationLinks($json);
+        $this->addLinkedResources($document, $json)
+            ->addPaginationLinks($document, $json);
 
         return $json;
     }
 
     /**
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addLinkedResources(array &$json)
+    protected function addLinkedResources(Document $document, array &$json)
     {
-        $linkedResources = $this->linkedResourcesSerializer->serialize();
+        $linkedResources
+            = $this->linkedResourcesSerializer->serialize($document);
 
         if ($linkedResources) $json = array_merge($json, $linkedResources);
 
@@ -55,12 +60,14 @@ class TopLevelLinksSerializer implements SerializerInterface
     }
 
     /**
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addPaginationLinks(array &$json)
+    protected function addPaginationLinks(Document $document, array &$json)
     {
-        $paginationLinks = $this->paginationLinksSerializer->serialize();
+        $paginationLinks
+            = $this->paginationLinksSerializer->serialize($document);
 
         if ($paginationLinks) $json = array_merge($json, $paginationLinks);
 

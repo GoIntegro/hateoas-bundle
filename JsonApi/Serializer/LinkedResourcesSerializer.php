@@ -19,7 +19,7 @@ use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceRelationship;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
-class LinkedResourcesSerializer implements SerializerInterface
+class LinkedResourcesSerializer implements DocumentSerializerInterface
 {
     const RECURSION_DEPTH_LIMIT = 3,
         ERROR_RECURSION_DEPTH = "El nivel de recursión es demasiado profundo",
@@ -34,20 +34,21 @@ class LinkedResourcesSerializer implements SerializerInterface
     private $securityContext;
 
     /**
-     * @param Document $document
      * @param SecurityContextInterface $securityContext
      */
-    public function __construct(
-        Document $document,
-        SecurityContextInterface $securityContext
-    )
+    public function __construct(SecurityContextInterface $securityContext)
     {
-        $this->document = $document;
         $this->securityContext = $securityContext;
     }
 
-    public function serialize()
+    /**
+     * @param SecurityContextInterface $securityContext
+     */
+    public function serialize(Document $document)
     {
+        // @todo Pass as argument.
+        $this->document = $document;
+
         $resourcesSerialization = new LinkedResourcesSerialization;
         $relationOfRelation = [];
         $this->processLinkedResources(
@@ -74,7 +75,9 @@ class LinkedResourcesSerializer implements SerializerInterface
     )
     {
         if (self::RECURSION_DEPTH_LIMIT <= $depth) {
-            throw new \Exception(self::ERROR_RECURSION_DEPTH);
+            throw new InclusionDepthLimitException(
+                self::ERROR_RECURSION_DEPTH
+            );
         }
 
         foreach ($include as $relationships) {
@@ -106,12 +109,12 @@ class LinkedResourcesSerializer implements SerializerInterface
                     $relationshipName,
                     $urlTemplate
                 );
-                throw new \Exception($message);
+                throw new InvalidRelationshipException($message);
             } else {
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new \Exception($message);
+                throw new InvalidRelationshipException($message);
             }
 
             if (
@@ -147,7 +150,7 @@ class LinkedResourcesSerializer implements SerializerInterface
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new \Exception($message);
+                throw new InvalidRelationshipException($message);
             }
 
             $relationship = $resource->getMetadata()
@@ -200,7 +203,7 @@ class LinkedResourcesSerializer implements SerializerInterface
                 $message = sprintf(
                     self::ERROR_UNKOWN_RELATIONSHIP, $relationshipName
                 );
-                throw new \Exception($message);
+                throw new InvalidRelationshipException($message);
             }
 
             $relationship = $resource->getMetadata()
@@ -229,8 +232,8 @@ class LinkedResourcesSerializer implements SerializerInterface
                 if (!empty($linkedResource)) {
                     $linkedResources[] = $linkedResource;
                 } else {
-                    // @todo Esto no debería pasar. Hay un error vinculado con el tipo de un recurso siendo averiguado erróneamente cuando se trata de un hijo en una herencia de Doctrine, e.g. tipo "applications" para una app ActivityStream.
-                    throw new \Exception(sprintf(
+                    // @todo This should never happen.
+                    throw new SerializationException(sprintf(
                         self::ERROR_INHERITANCE_MAPPING,
                         implode('.', $relationships)
                     ));

@@ -42,15 +42,15 @@ class ResourceManagerTest extends TestCase
         );
     }
 
-    public function testCreatingSerializerFactory()
+    public function testCreatingDocumentFactory()
     {
         /* Given... (Fixture) */
         $resourceManager = $this->createResourceManager();
         /* When... (Action) */
-        $serializerFactory = $resourceManager->createSerializerFactory();
+        $serializerFactory = $resourceManager->createDocumentFactory();
         /* Then... (Assertions) */
         $this->assertInstanceOf(
-            'GoIntegro\Bundle\HateoasBundle\JsonApi\SerializerFactory',
+            'GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentFactory',
             $serializerFactory
         );
     }

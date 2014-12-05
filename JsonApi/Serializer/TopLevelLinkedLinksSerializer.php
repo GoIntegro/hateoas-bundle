@@ -20,30 +20,28 @@ use GoIntegro\Bundle\HateoasBundle\Metadata\Resource\ResourceRelationship;
 /**
  * @see http://jsonapi.org/format/#document-structure-resource-relationships
  */
-class TopLevelLinkedLinksSerializer implements SerializerInterface
+class TopLevelLinkedLinksSerializer implements DocumentSerializerInterface
 {
     const ERROR_MISSING_MAPPING_FIELD = "Una de las relaciones declaradas o evaluadas como \"link-only\" posiblemente no tenga un campo de mapeo inverso en la entidad vinculada.",
         BY_PRIMARY_URL_PATTERN = '%s/%s?%s={%s.id}',
         TO_ONE_URL_PATTERN = '%s/%s/{%s.%s}',
         TO_MANY_URL_PATTERN = '%s/%s/{%s.id}/links/%s';
 
-    public $document;
     /**
      * @var array
      */
     private $apiUrlPath;
 
-    public function __construct(Document $document, $apiUrlPath)
+    public function __construct($apiUrlPath)
     {
-        $this->document = $document;
         $this->apiUrlPath = $apiUrlPath;
     }
 
-    public function serialize()
+    public function serialize(Document $document)
     {
         $json = [];
 
-        foreach ($this->document as $resource) {
+        foreach ($document as $resource) {
             if (!$resource->getMetadata()->hasRelationships()) continue;
 
             $walk = function($relationship) use (&$json, $resource) {
@@ -107,7 +105,9 @@ class TopLevelLinkedLinksSerializer implements SerializerInterface
     )
     {
         if (is_null($relationship->mappingField)) {
-            throw new \Exception(self::ERROR_MISSING_MAPPING_FIELD);
+            throw new SerializationException(
+                self::ERROR_MISSING_MAPPING_FIELD
+            );
         }
 
         return sprintf(
