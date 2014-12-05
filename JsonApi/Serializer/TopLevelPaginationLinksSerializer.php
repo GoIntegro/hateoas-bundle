@@ -36,7 +36,7 @@ class TopLevelPaginationLinksSerializer implements DocumentSerializerInterface
     public function serialize(Document $document)
     {
         $json = [];
-        $pagination = $this->document->pagination;
+        $pagination = $document->pagination;
 
         if (!empty($pagination)) {
             foreach (self::$relationships as $relationship) {
@@ -45,7 +45,7 @@ class TopLevelPaginationLinksSerializer implements DocumentSerializerInterface
 
                 if (is_null($page)) continue;
 
-                $resource = $this->document->resources;
+                $resource = $document->resources;
                 $relationKey
                     = $this->buildRelationKey($resource, $relationship);
                 $query = $pagination->paginationlessUrl->getQuery();
@@ -87,7 +87,7 @@ class TopLevelPaginationLinksSerializer implements DocumentSerializerInterface
      */
     protected function getPrev()
     {
-        $page = $this->document->pagination->page - 1;
+        $page = $document->pagination->page - 1;
 
         return 0 < $page ? $page : NULL;
     }
@@ -97,7 +97,7 @@ class TopLevelPaginationLinksSerializer implements DocumentSerializerInterface
      */
     protected function getNext()
     {
-        $page = $this->document->pagination->page + 1;
+        $page = $document->pagination->page + 1;
 
         return $page <= $this->getLast() ? $page : NULL;
     }
@@ -108,8 +108,8 @@ class TopLevelPaginationLinksSerializer implements DocumentSerializerInterface
     protected function getLast()
     {
         return floor(
-            $this->document->pagination->total
-            / $this->document->pagination->size
+            $document->pagination->total
+            / $document->pagination->size
         ) + 1;
     }
 }

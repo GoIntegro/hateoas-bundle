@@ -194,7 +194,9 @@ services:
   hateoas.serializer.document.links:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelLinksSerializer
     public: false
-    arguments: [%api.url_path%]
+    arguments:
+      - @hateoas.serializer.document.include_links
+      - @hateoas.serializer.document.pagination_links
 
   hateoas.serializer.document.include_links:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelLinkedLinksSerializer

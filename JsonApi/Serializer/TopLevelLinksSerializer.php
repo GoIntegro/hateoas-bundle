@@ -51,7 +51,8 @@ class TopLevelLinksSerializer implements DocumentSerializerInterface
      */
     protected function addLinkedResources(Document $document, array &$json)
     {
-        $linkedResources = $this->linkedResourcesSerializer->serialize();
+        $linkedResources
+            = $this->linkedResourcesSerializer->serialize($document);
 
         if ($linkedResources) $json = array_merge($json, $linkedResources);
 
@@ -65,7 +66,8 @@ class TopLevelLinksSerializer implements DocumentSerializerInterface
      */
     protected function addPaginationLinks(Document $document, array &$json)
     {
-        $paginationLinks = $this->paginationLinksSerializer->serialize();
+        $paginationLinks
+            = $this->paginationLinksSerializer->serialize($document);
 
         if ($paginationLinks) $json = array_merge($json, $paginationLinks);
 
