@@ -13,7 +13,8 @@ use Doctrine\Common\Collections\Collection as CollectionInterface;
 use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource;
+    GoIntegro\Bundle\HateoasBundle\JsonApi\EntityResource,
+    GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\UnknownFieldException;
 // Security.
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
@@ -74,7 +75,7 @@ class ResourceObjectSerializer implements SerializerInterface
                 $value = $this->resource->callGetter($field);
             } catch (\Exception $e) {
                 $message = sprintf(self::ERROR_UNKOWN_FIELD, $field);
-                throw new \Exception($message);
+                throw new UnknownFieldException($field, $this->resource, $message);
             }
 
             if ('object' == gettype($value)) {
