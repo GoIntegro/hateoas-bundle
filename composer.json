@@ -21,13 +21,12 @@
     ],
     "require": {
         "php": ">=5.4.0",
+        "gointegro/hateoas": "dev-develop",
         "symfony/framework-bundle": "*",
         "symfony/doctrine-bridge": "*",
         "doctrine/doctrine-bundle": "*",
         "doctrine/orm": "*",
-        "justinrainbow/json-schema": "*",
-        "rhumsaa/uuid": "*",
-        "predis/predis": "*"
+        "symfony/monolog-bundle": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "*",
