@@ -15,16 +15,20 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
  */
 class TopLevelLinksSerializer implements DocumentSerializerInterface
 {
-    private $apiUrlPath;
     private $linkedResourcesSerializer;
     private $paginationLinksSerializer;
 
     /**
-     * @param string $apiUrlPath
+     * @param TopLevelLinkedLinksSerializer $linkedResourcesSerializer
+     * @param TopLevelPaginationLinksSerializer $paginationLinksSerializer
      */
-    public function __construct($apiUrlPath = '')
+    public function __construct(
+        TopLevelLinkedLinksSerializer $linkedResourcesSerializer,
+        TopLevelPaginationLinksSerializer $paginationLinksSerializer
+    )
     {
-        $this->apiUrlPath = $apiUrlPath;
+        $this->linkedResourcesSerializer = $linkedResourcesSerializer;
+        $this->paginationLinksSerializer = $paginationLinksSerializer;
     }
 
     /**
@@ -32,24 +36,20 @@ class TopLevelLinksSerializer implements DocumentSerializerInterface
      */
     public function serialize(Document $document)
     {
-        $this->linkedResourcesSerializer
-            = new TopLevelLinkedLinksSerializer($document, $this->apiUrlPath);
-        $this->paginationLinksSerializer
-            = new TopLevelPaginationLinksSerializer($document);
-
         $json = [];
 
-        $this->addLinkedResources($json)
-            ->addPaginationLinks($json);
+        $this->addLinkedResources($document, $json)
+            ->addPaginationLinks($document, $json);
 
         return $json;
     }
 
     /**
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addLinkedResources(array &$json)
+    protected function addLinkedResources(Document $document, array &$json)
     {
         $linkedResources = $this->linkedResourcesSerializer->serialize();
 
@@ -59,10 +59,11 @@ class TopLevelLinksSerializer implements DocumentSerializerInterface
     }
 
     /**
+     * @param Document $document
      * @param array &$json
      * @return self
      */
-    protected function addPaginationLinks(array &$json)
+    protected function addPaginationLinks(Document $document, array &$json)
     {
         $paginationLinks = $this->paginationLinksSerializer->serialize();
 

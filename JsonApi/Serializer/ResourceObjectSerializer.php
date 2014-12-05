@@ -62,19 +62,19 @@ class ResourceObjectSerializer implements SerializerInterface
         foreach ($this->fields as $field) {
             if ($metadata->isRelationship($field)) {
                 $message = sprintf(self::ERROR_FIELD_IS_RELATIONSHIP, $field);
-                throw new \Exception($message);
+                throw new InvalidFieldException($message);
             }
 
             if ($this->resource->isFieldBlacklisted($field)) {
                 $message = sprintf(self::ERROR_UNKOWN_FIELD, $field);
-                throw new \Exception($message);
+                throw new InvalidFieldException($message);
             }
 
             try {
                 $value = $this->resource->callGetter($field);
             } catch (\Exception $e) {
                 $message = sprintf(self::ERROR_UNKOWN_FIELD, $field);
-                throw new \Exception($message);
+                throw new InvalidFieldException($message);
             }
 
             if ('object' == gettype($value)) {

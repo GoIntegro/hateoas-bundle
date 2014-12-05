@@ -196,6 +196,16 @@ services:
     public: false
     arguments: [%api.url_path%]
 
+  hateoas.serializer.document.include_links:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelLinkedLinksSerializer
+    public: false
+    arguments: [%api.url_path%]
+
+  hateoas.serializer.document.pagination_links:
+    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelPaginationLinksSerializer
+    public: false
+    arguments: [%api.url_path%]
+
   hateoas.serializer.document.linked:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\LinkedResourcesSerializer
     public: false

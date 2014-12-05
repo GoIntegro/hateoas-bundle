@@ -7,15 +7,6 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer;
 
-// Serialization.
-use JsonSerializable;
-// Structures.
-use stdClass;
-// Time.
-use DateTime;
-// Excepciones.
-use InvalidArgumentException;
-
 class ObjectFieldValueSerializer implements SerializerInterface
 {
     const ISO_8601_COMPLETE = 'c',
@@ -29,7 +20,7 @@ class ObjectFieldValueSerializer implements SerializerInterface
     public function __construct($fieldValue)
     {
         if (!is_object($fieldValue)) {
-            throw new InvalidArgumentException(self::ERROR_OBJECT_EXPECTED);
+            throw new \InvalidArgumentException(self::ERROR_OBJECT_EXPECTED);
         }
 
         $this->fieldValue = $fieldValue;
@@ -44,11 +35,11 @@ class ObjectFieldValueSerializer implements SerializerInterface
     {
         $json = NULL;
 
-        if ($object instanceof JsonSerializable) {
+        if ($object instanceof \JsonSerializable) {
             $json = $object; // json_encode() will be called later.
-        } elseif ($object instanceof DateTime) {
+        } elseif ($object instanceof \DateTime) {
             $json = $object->format(self::ISO_8601_COMPLETE);
-        } elseif ($object instanceof stdClass) {
+        } elseif ($object instanceof \stdClass) {
             foreach ($object as $value) {
                 if (is_object($value)) {
                     $this->serializeObject($value); // Recursion.

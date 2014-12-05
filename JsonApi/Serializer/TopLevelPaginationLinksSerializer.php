@@ -26,21 +26,14 @@ use GoIntegro\Bundle\HateoasBundle\JsonApi\Document,
  * Así notifications:next pasaría de ser /notifications?page=2&size=2
  * a ser /notifications?page={notifications.pagination.next}&size={notifications.pagination.size}
  */
-class TopLevelPaginationLinksSerializer implements SerializerInterface
+class TopLevelPaginationLinksSerializer implements DocumentSerializerInterface
 {
-    public $document;
-
     /**
      * @var array
      */
     private static $relationships = ['first', 'prev', 'next', 'last'];
 
-    public function __construct(Document $document)
-    {
-        $this->document = $document;
-    }
-
-    public function serialize()
+    public function serialize(Document $document)
     {
         $json = [];
         $pagination = $this->document->pagination;
