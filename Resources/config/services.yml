@@ -23,7 +23,6 @@ services:
     public: false
     arguments:
       - @hateoas.metadata_miner
-      - %go_integro_hateoas.json_api%
 
   hateoas.request_parser.pagination:
     class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser
