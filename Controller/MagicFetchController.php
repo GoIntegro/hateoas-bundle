@@ -86,14 +86,18 @@ class MagicFetchController extends SymfonyController
                 ->create();
         }
 
-        $json = empty($relatedResource)
+        $document = empty($relatedResource)
             ? NULL
             : $this->get('hateoas.resource_manager')
-                ->createSerializerFactory()
+                ->createDocumentFactory()
                 ->setParams($params)
-                ->setDocumentResources($relatedResource)
-                ->create()
-                ->serialize();
+                ->setResources($relatedResource)
+                ->create();
+
+        $json = empty($document)
+            ? NULL
+            : $this->get('hateoas.serializer.document')
+                ->serialize($document);
 
         return $this->createETagResponse($json);
     }
@@ -128,7 +132,7 @@ class MagicFetchController extends SymfonyController
         $json = NULL;
 
         if ($metadata->isField($field)) {
-            $entity = reset($params->entities->primary);
+            $entity = $params->entities->primary->first();
             $resource = $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
                 ->setEntity($entity)
@@ -166,19 +170,21 @@ class MagicFetchController extends SymfonyController
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)
-                ->addEntities($params->entities->primary)
+                ->addEntities($params->entities->primary->toArray())
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($params->entities->primary))
+                ->setEntity($params->entities->primary->first())
                 ->create();
 
-        $json = $this->get('hateoas.resource_manager')
-            ->createSerializerFactory()
+        $document = $this->get('hateoas.resource_manager')
+            ->createDocumentFactory()
             ->setParams($params)
-            ->setDocumentResources($resources)
-            ->create()
-            ->serialize();
+            ->setResources($resources)
+            ->create();
+
+        $json = $this->get('hateoas.serializer.document')
+            ->serialize($document);
 
         return $this->createETagResponse($json);
     }
@@ -202,37 +208,29 @@ class MagicFetchController extends SymfonyController
             );
         } catch (ParseException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
+        } catch (DocumentTooLargeException $e) {
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        $resources = NULL;
-        $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
-        $filter = function(ResourceEntityInterface $entity) {
-            return $this->get('security.context')->isGranted('view', $entity);
-        };
-        $entities = $this->get('hateoas.repo_helper')
-            ->findByRequestParams($params)
-            ->filter($filter);
-
-        if (Document::DEFAULT_RESOURCE_LIMIT < count($entities)) {
-            throw new DocumentTooLargeHttpException;
-        }
-
-        $resources = 0 === count($entities)
+        $resources = 0 === count($params->entities->primary)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)
-                ->addEntities($entities->toArray())
+                ->addEntities($params->entities->primary->toArray())
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
-                ->setPaginator($entities->getPaginator())
+                ->setPaginator($params->entities->primary->getPaginator())
                 ->create();
-        $json = $this->get('hateoas.resource_manager')
-            ->createSerializerFactory()
+
+        $document = $this->get('hateoas.resource_manager')
+            ->createDocumentFactory()
             ->setParams($params)
-            ->setDocumentResources($resources)
-            ->create()
-            ->serialize();
+            ->setResources($resources)
+            ->create();
+
+        $json = $this->get('hateoas.serializer.document')
+            ->serialize($document);
 
         return $this->createETagResponse($json);
     }

@@ -89,10 +89,11 @@ class MagicAlterController extends SymfonyController
             foreach ($params->entities->primary as &$entity) {
                 $data = $params->resources[$entity->getId()];
                 $links = $this->extractLinks($data);
+                $metadata = $this->extractMetadata($data);
 
                 try {
                     $entity = $this->get('hateoas.entity.mutator')
-                        ->update($params, $entity, $data, $links);
+                        ->update($params, $entity, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -148,8 +149,9 @@ class MagicAlterController extends SymfonyController
             foreach ($params->resources as $data) {
                 try {
                     $links = $this->extractLinks($data);
+                    $metadata = $this->extractMetadata($data);
                     $entities[] = $this->get('hateoas.entity.builder')
-                        ->create($params, $data, $links);
+                        ->create($params, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -173,12 +175,15 @@ class MagicAlterController extends SymfonyController
                 ->createResourceFactory()
                 ->setEntity(reset($entities))
                 ->create();
-        $json = $this->get('hateoas.resource_manager')
-            ->createSerializerFactory()
+
+        $document = $this->get('hateoas.resource_manager')
+            ->createDocumentFactory()
             ->setParams($params)
-            ->setDocumentResources($resources)
-            ->create()
-            ->serialize();
+            ->setResources($resources)
+            ->create();
+
+        $json = $this->get('hateoas.serializer.document')
+            ->serialize($document);
 
         return $this->createNoCacheResponse($json, Response::HTTP_CREATED);
     }
@@ -220,10 +225,11 @@ class MagicAlterController extends SymfonyController
             foreach ($params->entities->primary as &$entity) {
                 $data = $params->resources[$entity->getId()];
                 $links = $this->extractLinks($data);
+                $metadata = $this->extractMetadata($data);
 
                 try {
                     $entity = $this->get('hateoas.entity.mutator')
-                        ->update($params, $entity, $data, $links);
+                        ->update($params, $entity, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
@@ -241,18 +247,21 @@ class MagicAlterController extends SymfonyController
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)
-                ->addEntities($params->entities->primary)
+                ->addEntities($params->entities->primary->toArray())
                 ->create()
             : $this->get('hateoas.resource_manager')
                 ->createResourceFactory()
-                ->setEntity(reset($params->entities->primary))
+                ->setEntity($params->entities->primary->first())
                 ->create();
-        $json = $this->get('hateoas.resource_manager')
-            ->createSerializerFactory()
+
+        $document = $this->get('hateoas.resource_manager')
+            ->createDocumentFactory()
             ->setParams($params)
-            ->setDocumentResources($resources)
-            ->create()
-            ->serialize();
+            ->setResources($resources)
+            ->create();
+
+        $json = $this->get('hateoas.serializer.document')
+            ->serialize($document);
 
         return $this->createNoCacheResponse($json);
     }
@@ -316,5 +325,18 @@ class MagicAlterController extends SymfonyController
         unset($data['links']);
 
         return $links;
+    }
+
+    /**
+     * @param array &$data
+     * @return array
+     * @todo Move.
+     */
+    private function extractMetadata(array &$data)
+    {
+        $metadata = isset($data['meta']) ? $data['meta'] : [];
+        unset($data['meta']);
+
+        return $metadata;
     }
 }
