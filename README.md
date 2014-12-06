@@ -8,36 +8,6 @@ You don't get scaffolds. You get a working API.
 
 You get a working API with features sweeter than [a Bobcat's self-esteem](http://s3.amazonaws.com/theoatmeal-img/comics/bobcats_thursday/mirror.png).
 
-## Features
-
-Here's what I mean.
-
-* Modeling, documenting, and creating your API are [one step](#api-definition).
-* Flat, referenced JSON serialization.
-  * Clear distinction between scalar fields and linked resources.
-* Magic controllers.
-  * Fetching resources, with support for:
-    * Sparse fields;
-    * Linked resources expansion;
-    * [Standarized filtering](#query-filters) and sorting;
-    * Pagination;
-    * Resource metadata, such as facets in a search.
-  * Altering resources, with support for:
-    * Processing multiple actions in one request;
-    * Request validation using JSON schema;
-    * [Entity validation](#validation) using Symfony's validator;
-    * [Create, update, and delete](#creating-updating-and-deleting) out of the box;
-    * Assign services to handle any of the above for specific resources.
-* [Metadata caching](#caching), similar to that of Doctrine 2;
-  * Redis,
-  * Or Memcached.
-
-Here's what you'll need.
-
-* A Doctrine 2 entity map;
-* A RAML API definition;
-* At least one Symfony 2 security voter.
-
 # Try it out
 
 Check out [the example app project](https://github.com/skqr/hateoas-bundle-example), so you can feel the magic in your finger tips without much ado.
