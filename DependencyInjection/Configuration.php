@@ -30,6 +30,10 @@ class Configuration implements ConfigurationInterface
         // more information on that topic.
         $rootNode
             ->children()
+                ->scalarNode('raml_doc')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                ->end()
                 ->arrayNode('json_api')
                     ->isRequired()
                     ->addDefaultsIfNotSet(TRUE)
@@ -42,10 +46,6 @@ class Configuration implements ConfigurationInterface
                                         ->cannotBeEmpty()
                                     ->end()
                                     ->scalarNode('entity_class')
-                                        ->isRequired()
-                                        ->cannotBeEmpty()
-                                    ->end()
-                                    ->scalarNode('raml_doc')
                                         ->isRequired()
                                         ->cannotBeEmpty()
                                     ->end()
