@@ -67,19 +67,20 @@ class MagicAlterController extends SymfonyController
     public function linkAction($primaryType, $id, $relationship, $ids = NULL)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')
+                ->parse($this->getRequest());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw new NotFoundHttpException($this->transExcept($e), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $e->getMessage(), $e
+                $e->getAllowedMethods(), $this->transExcept($e), $e
             );
         } catch (ParseException $e) {
-            throw new BadRequestHttpException($e->getMessage(), $e);
+            throw new BadRequestHttpException($this->transExcept($e), $e);
         } catch (EntityAccessDeniedException $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e);
+            throw new AccessDeniedHttpException($this->transExcept($e), $e);
         } catch (ConflictException $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
+            throw new ConflictHttpException($this->transExcept($e), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -95,9 +96,9 @@ class MagicAlterController extends SymfonyController
                     $entity = $this->get('hateoas.entity.mutator')
                         ->update($params, $entity, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
-                    throw new ConflictHttpException($e->getMessage(), $e);
+                    throw new ConflictHttpException($this->transExcept($e), $e);
                 } catch (ValidationExceptionInterface $e) {
-                    throw new BadRequestHttpException($e->getMessage(), $e);
+                    throw new BadRequestHttpException($this->transExcept($e), $e);
                 }
             }
 
@@ -123,21 +124,22 @@ class MagicAlterController extends SymfonyController
     public function createAction($primaryType)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')
+                ->parse($this->getRequest());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw new NotFoundHttpException($this->transExcept($e), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $e->getMessage(), $e
+                $e->getAllowedMethods(), $this->transExcept($e), $e
             );
         } catch (ParseException $e) {
-            throw new BadRequestHttpException($e->getMessage(), $e);
+            throw new BadRequestHttpException($this->transExcept($e), $e);
         } catch (EntityAccessDeniedException $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e);
+            throw new AccessDeniedHttpException($this->transExcept($e), $e);
         } catch (DocumentTooLargeException $e) {
-            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+            throw new DocumentTooLargeHttpException($this->transExcept($e), $e);
         } catch (ConflictException $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
+            throw new ConflictHttpException($this->transExcept($e), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -153,9 +155,9 @@ class MagicAlterController extends SymfonyController
                     $entities[] = $this->get('hateoas.entity.builder')
                         ->create($params, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
-                    throw new ConflictHttpException($e->getMessage(), $e);
+                    throw new ConflictHttpException($this->transExcept($e), $e);
                 } catch (ValidationExceptionInterface $e) {
-                    throw new BadRequestHttpException($e->getMessage(), $e);
+                    throw new BadRequestHttpException($this->transExcept($e), $e);
                 }
             }
 
@@ -201,21 +203,22 @@ class MagicAlterController extends SymfonyController
     public function updateAction($primaryType, $ids)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')
+                ->parse($this->getRequest());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw new NotFoundHttpException($this->transExcept($e), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $e->getMessage(), $e
+                $e->getAllowedMethods(), $this->transExcept($e), $e
             );
         } catch (ParseException $e) {
-            throw new BadRequestHttpException($e->getMessage(), $e);
+            throw new BadRequestHttpException($this->transExcept($e), $e);
         } catch (EntityAccessDeniedException $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e);
+            throw new AccessDeniedHttpException($this->transExcept($e), $e);
         } catch (DocumentTooLargeException $e) {
-            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+            throw new DocumentTooLargeHttpException($this->transExcept($e), $e);
         } catch (ConflictException $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
+            throw new ConflictHttpException($this->transExcept($e), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -231,9 +234,9 @@ class MagicAlterController extends SymfonyController
                     $entity = $this->get('hateoas.entity.mutator')
                         ->update($params, $entity, $data, $links, $metadata);
                 } catch (EntityConflictExceptionInterface $e) {
-                    throw new ConflictHttpException($e->getMessage(), $e);
+                    throw new ConflictHttpException($this->transExcept($e), $e);
                 } catch (ValidationExceptionInterface $e) {
-                    throw new BadRequestHttpException($e->getMessage(), $e);
+                    throw new BadRequestHttpException($this->transExcept($e), $e);
                 }
             }
 
@@ -279,21 +282,22 @@ class MagicAlterController extends SymfonyController
     public function deleteAction($primaryType, $ids)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')
+                ->parse($this->getRequest());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw new NotFoundHttpException($this->transExcept($e), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $e->getMessage(), $e
+                $e->getAllowedMethods(), $this->transExcept($e), $e
             );
         } catch (ParseException $e) {
-            throw new BadRequestHttpException($e->getMessage(), $e);
+            throw new BadRequestHttpException($this->transExcept($e), $e);
         } catch (EntityAccessDeniedException $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e);
+            throw new AccessDeniedHttpException($this->transExcept($e), $e);
         } catch (DocumentTooLargeException $e) {
-            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
+            throw new DocumentTooLargeHttpException($this->transExcept($e), $e);
         } catch (ConflictException $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
+            throw new ConflictHttpException($this->transExcept($e), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
