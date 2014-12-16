@@ -9,6 +9,8 @@ namespace GoIntegro\Bundle\HateoasBundle\Controller;
 
 // Controladores.
 use GoIntegro\Hateoas\Http\JsonResponse;
+// JSON-API.
+use GoIntegro\Hateoas\JsonApi\Document;
 
 /**
  * An abstract controller that custom JSON-API controllers can extend.
@@ -51,6 +53,34 @@ trait CommonResponseTrait
         );
         $response->headers->set('Pragma', 'no-cache');
         $response->headers->set('Expires', '0');
+
+        return $response;
+    }
+
+    /**
+     * @param Document $document
+     * @param array $headers
+     * @return JsonResponse
+     */
+    protected function createCreatedResponse(
+        Document $document, array $headers = []
+    )
+    {
+        $json = $this->get('hateoas.serializer.document')
+            ->serialize($document);
+
+        $response = $this->createNoCacheResponse(
+            $json, JsonResponse::HTTP_CREATED, $headers
+        );
+
+        $request = $this->getRequest();
+        $ids = $document->getPrimaryResourceIds();
+        $location = $request->getSchemeAndHttpHost()
+            . $request->getBaseUrl()
+            . $request->getPathInfo()
+            . implode(',', $ids);
+
+        $response->headers->set('Location', $location);
 
         return $response;
     }

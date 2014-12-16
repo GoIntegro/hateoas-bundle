@@ -183,12 +183,7 @@ class MagicAlterController extends SymfonyController
             ->setResources($resources)
             ->create();
 
-        $json = $this->get('hateoas.serializer.document')
-            ->serialize($document);
-
-        return $this->createNoCacheResponse(
-            $json, JsonResponse::HTTP_CREATED
-        );
+        return $this->createCreatedResponse($document);
     }
 
     /**
