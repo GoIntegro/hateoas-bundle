@@ -44,10 +44,18 @@ class MagicAlterController extends SymfonyController
 {
     use CommonResponseTrait;
 
-    const ERROR_ACCESS_DENIED = "Access to the resource was denied.",
+    const
+        ERROR_ACCESS_DENIED = "Access to the resource was denied.",
         ERROR_RESOURCE_NOT_FOUND = "The resource was not found.",
         ERROR_RELATIONSHIP_NOT_FOUND = "No relationship by that name found.",
-        ERROR_FIELD_NOT_FOUND = "No field by that name found.";
+        ERROR_FIELD_NOT_FOUND = "No field by that name found.",
+
+        // HTTP Status Codes
+        HTTP_NO_CONTENT = 204,
+        HTTP_CREATED = 201
+    ;
+
+
 
     /**
      * @Route("/{primaryType}/{id}/links/{relationship}", name="hateoas_magic_link", methods="POST")
@@ -107,7 +115,7 @@ class MagicAlterController extends SymfonyController
             throw $e;
         }
 
-        return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
+        return $this->createNoCacheResponse(NULL, self::HTTP_NO_CONTENT);
     }
 
     /**
@@ -185,7 +193,7 @@ class MagicAlterController extends SymfonyController
         $json = $this->get('hateoas.serializer.document')
             ->serialize($document);
 
-        return $this->createNoCacheResponse($json, Response::HTTP_CREATED);
+        return $this->createNoCacheResponse($json, self::HTTP_CREATED);
     }
 
     /**
@@ -311,7 +319,7 @@ class MagicAlterController extends SymfonyController
             throw $e;
         }
 
-        return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
+        return $this->createNoCacheResponse(NULL, self::HTTP_NO_CONTENT);
     }
 
     /**
