@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request,
     Symfony\Component\HttpKernel\Log\DebugLoggerInterface;
 // HATEOAS.
 use GoIntegro\Bundle\HateoasBundle\Controller\CommonResponseTrait,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ErrorObject,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ErrorSerializer;
+    GoIntegro\Hateoas\JsonApi\ErrorObject,
+    GoIntegro\Hateoas\JsonApi\ErrorSerializer;
 
 /**
  * Add these lines to your Symfony 2 configuration.
@@ -33,7 +33,7 @@ class ExceptionController
      * @param Request $request
      * @param FlattenException $exception
      * @param DebugLoggerInterface $logger
-     * @return \GoIntegro\Bundle\HateoasBundle\Http\JsonResponse
+     * @return \GoIntegro\Hateoas\Http\JsonResponse
      */
     public function showAction(
         Request $request,

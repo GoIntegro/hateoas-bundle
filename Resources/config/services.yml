@@ -1,10 +1,10 @@
 parameters:
-  hateoas.resource_cache.class: GoIntegro\Bundle\HateoasBundle\JsonApi\ArrayResourceCache
-  hateoas.metadata_cache.class: GoIntegro\Bundle\HateoasBundle\Metadata\Entity\ArrayMetadataCache
+  hateoas.resource_cache.class: GoIntegro\Hateoas\JsonApi\ArrayResourceCache
+  hateoas.metadata_cache.class: GoIntegro\Hateoas\Metadata\Entity\ArrayMetadataCache
 
 services:
   hateoas.request_parser:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Parser
+    class: GoIntegro\Hateoas\JsonApi\Request\Parser
     arguments:
       # @todo Could we not just pass the request as a parameter?
       - @hateoas.raml.navigator
@@ -19,20 +19,20 @@ services:
       - %go_integro_hateoas.json_api%
 
   hateoas.request_parser.filter:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\FilterParser
+    class: GoIntegro\Hateoas\JsonApi\Request\FilterParser
     public: false
     arguments:
       - @hateoas.metadata_miner
 
   hateoas.request_parser.pagination:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\PaginationParser
+    class: GoIntegro\Hateoas\JsonApi\Request\PaginationParser
     public: false
     arguments:
       - @hateoas.metadata_miner
       - %go_integro_hateoas.json_api%
 
   hateoas.request_parser.body:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\BodyParser
+    class: GoIntegro\Hateoas\JsonApi\Request\BodyParser
     public: false
     arguments:
       - @hateoas.json_coder
@@ -45,34 +45,34 @@ services:
       - @hateoas.request_parser.body.translations
 
   hateoas.request_parser.body.create:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\CreateBodyParser
+    class: GoIntegro\Hateoas\JsonApi\Request\CreateBodyParser
     public: false
 
   hateoas.request_parser.body.update:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\UpdateBodyParser
+    class: GoIntegro\Hateoas\JsonApi\Request\UpdateBodyParser
     public: false
 
   hateoas.request_parser.body.link:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LinkBodyParser
+    class: GoIntegro\Hateoas\JsonApi\Request\LinkBodyParser
     public: false
 
   hateoas.request_parser.body.unlink:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\UnlinkBodyParser
+    class: GoIntegro\Hateoas\JsonApi\Request\UnlinkBodyParser
     public: false
 
   hateoas.request_parser.body.translations:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\TranslationsParser
+    class: GoIntegro\Hateoas\JsonApi\Request\TranslationsParser
     public: false
 
   hateoas.request_parser.action:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionParser
+    class: GoIntegro\Hateoas\JsonApi\Request\ActionParser
     public: false
     arguments:
       - @hateoas.json_coder
       - @hateoas.metadata_miner
 
   hateoas.request_parser.entities:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParamEntityFinder
+    class: GoIntegro\Hateoas\JsonApi\Request\ParamEntityFinder
     public: false
     arguments:
       - @doctrine.orm.entity_manager
@@ -80,34 +80,34 @@ services:
       - @hateoas.repo_helper
 
   hateoas.request_parser.locale:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\LocaleNegotiator
+    class: GoIntegro\Hateoas\JsonApi\Request\LocaleNegotiator
     public: false
 
   hateoas.request_parser.default_locale:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DefaultLocaleNegotiator
+    class: GoIntegro\Hateoas\JsonApi\Request\DefaultLocaleNegotiator
     public: false
     tags:
       - { name: hateoas.request_parser.locale }
 
   hateoas.request_parser.hydrant:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ResourceLinksHydrant
+    class: GoIntegro\Hateoas\JsonApi\Request\ResourceLinksHydrant
     public: false
     arguments:
       - @doctrine.orm.entity_manager
       - @hateoas.metadata_miner
 
   hateoas.metadata_miner:
-    class: GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MetadataMiner
+    class: GoIntegro\Hateoas\Metadata\Resource\MetadataMiner
     arguments: [@hateoas.miner_provider]
 
   hateoas.miner_provider:
-    class: GoIntegro\Bundle\HateoasBundle\Metadata\Resource\MinerProvider
+    class: GoIntegro\Hateoas\Metadata\Resource\MinerProvider
     arguments:
       - @hateoas.metadata_cache
       - %api.resource_class_path%
 
   hateoas.resource_manager:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceManager
+    class: GoIntegro\Hateoas\JsonApi\ResourceManager
     arguments:
       - @hateoas.metadata_miner
       - @hateoas.resource_cache
@@ -126,29 +126,29 @@ services:
     arguments: [@doctrine.orm.entity_manager]
 
   hateoas.repo_helper:
-    class: GoIntegro\Bundle\HateoasBundle\Util\RepositoryHelper
+    class: GoIntegro\Hateoas\Util\RepositoryHelper
     arguments: [@doctrine.orm.entity_manager]
 
   hateoas.repo_helper.default_filter:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Request\DefaultFilter
+    class: GoIntegro\Hateoas\JsonApi\Request\DefaultFilter
     public: false
     tags:
       - { name: hateoas.repo_helper.filter }
 
   hateoas.document_blender:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Merge\Blender
+    class: GoIntegro\Hateoas\JsonApi\Merge\Blender
     arguments: [@hateoas.json_coder]
 
   hateoas.json_coder:
-    class: GoIntegro\Bundle\HateoasBundle\Util\JsonCoder
+    class: GoIntegro\Hateoas\Util\JsonCoder
     arguments: [@kernel]
 
   hateoas.entity.builder:
-    class: GoIntegro\Bundle\HateoasBundle\Entity\Builder
+    class: GoIntegro\Hateoas\Entity\Builder
     scope: request
 
   hateoas.entity.default_builder:
-    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultBuilder
+    class: GoIntegro\Hateoas\Entity\DefaultBuilder
     public: false
     arguments:
       - @doctrine.orm.entity_manager
@@ -158,11 +158,11 @@ services:
       -  { name: hateoas.entity.builder, resource_type: default }
 
   hateoas.entity.mutator:
-    class: GoIntegro\Bundle\HateoasBundle\Entity\Mutator
+    class: GoIntegro\Hateoas\Entity\Mutator
     scope: request
 
   hateoas.entity.default_mutator:
-    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultMutator
+    class: GoIntegro\Hateoas\Entity\DefaultMutator
     public: false
     arguments:
       - @doctrine.orm.entity_manager
@@ -171,10 +171,10 @@ services:
       -  { name: hateoas.entity.mutator, resource_type: default }
 
   hateoas.entity.deleter:
-    class: GoIntegro\Bundle\HateoasBundle\Entity\Deleter
+    class: GoIntegro\Hateoas\Entity\Deleter
 
   hateoas.entity.default_deleter:
-    class: GoIntegro\Bundle\HateoasBundle\Entity\DefaultDeleter
+    class: GoIntegro\Hateoas\Entity\DefaultDeleter
     public: false
     arguments:
       - @doctrine.orm.entity_manager
@@ -183,7 +183,7 @@ services:
       -  { name: hateoas.entity.deleter, resource_type: default }
 
   hateoas.serializer.document:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentSerializer
+    class: GoIntegro\Hateoas\JsonApi\DocumentSerializer
     arguments:
       - @hateoas.serializer.document.links
       - @hateoas.serializer.document.linked
@@ -191,29 +191,29 @@ services:
       - @security.context
 
   hateoas.serializer.document.links:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelLinksSerializer
+    class: GoIntegro\Hateoas\JsonApi\Serializer\TopLevelLinksSerializer
     public: false
     arguments:
       - @hateoas.serializer.document.include_links
       - @hateoas.serializer.document.pagination_links
 
   hateoas.serializer.document.include_links:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelLinkedLinksSerializer
+    class: GoIntegro\Hateoas\JsonApi\Serializer\TopLevelLinkedLinksSerializer
     public: false
     arguments: [%api.url_path%]
 
   hateoas.serializer.document.pagination_links:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TopLevelPaginationLinksSerializer
+    class: GoIntegro\Hateoas\JsonApi\Serializer\TopLevelPaginationLinksSerializer
     public: false
     arguments: [%api.url_path%]
 
   hateoas.serializer.document.linked:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\LinkedResourcesSerializer
+    class: GoIntegro\Hateoas\JsonApi\Serializer\LinkedResourcesSerializer
     public: false
     arguments: [@security.context]
 
   hateoas.serializer.document.meta:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\MetadataSerializer
+    class: GoIntegro\Hateoas\JsonApi\Serializer\MetadataSerializer
     public: false
     arguments:
       - @hateoas.serializer.document.pagination_meta
@@ -221,20 +221,20 @@ services:
       - @hateoas.serializer.document.translations_meta
 
   hateoas.serializer.document.pagination_meta:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\PaginationMetadataSerializer
+    class: GoIntegro\Hateoas\JsonApi\Serializer\PaginationMetadataSerializer
     public: false
 
   hateoas.serializer.document.search_result_meta:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\SearchResultMetadataSerializer
+    class: GoIntegro\Hateoas\JsonApi\Serializer\SearchResultMetadataSerializer
     public: false
 
   hateoas.serializer.document.translations_meta:
-    class: GoIntegro\Bundle\HateoasBundle\JsonApi\Serializer\TranslationsMetadataSerializer
+    class: GoIntegro\Hateoas\JsonApi\Serializer\TranslationsMetadataSerializer
     public: false
     arguments: [@doctrine.orm.entity_manager]
 
   hateoas.raml.parser:
-    class: GoIntegro\Bundle\HateoasBundle\Raml\DocParser
+    class: GoIntegro\Hateoas\Raml\DocParser
     arguments: [@hateoas.json_coder]
 
   hateoas.raml.navigator_factory:
@@ -244,7 +244,7 @@ services:
       - %go_integro_hateoas.raml_doc%
 
   hateoas.raml.navigator:
-    class: GoIntegro\Bundle\HateoasBundle\Raml\DocNavigator
+    class: GoIntegro\Hateoas\Raml\DocNavigator
     factory_service: hateoas.raml.navigator_factory
     factory_method: createNavigator
     arguments: [@hateoas.json_coder]

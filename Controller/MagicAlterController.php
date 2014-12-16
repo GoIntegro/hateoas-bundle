@@ -20,25 +20,25 @@ use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
     Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException,
-    GoIntegro\Bundle\HateoasBundle\Http\DocumentTooLargeException;
+    GoIntegro\Hateoas\Http\DocumentTooLargeException;
 // JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\DocumentTooLargeHttpException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\ResourceEntityInterface,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Document,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\ConflictException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Exception\NotFoundException;
+use GoIntegro\Hateoas\JsonApi\Exception\DocumentTooLargeHttpException,
+    GoIntegro\Hateoas\JsonApi\ResourceEntityInterface,
+    GoIntegro\Hateoas\JsonApi\Request\Params,
+    GoIntegro\Hateoas\JsonApi\Document,
+    GoIntegro\Hateoas\JsonApi\Exception\ConflictException,
+    GoIntegro\Hateoas\JsonApi\Exception\NotFoundException;
 // Utils.
-use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
+use GoIntegro\Hateoas\Util\Inflector;
 // Security.
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 // Validator.
-use GoIntegro\Bundle\HateoasBundle\Entity\Validation\EntityConflictExceptionInterface,
-    GoIntegro\Bundle\HateoasBundle\Entity\Validation\ValidationExceptionInterface;
+use GoIntegro\Hateoas\Entity\Validation\EntityConflictExceptionInterface,
+    GoIntegro\Hateoas\Entity\Validation\ValidationExceptionInterface;
 // Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ParseException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\ActionNotAllowedException,
-    GoIntegro\Bundle\HateoasBundle\JsonApi\Request\EntityAccessDeniedException;
+use GoIntegro\Hateoas\JsonApi\Request\ParseException,
+    GoIntegro\Hateoas\JsonApi\Request\ActionNotAllowedException,
+    GoIntegro\Hateoas\JsonApi\Request\EntityAccessDeniedException;
 
 class MagicAlterController extends SymfonyController
 {

@@ -10,9 +10,9 @@ namespace GoIntegro\Bundle\HateoasBundle\Controller;
 // Controladores.
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController;
 // Request.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Request\Params;
+use GoIntegro\Hateoas\JsonApi\Request\Params;
 // JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Document;
+use GoIntegro\Hateoas\JsonApi\Document;
 
 /**
  * An abstract controller that custom JSON-API controllers can extend.
@@ -23,7 +23,7 @@ abstract class Controller extends SymfonyController
 
     /**
      * @param Params $params
-     * @return \GoIntegro\Bundle\HateoasBundle\JsonApi\DocumentResource
+     * @return \GoIntegro\Hateoas\JsonApi\DocumentResource
      */
     protected function getResourcesFromRepo(Params $params)
     {

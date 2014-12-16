@@ -8,9 +8,9 @@
 namespace GoIntegro\Bundle\HateoasBundle\DependencyInjection\Factory;
 
 // JSON.
-use GoIntegro\Bundle\HateoasBundle\Util\JsonCoder;
+use GoIntegro\Hateoas\Util\JsonCoder;
 // RAML.
-use GoIntegro\Bundle\HateoasBundle\Raml;
+use GoIntegro\Hateoas\Raml;
 
 class RamlNavigatorFactory
 {

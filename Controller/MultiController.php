@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController,
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpFoundation\JsonResponse;
 // JSON-API.
-use GoIntegro\Bundle\HateoasBundle\JsonApi\Merge\UnmergeableResourcesException;
+use GoIntegro\Hateoas\JsonApi\Merge\UnmergeableResourcesException;
 
 /**
  * Permite obtener muchas URLs de la API de una.
