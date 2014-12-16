@@ -9,13 +9,11 @@ namespace GoIntegro\Bundle\HateoasBundle\Controller;
 
 // Controladores.
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController,
-    Sensio\Bundle\FrameworkExtraBundle\Configuration\Route,
-    Symfony\Component\HttpFoundation\JsonResponse;
+    Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 // Colecciones.
 use Doctrine\Common\Collections\Collection;
 // HTTP.
-use Symfony\Component\HttpFoundation\Response,
-    Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
     Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException,

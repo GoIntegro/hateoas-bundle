@@ -23,7 +23,7 @@ trait CommonResponseTrait
      * @see http://jsonapi.org/format/#http-caching
      */
     protected function createETagResponse(
-        $content, $status = 200, array $headers = []
+        $content, $status = JsonResponse::HTTP_OK, array $headers = []
     )
     {
         $response = new JsonResponse($content, $status, $headers);
@@ -41,7 +41,7 @@ trait CommonResponseTrait
      * @return JsonResponse
      */
     protected function createNoCacheResponse(
-        $content, $status = 200, array $headers = []
+        $content, $status = JsonResponse::HTTP_OK, array $headers = []
     )
     {
         $response = new JsonResponse($content, $status, $headers);

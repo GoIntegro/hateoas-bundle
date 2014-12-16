@@ -9,20 +9,19 @@ namespace GoIntegro\Bundle\HateoasBundle\Controller;
 
 // Controladores.
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController,
-    Sensio\Bundle\FrameworkExtraBundle\Configuration\Route,
-    Symfony\Component\HttpFoundation\JsonResponse;
+    Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 // Colecciones.
 use Doctrine\Common\Collections\Collection;
 // HTTP.
-use Symfony\Component\HttpFoundation\Response,
-    Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
     Symfony\Component\HttpKernel\Exception\ConflictHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
     Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException,
     GoIntegro\Hateoas\Http\DocumentTooLargeException;
 // JSON-API.
-use GoIntegro\Hateoas\JsonApi\Exception\DocumentTooLargeHttpException,
+use GoIntegro\Hateoas\Http\JsonResponse,
+    GoIntegro\Hateoas\JsonApi\Exception\DocumentTooLargeHttpException,
     GoIntegro\Hateoas\JsonApi\ResourceEntityInterface,
     GoIntegro\Hateoas\JsonApi\Request\Params,
     GoIntegro\Hateoas\JsonApi\Document,
@@ -107,7 +106,9 @@ class MagicAlterController extends SymfonyController
             throw $e;
         }
 
-        return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
+        return $this->createNoCacheResponse(
+            NULL, JsonResponse::HTTP_NO_CONTENT
+        );
     }
 
     /**
@@ -185,7 +186,9 @@ class MagicAlterController extends SymfonyController
         $json = $this->get('hateoas.serializer.document')
             ->serialize($document);
 
-        return $this->createNoCacheResponse($json, Response::HTTP_CREATED);
+        return $this->createNoCacheResponse(
+            $json, JsonResponse::HTTP_CREATED
+        );
     }
 
     /**
@@ -311,7 +314,9 @@ class MagicAlterController extends SymfonyController
             throw $e;
         }
 
-        return $this->createNoCacheResponse(NULL, Response::HTTP_NO_CONTENT);
+        return $this->createNoCacheResponse(
+            NULL, JsonResponse::HTTP_NO_CONTENT
+        );
     }
 
     /**
