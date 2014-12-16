@@ -78,7 +78,7 @@ trait CommonResponseTrait
         $location = $request->getSchemeAndHttpHost()
             . $request->getBaseUrl()
             . $request->getPathInfo()
-            . implode(',', $ids);
+            . '/' . implode(',', $ids);
 
         $response->headers->set('Location', $location);
 
