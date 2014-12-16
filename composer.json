@@ -21,7 +21,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "gointegro/hateoas": "dev-develop",
+        "gointegro/hateoas": "dev-master",
         "symfony/framework-bundle": "*",
         "symfony/doctrine-bridge": "*",
         "doctrine/doctrine-bundle": "*",
