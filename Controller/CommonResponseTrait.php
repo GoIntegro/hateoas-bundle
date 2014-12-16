@@ -8,7 +8,7 @@
 namespace GoIntegro\Bundle\HateoasBundle\Controller;
 
 // Controladores.
-use GoIntegro\Bundle\HateoasBundle\Http\JsonResponse;
+use GoIntegro\Hateoas\Http\JsonResponse;
 
 /**
  * An abstract controller that custom JSON-API controllers can extend.
