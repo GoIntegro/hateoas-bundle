@@ -27,7 +27,7 @@ class RamlNavigatorFactory
      */
     public function __construct(Raml\DocParser $parser, $ramlDocPath)
     {
-        if (isset($ramlDocPath) && is_readable($ramlDocPath)) {
+        if (!is_readable($ramlDocPath)) {
             throw new \RuntimeException(self::ERROR_PARAM_TYPE);
         }
 
@@ -42,6 +42,6 @@ class RamlNavigatorFactory
      */
     public function createNavigator(JsonCoder $jsonCoder)
     {
-        return new DocNavigator($this->ramlDoc, $jsonCoder);
+        return new RAML\DocNavigator($this->ramlDoc, $jsonCoder);
     }
 }

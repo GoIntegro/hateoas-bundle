@@ -241,7 +241,6 @@ services:
     class: GoIntegro\Bundle\HateoasBundle\DependencyInjection\Factory\RamlNavigatorFactory
     arguments:
       - @hateoas.raml.parser
-      - @hateoas.json_coder
       - %go_integro_hateoas.raml_doc%
 
   hateoas.raml.navigator:
@@ -249,4 +248,3 @@ services:
     factory_service: hateoas.raml.navigator_factory
     factory_method: createNavigator
     arguments: [@hateoas.json_coder]
-
