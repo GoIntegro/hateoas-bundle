@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder,
     Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface,
     Symfony\Component\DependencyInjection\Reference;
 // Utils.
-use GoIntegro\Bundle\HateoasBundle\Util\Inflector;
+use GoIntegro\Hateoas\Util\Inflector;
 
 class EntityCompilerPass implements CompilerPassInterface
 {
