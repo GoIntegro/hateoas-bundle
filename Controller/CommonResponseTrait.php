@@ -54,13 +54,4 @@ trait CommonResponseTrait
 
         return $response;
     }
-
-    /**
-     * @param \Exception $e
-     * @return string
-     */
-    protected function transExcept(\Exception $e)
-    {
-        return $this->get('translator')->trans($e->getMessage());
-    }
 }

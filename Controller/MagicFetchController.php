@@ -58,18 +58,17 @@ class MagicFetchController extends SymfonyController
     public function getRelationAction($primaryType, $id, $relationship)
     {
         try {
-            $params = $this->get('hateoas.request_parser')
-                ->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($this->transExcept($e), $e);
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $this->transExcept($e), $e
+                $e->getAllowedMethods(), $e->getMessage(), $e
             );
         } catch (ParseException $e) {
-            throw new BadRequestHttpException($this->transExcept($e), $e);
+            throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
-            throw new AccessDeniedHttpException($this->transExcept($e), $e);
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
         }
 
         $relatedResource = NULL;
@@ -115,18 +114,17 @@ class MagicFetchController extends SymfonyController
     public function getFieldAction($primaryType, $id, $field)
     {
         try {
-            $params = $this->get('hateoas.request_parser')
-                ->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($this->transExcept($e), $e);
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $this->transExcept($e), $e
+                $e->getAllowedMethods(), $e->getMessage(), $e
             );
         } catch (ParseException $e) {
-            throw new BadRequestHttpException($this->transExcept($e), $e);
+            throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (EntityAccessDeniedException $e) {
-            throw new AccessDeniedHttpException($this->transExcept($e), $e);
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
         }
 
         $metadata = $this->get('hateoas.metadata_miner')
@@ -155,18 +153,17 @@ class MagicFetchController extends SymfonyController
     public function getByIdsAction($primaryType, $ids)
     {
         try {
-            $params = $this->get('hateoas.request_parser')
-                ->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($this->transExcept($e), $e);
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $this->transExcept($e), $e
+                $e->getAllowedMethods(), $e->getMessage(), $e
             );
         } catch (EntityAccessDeniedException $e) {
-            throw new AccessDeniedHttpException($this->transExcept($e), $e);
+            throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
-            throw new DocumentTooLargeHttpException($this->transExcept($e), $e);
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
         $resources = 1 < count($params->entities->primary)
@@ -202,18 +199,17 @@ class MagicFetchController extends SymfonyController
     public function getWithFiltersAction($primaryType)
     {
         try {
-            $params = $this->get('hateoas.request_parser')
-                ->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException($this->transExcept($e), $e);
+            throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
             throw new MethodNotAllowedHttpException(
-                $e->getAllowedMethods(), $this->transExcept($e), $e
+                $e->getAllowedMethods(), $e->getMessage(), $e
             );
         } catch (ParseException $e) {
-            throw new BadRequestHttpException($this->transExcept($e), $e);
+            throw new BadRequestHttpException($e->getMessage(), $e);
         } catch (DocumentTooLargeException $e) {
-            throw new DocumentTooLargeHttpException($this->transExcept($e), $e);
+            throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
         $resources = 0 === count($params->entities->primary)
