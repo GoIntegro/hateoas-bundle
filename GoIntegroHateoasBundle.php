@@ -21,7 +21,6 @@ class GoIntegroHateoasBundle extends Bundle
         $container->addCompilerPass(new Compiler\EntityCompilerPass)
             ->addCompilerPass(new Compiler\ParserCompilerPass)
             ->addCompilerPass(new Compiler\FilterCompilerPass)
-            ->addCompilerPass(new Compiler\LocaleCompilerPass)
-            ->addCompilerPass(new Compiler\RamlCompilerPass);
+            ->addCompilerPass(new Compiler\LocaleCompilerPass);
     }
 }
