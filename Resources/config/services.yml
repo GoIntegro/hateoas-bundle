@@ -242,7 +242,7 @@ services:
     arguments:
       - @hateoas.raml.parser
       - @hateoas.json_coder
-      - %go_integro_hateoas.json_api%
+      - %go_integro_hateoas.raml_doc%
 
   hateoas.raml.navigator:
     class: GoIntegro\Bundle\HateoasBundle\Raml\DocNavigator
