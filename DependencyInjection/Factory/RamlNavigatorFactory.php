@@ -8,9 +8,9 @@
 namespace GoIntegro\Bundle\HateoasBundle\DependencyInjection\Factory;
 
 // JSON.
-use GoIntegro\Hateoas\Util\JsonCoder;
+use GoIntegro\Json\JsonCoder;
 // RAML.
-use GoIntegro\Hateoas\Raml;
+use GoIntegro\Raml;
 
 class RamlNavigatorFactory
 {
@@ -42,6 +42,6 @@ class RamlNavigatorFactory
      */
     public function createNavigator(JsonCoder $jsonCoder)
     {
-        return new RAML\DocNavigator($this->ramlDoc, $jsonCoder);
+        return new Raml\DocNavigator($this->ramlDoc, $jsonCoder);
     }
 }
