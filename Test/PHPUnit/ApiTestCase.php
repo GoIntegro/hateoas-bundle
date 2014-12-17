@@ -5,7 +5,7 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Hateoas\Test\PHPUnit;
+namespace GoIntegro\Bundle\HateoasBundle\Test\PHPUnit;
 
 // Testing.
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
