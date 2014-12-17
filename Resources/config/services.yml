@@ -140,7 +140,7 @@ services:
     arguments: [@hateoas.json_coder]
 
   hateoas.json_coder:
-    class: GoIntegro\Hateoas\Util\JsonCoder
+    class: GoIntegro\Json\JsonCoder
     arguments: [@kernel]
 
   hateoas.entity.builder:
