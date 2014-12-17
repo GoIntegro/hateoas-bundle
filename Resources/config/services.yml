@@ -141,7 +141,10 @@ services:
 
   hateoas.json_coder:
     class: GoIntegro\Json\JsonCoder
-    arguments: [@kernel]
+
+  hateoas.json_validator:
+    class: GoIntegro\Bundle\HateoasBundle\Util\JsonValidator
+    arguments: [@kernel, @hateoas.json_coder]
 
   hateoas.entity.builder:
     class: GoIntegro\Hateoas\Entity\Builder

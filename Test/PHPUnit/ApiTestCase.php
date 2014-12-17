@@ -129,7 +129,7 @@ abstract class ApiTestCase extends WebTestCase
     {
         $jsonCoder = static::$kernel
             ->getContainer()
-            ->get('hateoas.json_coder');
+            ->get('hateoas.json_validator');
         $condition = $jsonCoder->matchSchema($actualJson, $expectedSchema);
         $message .= $jsonCoder->getSchemaErrorMessage();
 
@@ -145,7 +145,7 @@ abstract class ApiTestCase extends WebTestCase
     {
         $jsonCoder = static::$kernel
             ->getContainer()
-            ->get('hateoas.json_coder');
+            ->get('hateoas.json_validator');
         $condition = $jsonCoder->assertJsonApi($actualJson);
         $message .= $jsonCoder->getSchemaErrorMessage();
 
