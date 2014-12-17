@@ -68,4 +68,14 @@ class JsonValidator
 
         return $this->jsonCoder->matchSchema($json, $schema);
     }
+
+    /**
+     * Returns the latest schema matching errors as a text message.
+     * @return string
+     * @see http://php.net/manual/en/function.json-last-error-msg.php
+     */
+    public function getSchemaErrorMessage()
+    {
+        return $this->jsonCoder->getSchemaErrorMessage();
+    }
 }
