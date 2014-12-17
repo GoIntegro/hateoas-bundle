@@ -53,7 +53,7 @@ class JsonValidator
             JsonApiSpec::JSON_API_SCHEMA_PATH
         );
 
-        return $this->matchSchema($json, $schema);
+        return $this->jsonCoder->matchSchema($json, $schema);
     }
 
     /**
@@ -66,6 +66,6 @@ class JsonValidator
             JsonSchemaSpec::JSON_SCHEMA_SCHEMA_PATH
         );
 
-        return $this->matchSchema($json, $schema);
+        return $this->jsonCoder->matchSchema($json, $schema);
     }
 }
