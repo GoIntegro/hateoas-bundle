@@ -239,7 +239,7 @@ services:
     arguments: [@doctrine.orm.entity_manager]
 
   hateoas.raml.parser:
-    class: GoIntegro\Hateoas\Raml\DocParser
+    class: GoIntegro\Raml\DocParser
     arguments: [@hateoas.json_coder]
 
   hateoas.raml.navigator_factory:
@@ -249,7 +249,7 @@ services:
       - %go_integro_hateoas.raml_doc%
 
   hateoas.raml.navigator:
-    class: GoIntegro\Hateoas\Raml\DocNavigator
+    class: GoIntegro\Raml\DocNavigator
     factory_service: hateoas.raml.navigator_factory
     factory_method: createNavigator
     arguments: [@hateoas.json_coder]
