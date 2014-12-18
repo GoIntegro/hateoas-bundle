@@ -6,7 +6,7 @@
  * @author Menzo Wijmenga <menzow@GitHub>
  */
 
-namespace GoIntegro\Hateoas\Http;
+namespace GoIntegro\Bundle\HateoasBundle\Http;
 
 // HTTP.
 use Symfony\Component\HttpFoundation\JsonResponse as SymfonyJsonResponse;

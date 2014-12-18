@@ -13,6 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController;
 use GoIntegro\Hateoas\JsonApi\Request\Params;
 // JSON-API.
 use GoIntegro\Hateoas\JsonApi\Document;
+// HTTP.
+use GoIntegro\Hateoas\Http\DocumentTooLargeHttpException;
 
 /**
  * An abstract controller that custom JSON-API controllers can extend.

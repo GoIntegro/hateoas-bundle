@@ -5,7 +5,7 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Hateoas\Http;
+namespace GoIntegro\Bundle\HateoasBundle\Http;
 
 // Exceptions.
 use GoIntegro\Hateoas\Http\RequestEntityTooLargeHttpException;
