@@ -46,6 +46,8 @@ abstract class ApiTestCase extends WebTestCase
         'NotFound' => 404,
         'MethodNotAllowed' => 405,
         'Conflict' => 409,
+        'UnsupportedMediaType' => 415,
+        'UnprocessableEntity' => 422,
         // Server error.
         'InternalServerError' => 500,
         'NotImplemented' => 501
