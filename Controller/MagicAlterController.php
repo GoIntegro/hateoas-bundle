@@ -18,6 +18,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
     Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException,
+    GoIntegro\Bundle\HateoasBundle\Http\UnsupportedMediaTypeHttpException,
+    GoIntegro\Bundle\HateoasBundle\Http\UnprocessableEntityHttpException,
     GoIntegro\Bundle\HateoasBundle\Http\DocumentTooLargeException;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\Http\JsonResponse,
@@ -26,7 +28,8 @@ use GoIntegro\Bundle\HateoasBundle\Http\JsonResponse,
     GoIntegro\Hateoas\JsonApi\Request\Params,
     GoIntegro\Hateoas\JsonApi\Document,
     GoIntegro\Hateoas\JsonApi\Exception\ConflictException,
-    GoIntegro\Hateoas\JsonApi\Exception\NotFoundException;
+    GoIntegro\Hateoas\JsonApi\Exception\NotFoundException,
+    GoIntegro\Hateoas\JsonApi\Exception\UnsupportedMediaTypeException;
 // Utils.
 use GoIntegro\Hateoas\Util\Inflector;
 // Security.
@@ -66,7 +69,8 @@ class MagicAlterController extends SymfonyController
     public function linkAction($primaryType, $id, $relationship, $ids = NULL)
     {
         try {
-            $params = $this->get('hateoas.request_parser')->parse($this->getRequest());
+            $params = $this->get('hateoas.request_parser')
+                ->parse($this->getRequest());
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (ActionNotAllowedException $e) {
@@ -79,6 +83,8 @@ class MagicAlterController extends SymfonyController
             throw new AccessDeniedHttpException($e->getMessage(), $e);
         } catch (ConflictException $e) {
             throw new ConflictHttpException($e->getMessage(), $e);
+        } catch (UnsupportedMediaTypeException $e) {
+            throw new UnsupportedMediaTypeHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -96,7 +102,9 @@ class MagicAlterController extends SymfonyController
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
-                    throw new BadRequestHttpException($e->getMessage(), $e);
+                    throw new UnprocessableEntityHttpException(
+                        $e->getMessage(), $e
+                    );
                 }
             }
 
@@ -139,6 +147,8 @@ class MagicAlterController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         } catch (ConflictException $e) {
             throw new ConflictHttpException($e->getMessage(), $e);
+        } catch (UnsupportedMediaTypeException $e) {
+            throw new UnsupportedMediaTypeHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -156,7 +166,9 @@ class MagicAlterController extends SymfonyController
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
-                    throw new BadRequestHttpException($e->getMessage(), $e);
+                    throw new UnprocessableEntityHttpException(
+                        $e->getMessage(), $e
+                    );
                 }
             }
 
@@ -214,6 +226,8 @@ class MagicAlterController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         } catch (ConflictException $e) {
             throw new ConflictHttpException($e->getMessage(), $e);
+        } catch (UnsupportedMediaTypeException $e) {
+            throw new UnsupportedMediaTypeHttpException($e->getMessage(), $e);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -231,7 +245,9 @@ class MagicAlterController extends SymfonyController
                 } catch (EntityConflictExceptionInterface $e) {
                     throw new ConflictHttpException($e->getMessage(), $e);
                 } catch (ValidationExceptionInterface $e) {
-                    throw new BadRequestHttpException($e->getMessage(), $e);
+                    throw new UnprocessableEntityHttpException(
+                        $e->getMessage(), $e
+                    );
                 }
             }
 
