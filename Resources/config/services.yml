@@ -42,7 +42,6 @@ services:
       - @hateoas.request_parser.body.update
       - @hateoas.request_parser.body.link
       - @hateoas.request_parser.body.unlink
-      - @hateoas.request_parser.body.translations
 
   hateoas.request_parser.body.create:
     class: GoIntegro\Hateoas\JsonApi\Request\CreateBodyParser
@@ -51,6 +50,8 @@ services:
   hateoas.request_parser.body.update:
     class: GoIntegro\Hateoas\JsonApi\Request\UpdateBodyParser
     public: false
+    arguments:
+      - @hateoas.request_parser.body.translations
 
   hateoas.request_parser.body.link:
     class: GoIntegro\Hateoas\JsonApi\Request\LinkBodyParser
