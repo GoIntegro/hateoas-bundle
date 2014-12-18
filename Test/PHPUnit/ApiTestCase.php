@@ -225,7 +225,8 @@ abstract class ApiTestCase extends WebTestCase
         $client = new Client($url);
         $client->setHead([
             'Accept: ' . $contentType,
-            'Accept-Language: ' . $language
+            'Accept-Language: ' . $language,
+            'Content-Type: application/vnd.api+json'
         ]);
 
         if (is_scalar($username) && is_scalar($password)) {
