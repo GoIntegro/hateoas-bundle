@@ -18,8 +18,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
     Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException,
     Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException,
-    GoIntegro\Bundle\HateoasBundle\Http\UnsupportedMediaTypeHttpException,
-    GoIntegro\Bundle\HateoasBundle\Http\UnprocessableEntityHttpException,
+    Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException,
+    Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException,
     GoIntegro\Bundle\HateoasBundle\Http\DocumentTooLargeException;
 // JSON-API.
 use GoIntegro\Bundle\HateoasBundle\Http\JsonResponse,
