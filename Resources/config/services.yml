@@ -1,8 +1,19 @@
 parameters:
   hateoas.resource_cache.class: GoIntegro\Hateoas\JsonApi\ArrayResourceCache
   hateoas.metadata_cache.class: GoIntegro\Hateoas\Metadata\Entity\ArrayMetadataCache
+  hateoas.config.resource_entity_map_cache.class: GoIntegro\Bundle\HateoasBundle\Config\ResourceEntityMapperSymfonyCache
 
 services:
+  hateoas.config.resource_entity_mapper:
+    class: GoIntegro\Hateoas\Config\ResourceEntityMapper
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @hateoas.metadata_cache
+
+  hateoas.config.resource_entity_map_cache:
+    class: %hateoas.config.resource_entity_map_cache%
+    arguments: [@kernel]
+
   hateoas.request_parser:
     class: GoIntegro\Hateoas\JsonApi\Request\Parser
     arguments:
@@ -254,9 +265,3 @@ services:
     factory_service: hateoas.raml.navigator_factory
     factory_method: createNavigator
     arguments: [@hateoas.json_coder]
-
-  hateoas.raml.api_definition:
-    class: GoIntegro\Bundle\HateoasBundle\Raml\ApiDefinition
-    arguments:
-      - @doctrine.orm.entity_manager
-      - @hateoas.metadata_cache
