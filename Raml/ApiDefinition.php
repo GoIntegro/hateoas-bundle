@@ -5,7 +5,7 @@
  * @author Javier Lorenzana <javier.lorenzana@gointegro.com>
  */
 
-namespace GoIntegro\Bundle\HateoasBundle;
+namespace GoIntegro\Bundle\HateoasBundle\Raml;
 
 // ORM.
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +20,8 @@ class ApiDefinition
 {
     const RESOURCE_ENTITY_INTERFACE = 'GoIntegro\\Hateoas\\JsonApi\\ResourceEntityInterface';
 
-    const ERROR_ENTITIES_PER_RESOURCE = "The resource \"%s\" listed in the RAML doc matches the following entity class names: \"%s\". If you want to keep the short-names of these resource entities you need to map all but one of them to other resource types in the bundle configuration.";
+    const ERROR_MISSING_ENTITY = "No entity matches the resource \"%s\".",
+        ERROR_ENTITIES_PER_RESOURCE = "The resource \"%s\" listed in the RAML doc matches the following entity class names: \"%s\". If you want to keep the short-names of these resource entities you need to map all but one of them to other resource types in the bundle configuration.";
 
     /**
      * @var EntityManagerInterface
@@ -75,34 +76,54 @@ class ApiDefinition
     }
 
     /**
-     * @return boolean
+     * @return array
+     * @throws ApiDefinitionException
+     * @todo The configuration doesn't actually allow overridding resource type to entity class mappings as the error message suggests. Oops.
      */
-    public function validate()
+    public function map()
     {
+        $map = [];
+
         foreach ($this->docNavigator->getDoc()->getResourceTypes() as $type) {
-            if (!isset($this->indexedClassNames[$type])) {
-                throw new \Exception; // @todo
-            } elseif (1 < count($this->indexedClassNames[$type])) {
-                $resourceClasses = [];
+            $resourceClasses = $this->getResourceClasses($type);
 
-                foreach ($this->indexEntityClassNames[$type] as $className) {
-                    $class = $this->metadataCache->getReflection($className);
+            if (1 < count($resourceClasses)) {
+                $message = sprintf(
+                    self::ERROR_ENTITIES_PER_RESOURCE,
+                    $type,
+                    implode(', ', $resourceClasses)
+                );
+                throw new ApiDefinitionException($message);
+            }
 
-                    if ($class->implementsInterface(
-                        self::RESOURCE_ENTITY_INTERFACE
-                    )) {
-                        $resourceClasses[] = $className;
-                    }
-                }
+            $map[$type] = reset($resourceClasses);
+        }
 
-                if (1 < count($resourceClasses)) {
-                    $names = implode(',', $resourceClasses);
-                    $message = sprintf(
-                        self::ERROR_ENTITIES_PER_RESOURCE, $type, $names
-                    );
-                    throw new \Exception($message); // @todo
-                }
+        return $map;
+    }
+
+    /**
+     * @param string $type
+     * @return array
+     * @throws ApiDefinitionException
+     */
+    private function getResourceClasses($type)
+    {
+        if (empty($this->indexedClassNames[$type])) {
+            $message = sprintf(self::ERROR_MISSING_ENTITY, $type);
+            throw new ApiDefinitionException($message);
+        }
+
+        $resourceClasses = [];
+
+        foreach ($this->indexEntityClassNames[$type] as $className) {
+            $class = $this->metadataCache->getReflection($className);
+
+            if ($class->implementsInterface(self::RESOURCE_ENTITY_INTERFACE)) {
+                $resourceClasses[] = $className;
             }
         }
+
+        return $resourceClasses;
     }
 }
