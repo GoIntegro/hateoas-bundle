@@ -11,10 +11,16 @@ namespace GoIntegro\Bundle\HateoasBundle;
 use Doctrine\ORM\EntityManagerInterface;
 // Metadata.
 use GoIntegro\Hateoas\Metadata\Entity\MetadataCache;
+// RAML.
+use GoIntegro\Raml\DocNavigator;
+// Utils.
+use GoIntegro\Hateoas\Util;
 
 class ApiDefinition
 {
     const RESOURCE_ENTITY_INTERFACE = 'GoIntegro\\Hateoas\\JsonApi\\ResourceEntityInterface';
+
+    const ERROR_ENTITIES_PER_RESOURCE = "The resource \"%s\" listed in the RAML doc matches the following entity class names: \"%s\". If you want to keep the short-names of these resource entities you need to map all but one of them to other resource types in the bundle configuration.";
 
     /**
      * @var EntityManagerInterface
@@ -24,34 +30,78 @@ class ApiDefinition
      * @var MetadataCache
      */
     private $metadataCache;
+    /**
+     * @var DocNavigator
+     */
+    private $docNavigator;
+    /**
+     * @var array
+     */
+    private $indexedClassNames;
 
     /**
      * @param EntityManagerInterface $em
      * @param MetadataCache $metadataCache
+     * @param DocNavigator $docNavigator
      */
     public function __construct(
         EntityManagerInterface $em,
-        MetadataCache $metadataCache
+        MetadataCache $metadataCache,
+        DocNavigator $docNavigator
     )
     {
         $this->em = $em;
         $this->metadataCache = $metadataCache;
+        $this->docNavigator = $docNavigator;
+        $this->indexedClassNames = $this->indexEntityClassNames();
     }
 
     /**
-     *
+     * @return array
      */
-    public function validate()
+    private function indexEntityClassNames()
     {
-        $entityClassNames = $this->em->getConfiguration()
+        $indexedClassNames = [];
+        $entityClassNames = $em->getConfiguration()
             ->getMetadataDriverImpl()
             ->getAllClassNames();
 
-        foreach ($entityClassNames as $entityClassName) {
-            $class = $this->metadataCache->getReflection($entityClassName);
+        foreach ($entityClassNames as $name) {
+            $resourceType = Util\Inflector::typify($name);
+            $indexedClassNames[$resourceType][] = $name;
+        }
 
-            if ($class->implementsInterface(self::RESOURCE_ENTITY_INTERFACE)) {
-                // @todo
+        return $indexedClassNames;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function validate()
+    {
+        foreach ($this->docNavigator->getDoc()->getResourceTypes() as $type) {
+            if (!isset($this->indexedClassNames[$type])) {
+                throw new \Exception; // @todo
+            } elseif (1 < count($this->indexedClassNames[$type])) {
+                $resourceClasses = [];
+
+                foreach ($this->indexEntityClassNames[$type] as $className) {
+                    $class = $this->metadataCache->getReflection($className);
+
+                    if ($class->implementsInterface(
+                        self::RESOURCE_ENTITY_INTERFACE
+                    )) {
+                        $resourceClasses[] = $className;
+                    }
+                }
+
+                if (1 < count($resourceClasses)) {
+                    $names = implode(',', $resourceClasses);
+                    $message = sprintf(
+                        self::ERROR_ENTITIES_PER_RESOURCE, $type, $names
+                    );
+                    throw new \Exception($message); // @todo
+                }
             }
         }
     }
