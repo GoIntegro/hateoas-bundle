@@ -21,8 +21,8 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "gointegro/hateoas": "dev-feature/conv-over-conf",
-        "gointegro/raml": "dev-feature/conv-over-conf",
+        "gointegro/hateoas": "dev-master",
+        "gointegro/raml": "dev-master",
         "gointegro/json": "dev-master",
         "symfony/framework-bundle": "*",
         "symfony/doctrine-bridge": "*",
