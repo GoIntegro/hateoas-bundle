@@ -1,7 +1,7 @@
 parameters:
   hateoas.resource_cache.class: GoIntegro\Hateoas\JsonApi\ArrayResourceCache
   hateoas.metadata_cache.class: GoIntegro\Hateoas\Metadata\Entity\ArrayMetadataCache
-  hateoas.config.resource_entity_map_cache.class: GoIntegro\Bundle\HateoasBundle\Config\ResourceEntityMapperSymfonyCache
+  hateoas.config.resource_entity_map_cache.class: GoIntegro\Bundle\HateoasBundle\Config\ResourceEntityMapSymfonyCache
 
 services:
   hateoas.config.resource_entity_mapper:
