@@ -9,11 +9,11 @@ namespace GoIntegro\Bundle\HateoasBundle\Config;
 
 // Config.
 use Symfony\Component\Config\ConfigCache,
-    GoIntegro\Hateoas\Config\ResourceEntityMapperCache;
+    GoIntegro\Hateoas\Config\ResourceEntityMapCache;
 // Kernel.
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class ResourceEntityMapperSymfonyCache implements ResourceEntityMapperCache
+class ResourceEntityMapSymfonyCache implements ResourceEntityMapCache
 {
     const CACHE_SCRIPT_PATH = '/hateoas/resourceEntityMap.php';
 
@@ -29,7 +29,7 @@ class ResourceEntityMapperSymfonyCache implements ResourceEntityMapperCache
     /**
      * @param KernelInterface $kernel
      */
-    public function __construct($kernel)
+    public function __construct(KernelInterface $kernel)
     {
         $this->kernel = $kernel;
 
