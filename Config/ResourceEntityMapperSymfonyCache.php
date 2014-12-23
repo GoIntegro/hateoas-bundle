@@ -45,7 +45,7 @@ class ResourceEntityMapperSymfonyCache implements ResourceEntityMapperCache
      */
     public function isFresh()
     {
-        $this->configCache->isFresh();
+        return $this->configCache->isFresh();
     }
 
     /**
