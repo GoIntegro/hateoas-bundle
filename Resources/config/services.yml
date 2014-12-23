@@ -9,6 +9,8 @@ services:
     arguments:
       - @doctrine.orm.entity_manager
       - @hateoas.metadata_cache
+      - @hateoas.raml.navigator
+      - @hateoas.config.resource_entity_map_cache
 
   hateoas.config.resource_entity_map_cache:
     class: %hateoas.config.resource_entity_map_cache%

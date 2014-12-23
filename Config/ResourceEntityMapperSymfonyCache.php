@@ -13,7 +13,7 @@ use Symfony\Component\Config\ConfigCache,
 // Kernel.
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class ResourceEntityMapperSymfonyCache
+class ResourceEntityMapperSymfonyCache implements ResourceEntityMapperCache
 {
     const CACHE_SCRIPT_PATH = '/cache/appUserMatcher.php';
 
