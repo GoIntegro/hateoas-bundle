@@ -16,12 +16,13 @@ class ResourceEntityMapSymfonyCacheTest extends \PHPUnit_Framework_TestCase
     {
         // Given...
         $kernel = Stub::makeEmpty(
-            'Symfony\\Component\\HttpKernel\\KernelInterface'
+            'Symfony\\Component\\HttpKernel\\KernelInterface',
+            ['isDebug' => TRUE]
         );
         $cache = new ResourceEntityMapSymfonyCache($kernel);
         // When...
         $isFresh = $cache->isFresh();
         // Then...
-        $this->assertTrue($isFresh);
+        $this->assertFalse($isFresh);
     }
 }
