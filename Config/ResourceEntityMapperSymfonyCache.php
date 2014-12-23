@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class ResourceEntityMapperSymfonyCache implements ResourceEntityMapperCache
 {
-    const CACHE_SCRIPT_PATH = '/cache/appUserMatcher.php';
+    const CACHE_SCRIPT_PATH = '/hateoas/resourceEntityMap.php';
 
     /**
      * @var KernelInterface
