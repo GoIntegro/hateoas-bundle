@@ -25,9 +25,9 @@ class RamlNavigatorFactory
      */
     private $kernel;
     /**
-     * @var Raml\RamlDoc
+     * @var Raml\DocParser
      */
-    private $ramlDoc;
+    private $parser;
 
     /**
      * @param KernelInterface $kernel
@@ -37,22 +37,24 @@ class RamlNavigatorFactory
         KernelInterface $kernel, Raml\DocParser $parser
     )
     {
-        $ramlDocPath = $kernel->getRootDir() . self::RAML_DOC_PATH;
-
-        if (!is_readable($ramlDocPath)) {
-            throw new \RuntimeException(self::ERROR_PARAM_TYPE);
-        }
-
-        $this->ramlDoc = $parser->parse($ramlDocPath);
+        $this->kernel = $kernel;
+        $this->parser = $parser;
     }
 
     /**
-     * @param Raml\RamlDoc $ramlDoc
      * @param JsonCoder $jsonCoder
      * @return Raml\DocNavigator
      */
     public function createNavigator(JsonCoder $jsonCoder)
     {
-        return new Raml\DocNavigator($this->ramlDoc, $jsonCoder);
+        $ramlDocPath = $this->kernel->getRootDir() . self::RAML_DOC_PATH;
+
+        if (!is_readable($ramlDocPath)) {
+            throw new \RuntimeException(self::ERROR_PARAM_TYPE);
+        }
+
+        $ramlDoc = $this->parser->parse($ramlDocPath);
+
+        return new Raml\DocNavigator($ramlDoc, $jsonCoder);
     }
 }
