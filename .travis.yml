@@ -1,0 +1,22 @@
+# see http://about.travis-ci.org/docs/user/languages/php/ for more hints
+language: php
+
+php:
+  # aliased to a recent 5.4.x version
+  - 5.4
+  # aliased to a recent 5.5.x version
+  - 5.5
+  # aliased to a recent 5.6.x version
+  - 5.6
+
+addons:
+  code_climate:
+    repo_token: 292a00e2f5cb75b3c35254f42c549690071404e7ffa415746b00beda15b1ddab
+
+before_script:
+  - composer install
+
+script: phpunit --coverage-clover build/logs/clover.xml
+
+after_script:
+  - vendor/bin/test-reporter
