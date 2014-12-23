@@ -19,7 +19,7 @@ services:
   hateoas.request_parser:
     class: GoIntegro\Hateoas\JsonApi\Request\Parser
     arguments:
-      # @todo Could we not just pass the request as a parameter?
+      - @hateoas.config.resource_entity_mapper
       - @hateoas.raml.navigator
       - @hateoas.request_parser.filter
       - @hateoas.request_parser.pagination
@@ -29,7 +29,6 @@ services:
       - @hateoas.request_parser.locale
       - @hateoas.metadata_miner
       - %api.url_path%
-      - %go_integro_hateoas.json_api%
 
   hateoas.request_parser.filter:
     class: GoIntegro\Hateoas\JsonApi\Request\FilterParser
