@@ -7,6 +7,8 @@
 
 namespace GoIntegro\Bundle\HateoasBundle\DependencyInjection\Factory;
 
+// Symfony.
+use Symfony\Component\HttpKernel\KernelInterface;
 // JSON.
 use GoIntegro\Json\JsonCoder;
 // RAML.
@@ -14,24 +16,33 @@ use GoIntegro\Raml;
 
 class RamlNavigatorFactory
 {
-    const ERROR_PARAM_TYPE = "Cannot find RAML with the given clue; a resource type or entity was expected.";
+    const RAML_DOC_PATH = '/config/api.raml';
 
+    const ERROR_PARAM_TYPE = "The \"api.raml\" file was not found in the config dir - possibly \"app/config/\".";
+
+    /**
+     * @var KernelInterface
+     */
+    private $kernel;
     /**
      * @var Raml\RamlDoc
      */
     private $ramlDoc;
 
     /**
+     * @param KernelInterface $kernel
      * @param Raml\DocParser $parser
-     * @param $ramlDocPath
      */
-    public function __construct(Raml\DocParser $parser, $ramlDocPath)
+    public function __construct(
+        KernelInterface $kernel, Raml\DocParser $parser
+    )
     {
+        $ramlDocPath = $kernel->getRootDir() . self::RAML_DOC_PATH;
+
         if (!is_readable($ramlDocPath)) {
             throw new \RuntimeException(self::ERROR_PARAM_TYPE);
         }
 
-        // @todo Esta verificación debería estar en el DI.
         $this->ramlDoc = $parser->parse($ramlDocPath);
     }
 

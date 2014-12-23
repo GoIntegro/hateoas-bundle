@@ -33,14 +33,12 @@ services:
   hateoas.request_parser.filter:
     class: GoIntegro\Hateoas\JsonApi\Request\FilterParser
     public: false
-    arguments:
-      - @hateoas.metadata_miner
+    arguments: [@hateoas.metadata_miner]
 
   hateoas.request_parser.pagination:
     class: GoIntegro\Hateoas\JsonApi\Request\PaginationParser
     public: false
-    arguments:
-      - @hateoas.metadata_miner
+    arguments: [@hateoas.metadata_miner]
 
   hateoas.request_parser.body:
     class: GoIntegro\Hateoas\JsonApi\Request\BodyParser
@@ -256,9 +254,7 @@ services:
 
   hateoas.raml.navigator_factory:
     class: GoIntegro\Bundle\HateoasBundle\DependencyInjection\Factory\RamlNavigatorFactory
-    arguments:
-      - @hateoas.raml.parser
-      - %go_integro_hateoas.raml_doc%
+    arguments: [@kernel, @hateoas.raml.parser]
 
   hateoas.raml.navigator:
     class: GoIntegro\Raml\DocNavigator
