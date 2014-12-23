@@ -13,7 +13,7 @@ services:
       - @hateoas.config.resource_entity_map_cache
 
   hateoas.config.resource_entity_map_cache:
-    class: %hateoas.config.resource_entity_map_cache%
+    class: %hateoas.config.resource_entity_map_cache.class%
     arguments: [@kernel]
 
   hateoas.request_parser:
