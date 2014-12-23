@@ -41,7 +41,6 @@ services:
     public: false
     arguments:
       - @hateoas.metadata_miner
-      - %go_integro_hateoas.json_api%
 
   hateoas.request_parser.body:
     class: GoIntegro\Hateoas\JsonApi\Request\BodyParser
