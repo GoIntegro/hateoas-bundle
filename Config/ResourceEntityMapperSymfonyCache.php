@@ -56,7 +56,7 @@ class ResourceEntityMapperSymfonyCache implements ResourceEntityMapperCache
     {
         $code = var_export($map, TRUE);
         $code = "<?php return $code;";
-        $configCache->write($code);
+        $this->configCache->write($code);
 
         return $this;
     }
