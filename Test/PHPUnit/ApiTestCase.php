@@ -26,7 +26,8 @@ abstract class ApiTestCase extends WebTestCase
         /**
          * @see http://www.iana.org/assignments/media-types/application/vnd.api+json
          */
-        CONTENT_JSON_API = 'application/vnd.api+json';
+        CONTENT_JSON_API = 'application/vnd.api+json',
+        API_SERVER_SHELL = '/usr/bin/php5 -S %s:%s %s/config/router_%s.php > /dev/null 2>&1 & echo $!;';
 
     /**
      * @var array Los estados de respuesta HTTP y sus códigos.
@@ -56,10 +57,39 @@ abstract class ApiTestCase extends WebTestCase
      * @var \Doctrine\ORM\EntityManager
      */
     protected static $em;
+    
     /**
      * @var string
      */
     protected static $rootUrl;
+    
+    /** 
+     * @var string
+     */
+    protected static $serverHost;
+    
+    /**
+     *
+     * @var string
+     */
+    protected static $serverPort;
+    
+    /**
+     * @var string
+     */
+    protected static $environment = 'test';
+    
+    /**
+     * @var bool
+     */
+    protected static $debug = true;
+
+    /**
+     * @var string
+     */
+    protected $serverPid;
+    
+    
 
     /**
      * Prepara el entorno antes de la primer prueba.
@@ -67,13 +97,20 @@ abstract class ApiTestCase extends WebTestCase
     public static function setUpBeforeClass()
     {
         // Inicializamos el framework web.
-        static::$kernel = static::createKernel();
+       static::$kernel = static::createKernel(
+            array(
+            'environment' => static::$environment,
+            'debug'       => static::$debug
+        ));
         static::$kernel->boot();
         $container = static::$kernel->getContainer();
 
         // Obtenemos algunos servicios de uso común.
         static::$em = $container->get('doctrine')->getManager();
-        static::$rootUrl = $container->getParameter('api.base_url');
+        $testServerData = $container->getParameter('go_integro_hateoas.test_server');
+        static::$serverHost = $testServerData['host'];
+        static::$serverPort = $testServerData['port'];
+        static::$rootUrl = 'http://' . $testServerData['host'] . ':' . $testServerData['port'];
 
         if ($fixtures = static::getFixtures()) {
             $loader = new ContainerAwareLoader($container);
@@ -87,10 +124,14 @@ abstract class ApiTestCase extends WebTestCase
     /**
      * Prepara el entorno antes de cada prueba.
      */
+    /**
+     * Prepara el entorno antes de cada prueba.
+     */
     public function setUp()
     {
         parent::setUp();
         self::$kernel->boot();
+        $this->runServer();
     }
 
     /**
@@ -101,6 +142,15 @@ abstract class ApiTestCase extends WebTestCase
         //Purgamos la base de datos.
         $purger = new ORMPurger(static::$em);
         $purger->purge();
+    }
+
+    /**
+     * Limpia el kernel
+     */
+    protected function tearDown()
+    {
+        parent::tearDown();
+        $this->stopServer();
     }
 
     /**
@@ -263,5 +313,37 @@ abstract class ApiTestCase extends WebTestCase
         );
 
         return $wsseCredentials;
+    }
+    
+    /**
+     * Inicia el servidor de testing
+     * 
+     * @throws Exception
+     */
+    protected function runServer() 
+    {
+        $shell = sprintf(self::API_SERVER_SHELL, self::$serverHost, self::$serverPort, self::$kernel->getRootDir(), self::$environment);
+        //$shell = '/usr/bin/php5 -S '. self::API_SERVER_HOST . ':' . self::API_SERVER_PORT . ' ' . self::$kernel->getRootDir() . '/config/router_' . self::$environment . '.php > /dev/null 2>&1 & echo $!;' ;
+        $retry = 0;
+        
+        $pid = exec($shell);
+        do {
+            sleep(1);
+            $fp = fsockopen(self::$serverHost, self::$serverPort, $errno, $errstr);
+            $retry++;
+        } while (!$fp && $retry <= 4);
+
+        if(!$fp) {
+            throw new Exception('Cannot connect with server');
+        }
+        $this->serverPid = $pid;
+    }
+    
+    /**
+     * Detiene el servidor de testing
+     */
+    protected function stopServer()
+    {
+        exec("kill -9 {$this->serverPid}");
     }
 }

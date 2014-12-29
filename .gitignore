@@ -16,3 +16,4 @@ vendor/*
 
 # Example app db
 example/app/data/*
+/nbproject/*
