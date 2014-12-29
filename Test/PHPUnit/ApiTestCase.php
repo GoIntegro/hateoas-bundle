@@ -323,7 +323,6 @@ abstract class ApiTestCase extends WebTestCase
     protected function runServer() 
     {
         $shell = sprintf(self::API_SERVER_SHELL, self::$serverHost, self::$serverPort, self::$kernel->getRootDir(), self::$environment);
-        //$shell = '/usr/bin/php5 -S '. self::API_SERVER_HOST . ':' . self::API_SERVER_PORT . ' ' . self::$kernel->getRootDir() . '/config/router_' . self::$environment . '.php > /dev/null 2>&1 & echo $!;' ;
         $retry = 0;
         
         $pid = exec($shell);
