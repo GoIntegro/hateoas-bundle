@@ -27,7 +27,7 @@ abstract class ApiTestCase extends WebTestCase
          * @see http://www.iana.org/assignments/media-types/application/vnd.api+json
          */
         CONTENT_JSON_API = 'application/vnd.api+json',
-        API_SERVER_SHELL = '/usr/bin/php5 -S %s:%s %s/config/router_%s.php > /dev/null 2>&1 & echo $!;';
+        API_SERVER_SHELL = 'php -S %s:%s %s/config/router_%s.php > /dev/null 2>&1 & echo $!;';
 
     /**
      * @var array Los estados de respuesta HTTP y sus códigos.

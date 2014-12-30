@@ -1,12 +1,25 @@
 parameters:
   hateoas.resource_cache.class: GoIntegro\Hateoas\JsonApi\ArrayResourceCache
   hateoas.metadata_cache.class: GoIntegro\Hateoas\Metadata\Entity\ArrayMetadataCache
+  hateoas.config.resource_entity_map_cache.class: GoIntegro\Bundle\HateoasBundle\Config\ResourceEntityMapSymfonyCache
 
 services:
+  hateoas.config.resource_entity_mapper:
+    class: GoIntegro\Hateoas\Config\ResourceEntityMapper
+    arguments:
+      - @doctrine.orm.entity_manager
+      - @hateoas.metadata_cache
+      - @hateoas.raml.navigator
+      - @hateoas.config.resource_entity_map_cache
+
+  hateoas.config.resource_entity_map_cache:
+    class: %hateoas.config.resource_entity_map_cache.class%
+    arguments: [@kernel]
+
   hateoas.request_parser:
     class: GoIntegro\Hateoas\JsonApi\Request\Parser
     arguments:
-      # @todo Could we not just pass the request as a parameter?
+      - @hateoas.config.resource_entity_mapper
       - @hateoas.raml.navigator
       - @hateoas.request_parser.filter
       - @hateoas.request_parser.pagination
@@ -16,7 +29,6 @@ services:
       - @hateoas.request_parser.locale
       - @hateoas.metadata_miner
       - %api.url_path%
-      - %go_integro_hateoas.json_api%
 
   hateoas.request_parser.filter:
     class: GoIntegro\Hateoas\JsonApi\Request\FilterParser
@@ -29,7 +41,6 @@ services:
     public: false
     arguments:
       - @hateoas.metadata_miner
-      - %go_integro_hateoas.json_api%
 
   hateoas.request_parser.body:
     class: GoIntegro\Hateoas\JsonApi\Request\BodyParser
