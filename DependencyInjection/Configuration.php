@@ -30,10 +30,6 @@ class Configuration implements ConfigurationInterface
         // more information on that topic.
         $rootNode
             ->children()
-                ->scalarNode('raml_doc')
-                    ->isRequired()
-                    ->cannotBeEmpty()
-                ->end()
                 ->arrayNode('cache')
                     ->isRequired()
                     ->addDefaultsIfNotSet(TRUE)
