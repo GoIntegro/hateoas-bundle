@@ -1,0 +1,41 @@
+# Resource type definitions MUST NOT incorporate nested resources.
+- jsonApiResourceList:
+    usage: This should be used for a full JSON-API resource.
+    get:
+      description: Retrieves one or more <<resourcePathName>>.
+      is: [paginated]
+      responses:
+        200:
+    post:
+      description: Creates one or more <<resourcePathName>>.
+      responses:
+        201:
+- jsonApiResourceById:
+    get:
+      description: Retrieves one or more <<resourcePathName>>.
+      responses:
+        200:
+    put:
+      description: Updates one or more <<resourcePathName>>.
+      responses:
+        200:
+    delete:
+      description: Deletes one or more <<resourcePathName>>.
+- jsonApiRelationship:
+    get:
+      description: Retrieves one or more <<resourcePathName>>.
+      responses:
+        200:
+    post:
+      description: Creates one or more <<resourcePathName>>.
+      responses:
+        201:
+    put:
+      description: Updates one or more <<resourcePathName>>.
+      responses:
+        204:
+    delete:
+      description: Deletes all relationships of this type.
+- jsonApiRelationshipById:
+    delete:
+      description: Deletes one or more <<resourcePathName>>.
