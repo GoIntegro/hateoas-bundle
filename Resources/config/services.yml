@@ -250,11 +250,14 @@ services:
 
   hateoas.raml.parser:
     class: GoIntegro\Raml\DocParser
-    arguments: [@hateoas.raml.map_collection_parser]
+    arguments: [@hateoas.raml.map_collection_parser, @hateoas.raml.expander]
 
   hateoas.raml.map_collection_parser:
     class: GoIntegro\Raml\MapCollectionParser
     arguments: [@hateoas.json_coder]
+
+  hateoas.raml.expander:
+    class: GoIntegro\Raml\DocExpander
 
   hateoas.raml.navigator_factory:
     class: GoIntegro\Bundle\HateoasBundle\DependencyInjection\Factory\RamlNavigatorFactory
