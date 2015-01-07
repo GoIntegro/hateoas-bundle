@@ -21,9 +21,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "gointegro/hateoas": "dev-develop",
-        "gointegro/raml": "dev-develop",
-        "gointegro/json": "dev-master",
+        "gointegro/hateoas": "*",
         "symfony/framework-bundle": "*",
         "symfony/doctrine-bridge": "*",
         "doctrine/doctrine-bundle": "*",
@@ -39,7 +37,6 @@
         "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }
     },
     "target-dir": "GoIntegro/Bundle/HateoasBundle",
-    "minimum-stability": "stable",
     "prefer-stable": true,
     "extra": {
         "branch-alias": {
