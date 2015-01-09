@@ -1,46 +1,1 @@
-{
-    "name": "gointegro/hateoas-bundle",
-    "type": "symfony-bundle",
-    "description": "GOintegro HATEOAS Bundle",
-    "keywords": ["Doctrine", "HATEOAS", "REST", "API", "JSON-API"],
-    "homepage": "http://www.gointegro.com",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Javier Lorenzana",
-            "email": "javier.lorenzana@gointegro.com"
-        },
-        {
-            "name": "Adolfo Castro Menna",
-            "email": "adolfo.casto@gointegro.com"
-        },
-        {
-            "name": "GOintegro Devs",
-            "homepage": "http://www.gointegro.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.4.0",
-        "gointegro/hateoas": "*",
-        "symfony/framework-bundle": "*",
-        "symfony/doctrine-bridge": "*",
-        "doctrine/doctrine-bundle": "*",
-        "doctrine/orm": "*",
-        "symfony/monolog-bundle": "*"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "*",
-        "phpdocumentor/phpdocumentor": "*",
-        "codeception/codeception": "*"
-    },
-    "autoload": {
-        "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }
-    },
-    "target-dir": "GoIntegro/Bundle/HateoasBundle",
-    "prefer-stable": true,
-    "extra": {
-        "branch-alias": {
-            "dev-master": "0.9.x-dev"
-        }
-    }
-}
+{    "name": "gointegro/hateoas-bundle",    "type": "symfony-bundle",    "description": "GOintegro HATEOAS Bundle",    "keywords": ["Doctrine", "HATEOAS", "REST", "API", "JSON-API"],    "homepage": "http://www.gointegro.com",    "license": "MIT",    "authors": [        {            "name": "Javier Lorenzana",            "email": "javier.lorenzana@gointegro.com"        },        {            "name": "Adolfo Castro Menna",            "email": "adolfo.casto@gointegro.com"        },        {            "name": "GOintegro Devs",            "homepage": "http://www.gointegro.com"        }    ],    "require": {        "php": ">=5.4.0",        "gointegro/hateoas": "*",        "symfony/framework-bundle": "*",        "symfony/doctrine-bridge": "*",        "doctrine/doctrine-bundle": "*",        "doctrine/orm": "*",        "symfony/monolog-bundle": "*"    },    "require-dev": {        "phpunit/phpunit": "*",        "phpdocumentor/phpdocumentor": "*",        "codeception/codeception": "*"    },    "autoload": {        "psr-0": { "GoIntegro\\Bundle\\HateoasBundle": "" }    },    "target-dir": "GoIntegro/Bundle/HateoasBundle",    "extra": {        "branch-alias": {            "dev-master": "0.9.x-dev"        }    }}

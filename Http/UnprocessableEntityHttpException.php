@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /**
  * @todo Replace for the Symfony one once 2.7 becomes the new LTS release.
  */
-class RequestEntityTooLargeHttpException extends HttpException
+class UnprocessableEntityHttpException extends HttpException
 {
     /**
      * @param string $message The internal exception message.
@@ -26,6 +26,6 @@ class RequestEntityTooLargeHttpException extends HttpException
         $code = 0
     )
     {
-        parent::__construct(413, $message, $previous, [], $code);
+        parent::__construct(422, $message, $previous, [], $code);
     }
 }
