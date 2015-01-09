@@ -10,7 +10,7 @@ namespace GoIntegro\Bundle\HateoasBundle\Config;
 // Mocks.
 use Codeception\Util\Stub;
 
-class ResourceEntityMapSymfonyCacheTest extends \PHPUnit_Framework_TestCase
+class RamlDocSymfonyCacheTest extends \PHPUnit_Framework_TestCase
 {
     public function testCheckingFreshnessOfCache()
     {
@@ -19,7 +19,7 @@ class ResourceEntityMapSymfonyCacheTest extends \PHPUnit_Framework_TestCase
             'Symfony\\Component\\HttpKernel\\KernelInterface',
             ['isDebug' => TRUE]
         );
-        $cache = new ResourceEntityMapSymfonyCache($kernel);
+        $cache = new RamlDocSymfonyCache($kernel);
         // When...
         $isFresh = $cache->isFresh();
         // Then...
