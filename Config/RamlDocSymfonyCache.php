@@ -9,7 +9,8 @@ namespace GoIntegro\Bundle\HateoasBundle\Config;
 
 // Config.
 use Symfony\Component\Config\ConfigCache,
-    GoIntegro\Raml\Config\RamlDocCache;
+    GoIntegro\Raml\Config\RamlDocCache,
+    GoIntegro\Raml\RamlDoc;
 // Kernel.
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -49,12 +50,12 @@ class RamlDocSymfonyCache implements RamlDocCache
     }
 
     /**
-     * @return array $map
+     * @return RamlDoc $doc
      * @return self
      */
-    public function keep(array $map)
+    public function keep(RamlDoc $doc)
     {
-        $code = var_export($map, TRUE);
+        $code = var_export($doc, TRUE);
         $code = "<?php return $code;";
         $this->configCache->write($code);
 
