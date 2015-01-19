@@ -1,4 +1,10 @@
 <?php
+/**
+ * @copyright 2014 Integ S.A.
+ * @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ * @author Juan Jose Toledo <juan.jose.toledo@gointegro.com>
+ */
+
 namespace GoIntegro\Bundle\HateoasBundle\Util;
 use GoIntegro\Hateoas\Http\Client;
 
