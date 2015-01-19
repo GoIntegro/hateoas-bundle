@@ -17,6 +17,8 @@ use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader,
 use JsonSchema\Validator,
     GoIntegro\Hateoas\Http\Client;
 
+use GoIntegro\Bundle\HateoasBundle\Util\HttpClientUtil;
+
 abstract class ApiTestCase extends WebTestCase
 {
     const FAIL_RESPONSE_STATUS_PATTERN = "Failed asserting that the status code %s (\"%s)\" matches the expected %s (\"%s\").",
@@ -224,19 +226,12 @@ abstract class ApiTestCase extends WebTestCase
         $language = self::HEADER_LOCALE
     )
     {
-        $client = new Client($url);
-        $client->setHead([
-            'Accept: ' . $contentType,
-            'Accept-Language: ' . $language,
-            'Content-Type: application/vnd.api+json'
-        ]);
-
-        if (is_scalar($username) && is_scalar($password)) {
-            $client->setOptions([CURLOPT_HTTPAUTH, CURLAUTH_ANY]);
-            $client->setOption(CURLOPT_USERPWD, $username . ':' . $password);
-        }
-
-        return $client;
+        return HttpClientUtil::buildHttpClient(
+            $url, 
+            $username,
+            $password,
+            $contentType,
+            $language);
     }
 
     /**
@@ -247,21 +242,6 @@ abstract class ApiTestCase extends WebTestCase
      */
     protected function buildWsseHeader($username, $password)
     {
-        $nonce = mt_rand();
-        $date = new \DateTime();
-        $createdAt = $date->format("c");
-        $passwordDigest = base64_encode(sha1(
-            base64_decode($nonce) . $createdAt . $password,
-            TRUE
-        ));
-        $wsseCredentials = sprintf(
-            static::WSSE_CREDENTIALS_PATTERN,
-            $username,
-            $passwordDigest,
-            $nonce,
-            $createdAt
-        );
-
-        return $wsseCredentials;
+        return HttpClientUtil::buildWsseHeader($username, $password);
     }
 }
