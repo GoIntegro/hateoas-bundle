@@ -23,6 +23,7 @@ services:
       - @hateoas.config.resource_entity_mapper
       - @hateoas.raml.navigator
       - @hateoas.request_parser.filter
+      - @hateoas.request_parser.sorting
       - @hateoas.request_parser.pagination
       - @hateoas.request_parser.body
       - @hateoas.request_parser.action
@@ -33,6 +34,11 @@ services:
 
   hateoas.request_parser.filter:
     class: GoIntegro\Hateoas\JsonApi\Request\FilterParser
+    public: false
+    arguments: [@hateoas.metadata_miner]
+
+  hateoas.request_parser.sorting:
+    class: GoIntegro\Hateoas\JsonApi\Request\SortingParser
     public: false
     arguments: [@hateoas.metadata_miner]
 
@@ -145,6 +151,12 @@ services:
     public: false
     tags:
       - { name: hateoas.repo_helper.filter }
+
+  hateoas.repo_helper.default_sorting:
+    class: GoIntegro\Hateoas\JsonApi\Request\DefaultSorting
+    public: false
+    tags:
+      - { name: hateoas.repo_helper.sorting }
 
   hateoas.document_blender:
     class: GoIntegro\Hateoas\JsonApi\Merge\Blender
