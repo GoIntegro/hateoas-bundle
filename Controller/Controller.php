@@ -38,6 +38,7 @@ abstract class Controller extends SymfonyController
 
         $resources = $this->get('hateoas.resource_manager')
             ->createCollectionFactory()
+	    ->setParams($params)
             ->setPaginator($entities->getPaginator())
             ->create();
 
