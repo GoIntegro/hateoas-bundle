@@ -47,10 +47,10 @@ class RamlNavigatorFactory
      */
     public function createNavigator(JsonCoder $jsonCoder)
     {
-        $ramlDocPath = $this->kernel->getRootDir() . self::RAML_DOC_PATH;
+        $ramlDocPath = $this->kernel->getRootDir() . static::RAML_DOC_PATH;
 
         if (!is_readable($ramlDocPath)) {
-            throw new \RuntimeException(self::ERROR_PARAM_TYPE);
+            throw new \RuntimeException(static::ERROR_PARAM_TYPE);
         }
 
         $ramlDoc = $this->parser->parse($ramlDocPath);
