@@ -11,7 +11,8 @@ namespace GoIntegro\Bundle\HateoasBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController,
     Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 // Colecciones.
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Collection,
+    Doctrine\Common\Collections\ArrayCollection;
 // HTTP.
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
@@ -210,7 +211,8 @@ class MagicFetchController extends SymfonyController
             throw new DocumentTooLargeHttpException($e->getMessage(), $e);
         }
 
-        $resources = 0 === count($params->entities->primary)
+        $resources = (0 === count($params->entities->primary) || 
+                $params->entities->primary instanceof ArrayCollection)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)

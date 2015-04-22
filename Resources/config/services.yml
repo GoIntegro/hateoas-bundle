@@ -12,6 +12,13 @@ services:
       - @hateoas.metadata_cache
       - @hateoas.raml.navigator
       - @hateoas.config.resource_entity_map_cache
+      - @hateoas.config.resources
+
+  hateoas.config.resources:
+      class: GoIntegro\Hateoas\Config\Resources
+      public: false
+      arguments: 
+        - %go_integro_hateoas.resources%
 
   hateoas.config.resource_entity_map_cache:
     class: %hateoas.config.resource_entity_map_cache.class%
