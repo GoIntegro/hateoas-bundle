@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller as SymfonyController,
     Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 // Colecciones.
 use Doctrine\Common\Collections\Collection,
-    Doctrine\Common\Collections\ArrayCollection;
+    GoIntegro\Hateoas\Collections\PaginatedCollection;
 // HTTP.
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException,
     Symfony\Component\HttpKernel\Exception\BadRequestHttpException,
@@ -212,7 +212,7 @@ class MagicFetchController extends SymfonyController
         }
 
         $resources = (0 === count($params->entities->primary) || 
-                $params->entities->primary instanceof ArrayCollection)
+                !$params->entities->primary instanceof PaginatedCollection)
             ? $this->get('hateoas.resource_manager')
                 ->createCollectionFactory()
                 ->setParams($params)
@@ -222,7 +222,7 @@ class MagicFetchController extends SymfonyController
                 ->createCollectionFactory()
                 ->setPaginator($params->entities->primary->getPaginator())
                 ->create();
-
+        
         $document = $this->get('hateoas.resource_manager')
             ->createDocumentFactory()
             ->setParams($params)
