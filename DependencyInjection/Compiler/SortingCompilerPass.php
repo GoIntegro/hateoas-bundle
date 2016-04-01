@@ -23,7 +23,9 @@ class SortingCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition(self::SERVICE_NAME)) continue;
+        if (!$container->hasDefinition(self::SERVICE_NAME)) {
+            return;
+        }
 
         $definition = $container->getDefinition(self::SERVICE_NAME);
         $taggedServices = $container->findTaggedServiceIds(self::TAG_NAME);

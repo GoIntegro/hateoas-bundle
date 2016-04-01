@@ -23,7 +23,9 @@ class LocaleCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition(self::LOCALE_PARSER_SERVICE)) continue;
+        if (!$container->hasDefinition(self::LOCALE_PARSER_SERVICE))  {
+            return;
+        }
 
         $definition = $container->getDefinition(self::LOCALE_PARSER_SERVICE);
         $taggedServices = $container->findTaggedServiceIds(self::TAG_NAME);
